@@ -20,6 +20,7 @@ private:
 	RenderModel * box;
 	RenderModel *rm;
 	SmokeEffect* smoking;
-	PushAwayEffect* pae;
+	bool fogging;
+	bool startedFogging;
 };
 

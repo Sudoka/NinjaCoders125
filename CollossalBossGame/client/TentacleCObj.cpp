@@ -7,17 +7,15 @@ TentacleCObj::TentacleCObj(uint id, char *data) : ClientObject(id, OBJ_TENTACLE)
 	if (COM::get()->debugFlag) DC::get()->print("Created new TentacleCObj %d\n", id);
 	TentacleState *state = (TentacleState*)data;
 	rm = new RenderModel(Point_t(), Quat_t(), state->modelNum);
-	//smoking = new SmokeEffect();
-	//RE::get()->addParticleEffect(smoking);
-	//pae = new PushAwayEffect();
-	//RE::get()->addParticleEffect(pae);
-
+	smoking = new SmokeEffect();
+	RE::get()->addParticleEffect(smoking);
+	startedFogging = false;
+	fogging = false;
 }
 
 TentacleCObj::~TentacleCObj(void)
 {
-//	delete smoking;
-//	delete pae;
+	RE::get()->removeParticleEffect(smoking);
 	delete rm;
 }
 
@@ -28,24 +26,39 @@ RenderModel* TentacleCObj::getBox() {
 }
 
 bool TentacleCObj::update() {
-	//static float density = .000002;
-	//static float densityCounter = .000002;
-	//smoking->setPosition(this->rm->getFrameOfRef()->getPos());
-	//smoking->update(.33);
-	//RE::get()->startFog(density);
-	//if(density != 0) densityCounter+=.000002;
-	//if(densityCounter < .001) density+=.000002;
-	//if(densityCounter >= .001) density-=.000004;
-	//if(densityCounter == .000002) density = 0;
-//	pae->update(.33);
-//	pae->setPosition(rm->getFrameOfRef()->getPos());
+	if(fogging || startedFogging)
+	{
+		startedFogging = true;
+		static float density = 0.f;
+		static float densityCounter = 0.f;
+		float change = .00002;
+		if(densityCounter < .01)
+		{
+			smoking->setPosition(rm->getFrameOfRef()->getPos());
+			smoking->update(.33); 
+			density += change;
+			RE::get()->startFog(density);
+		}
+		else
+		{
+			RE::get()->stopFog(density);
+			density -= 2*change;
+			if(density <= 0) 
+			{
+				smoking->kill();
+				density = 0;
+				startedFogging = false;
+			}
+		}
+		densityCounter += change;
+	}
 	return false;
 }
 
 void TentacleCObj::deserialize(char* newState) {
 	TentacleState *state = (TentacleState*)newState;
 	this->getRenderModel()->setModelState(state->animationState);
-
+	//this->fogging = state->isFogging;
 	if (COM::get()->collisionMode)
 	{
 		CollisionState *collState = (CollisionState*)(newState + sizeof(TentacleState));

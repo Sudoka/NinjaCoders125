@@ -169,7 +169,7 @@ bool TentacleSObj::update() {
 
 	// for testing todo remove
 
-	actionState = RAGE_ACTION;
+	//actionState = RAGE_ACTION;
 
 	///////////////////// State logic ///////////////////////
 

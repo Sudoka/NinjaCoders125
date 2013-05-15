@@ -167,10 +167,16 @@ void RenderEngine::renderInitalization()
 
 void RenderEngine::startFog(float density)
 {
-	direct3dDevice->SetRenderState(D3DRS_FOGCOLOR, D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+	direct3dDevice->SetRenderState(D3DRS_FOGCOLOR, D3DXCOLOR(0.0f,0.0f,0.0f,1.0f));
 	direct3dDevice->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_EXP2 );
 	direct3dDevice->SetRenderState(D3DRS_FOGDENSITY, *(DWORD *)(&density));
 	direct3dDevice->SetRenderState(D3DRS_RANGEFOGENABLE, TRUE);
+}
+
+void RenderEngine::stopFog(float density)
+{
+	if(density == 0) direct3dDevice->SetRenderState(D3DRS_RANGEFOGENABLE, false);
+	else direct3dDevice->SetRenderState(D3DRS_FOGDENSITY, *(DWORD *)(&density));
 }
 
 /**
