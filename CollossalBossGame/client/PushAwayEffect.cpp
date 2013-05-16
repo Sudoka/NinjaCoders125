@@ -8,7 +8,7 @@ PushAwayEffect::PushAwayEffect(void)
 	vbBatchSize = 512;
 	pointSize = 12.5f;
 	filename = "res/spiky.jpg";
-	for(int i =0; i< 512; i++) addParticle();
+	for(int i =0; i< 128; i++) addParticle();
 }
 
 

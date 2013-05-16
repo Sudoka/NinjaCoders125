@@ -98,8 +98,9 @@ bool MonsterSObj::update() {
 	}
 
 	// Decide if we want our tentacles to fog
-	const int fogProb = 10; // todo config maybe
-	bool fogging = (rand() % 100) < fogProb;
+	const int fogProb = 5; // todo config maybe
+	int x = rand() % 1000;
+	bool fogging = x < fogProb;
 	for (set<TentacleSObj*>::iterator it = tentacles.begin();
 			it != tentacles.end();
 			++it) {

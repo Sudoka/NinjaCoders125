@@ -51,5 +51,6 @@ public:
 	DWORD vbOffset;
 	DWORD vbBatchSize;
 	const char* filename;
+	bool fogging;
 };
 
