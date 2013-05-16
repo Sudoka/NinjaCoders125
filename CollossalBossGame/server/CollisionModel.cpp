@@ -54,7 +54,8 @@ HMapElement::HMapElement(HMap *hmap, const Vec3f &offset, DIRECTION normalDir) {
 void HMapElement::init(HMap *hmap, const Vec3f &offset, DIRECTION normalDir) {
 	this->hmap = hmap;
 	float max = hmap->getMax();
-	this->bxTotalVolume = Box(offset.x, offset.y, offset.z, (float)hmap->getWidth(), max, (float)hmap->getLength());
+	this->bxTotalVolume = Box(offset.x, offset.y, offset.z,
+		(float)hmap->getWidth() * hmap->getUnitLength(), max, (float)hmap->getLength() * hmap->getUnitLength());
 }
 
 HMapElement::~HMapElement() {
@@ -75,7 +76,7 @@ bool areColliding(const Box &bx1, const Box &bx2) {
 			 bx1.z > bx2.z + bx2.l);
 }
 
-bool pointOnHMapCollision(const Point_t &pt, const Point_t &hmapPos, const HMapElement &hmap) {
+bool pointOnHMapCollision(float *hdiff, const Point_t &pt, const Point_t &hmapPos, const HMapElement &hmap) {
 	//Transform point so it is relative to the hmap top-left corner
 	float x = (pt.x - (hmapPos.x + hmap.bxTotalVolume.x)) / hmap.hmap->getUnitLength(),
 		  y = (pt.y - (hmapPos.y + hmap.bxTotalVolume.y)),	//Don't normalize the height
@@ -113,15 +114,20 @@ bool pointOnHMapCollision(const Point_t &pt, const Point_t &hmapPos, const HMapE
 	// and height difference as well.
 
 	//Equation of a plane: norm * (pt - ptOnPlane), except using adjusted pt values.
-	float hdiff = ptOnPlane.y - (norm.x * (x - ptOnPlane.x) + norm.z * (z - ptOnPlane.z)) / norm.y	//height of the hmap at the current position
+	*hdiff = ptOnPlane.y - (norm.x * (x - ptOnPlane.x) + norm.z * (z - ptOnPlane.z)) / norm.y	//height of the hmap at the current position
 		- y;	//The current player's y-position, translated so it is relative the hmap's topleft-most corner
-	return hdiff >= 0;	//hdiff is the amount of shift that needs to happen to move the object out of the heightmap.
+	return *hdiff >= 0;	//hdiff is the amount of shift that needs to happen to move the object out of the heightmap.
 }
 
-bool areColliding(const Box &bx1, const Point_t &hmapCenter, const HMapElement &hmap) {
-	if(areColliding(bx1, hmap.bxTotalVolume)) {
+bool areColliding(float *hdiff, const Box &bx, const Point_t &hmapCenter, const HMapElement &hmap) {
+	return pointOnHMapCollision(hdiff, Point_t(bx.x + bx.w / 2, bx.y, bx.z + bx.l / 2), hmapCenter, hmap);
+	/*
+	if(areColliding(bx1, hmap.bxTotalVolume + hmapCenter)) {
+		//TODO: Replace with a call to the pointOnHMap function
+		return true;
 	}
 	return false;
+	*/
 }
 
 /*
@@ -152,49 +158,13 @@ void getCollisionInfo(Vec3f *shift, DIRECTION *collDir, const Box &bx1, const Bo
         //Shift by X
 		shift->x = fXShift;
 		*collDir = fXShift < 0 ? WEST : EAST;
-#if 0
-		//Stop the lower object from falling
-        if( ((gravDir == WEST) && (bx2.x + obj2Shift.x > bx1.x + obj1Shift.x)) ||
-			((gravDir == EAST) && (bx2.x + obj2Shift.x < bx1.x + obj1Shift.x)) ) {
-            obj2->setFlag(IS_FALLING, false);
-			obj2->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-        } else if( ((gravDir == WEST) && (bx1.x + obj1Shift.x > bx2.x + obj2Shift.x)) ||
-				   ((gravDir == EAST) && (bx1.x + obj1Shift.x < bx2.x + obj2Shift.x)) ) {
-			obj1->setFlag(IS_FALLING, false);
-			obj1->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-		}
-#endif
     } else if(fabs(fYShift) < fabs(fXShift) && fabs(fYShift) < fabs(fZShift)) {
         //Shift by Y (vertical)
 		shift->y = fYShift;
 		*collDir = fYShift < 0 ? DOWN : UP;
-#if 0
-		//Stop the lower object from falling
-        if( ((gravDir == DOWN) && (bx2.y + obj2Shift.y > bx1.y + obj1Shift.y)) ||
-			((gravDir == UP)   && (bx2.y + obj2Shift.y < bx1.y + obj1Shift.y)) ) {
-            obj2->setFlag(IS_FALLING, false);
-			obj2->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-        } else if( ((gravDir == DOWN) && (bx1.y + obj1Shift.y > bx2.y + obj2Shift.y)) ||
-				   ((gravDir == UP)   && (bx1.y + obj1Shift.y < bx2.y + obj2Shift.y)) ) {
-			obj1->setFlag(IS_FALLING, false);
-			obj1->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-		}
-#endif
     } else {
         //Shift by Z
 		shift->z = fZShift;
 		*collDir = fZShift < 0 ? SOUTH : NORTH;
-#if 0
-		//Stop the lower object from falling
-        if( ((gravDir == SOUTH) && (bx2.z + obj2Shift.z > bx1.z + obj1Shift.z)) ||
-			((gravDir == NORTH) && (bx2.z + obj2Shift.z < bx1.z + obj1Shift.z)) ) {
-            obj2->setFlag(IS_FALLING, false);
-			obj2->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-        } else if( ((gravDir == SOUTH) && (bx1.z + obj1Shift.z > bx2.z + obj2Shift.z)) ||
-				   ((gravDir == NORTH) && (bx1.z + obj1Shift.z < bx2.z + obj2Shift.z)) ) {
-			obj1->setFlag(IS_FALLING, false);
-			obj1->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-		}
-#endif
 	}
 }

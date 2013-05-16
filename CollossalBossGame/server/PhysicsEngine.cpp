@@ -84,57 +84,6 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	return true;	//We'll add a detection for has-moved later
 }
 
-#if 0
-void PhysicsEngine::applyPhysics(ServerObject *obj1, ServerObject *obj2)
-{
-	PhysicsModel *mdl1 = obj1->getPhysicsModel(),
-				 *mdl2 = obj2->getPhysicsModel();
-	if(mdl1 == NULL || mdl2 == NULL) {
-		return;
-	}
-
-	// go through all the boxes of obj1
-	vector<CollisionElement*>::iterator it1, it2;
-	Box bx1, bx2;
-	DIRECTION dir;
-	Vec3f shift, shift1, shift2;
-	for(it1 = obj1->getCollisionModel()->getStart(); it1 != obj1->getCollisionModel()->getEnd(); ++it1) {
-		// go through all the boxes of obj
-#if 1
-		if((obj1->getFlag(IS_PASSABLE) || obj2->getFlag(IS_PASSABLE)) ||
-				(obj1->getFlag(IS_STATIC) && obj2->getFlag(IS_STATIC))) {
-			obj1->onCollision(obj2, Vec3f());
-			obj2->onCollision(obj1, Vec3f());
-			continue;
-		}
-		handleCollision(obj1, obj2, (AabbElement*)(*it1));
-#else
-				//Passable objects or static pairs cannot be collided with
-			if((obj1->getFlag(IS_PASSABLE) || obj2->getFlag(IS_PASSABLE)) ||
-					(obj1->getFlag(IS_STATIC) && obj2->getFlag(IS_STATIC))) {
-				obj1->onCollision(obj2, Vec3f());
-				obj2->onCollision(obj1, Vec3f());
-				continue;
-			}
-
-		for(it2 = obj2->getCollisionModel()->getStart(); it2 != obj2->getCollisionModel()->getEnd(); ++it2)
-		{
-			//applyPhysics(obj1, obj2, *box1, *box2);
-			bx1 = ((AabbElement*)(*it1))->bx + mdl1->ref->getPos();
-			bx2 = ((AabbElement*)(*it2))->bx + mdl2->ref->getPos();
-
-			//Check for collision
-			if(areColliding(bx1,bx2)) {
-				getCollisionInfo(&shift, &dir, bx1, bx2);
-				handleCollision(obj1, obj2, shift, dir);
-			}
-
-		}
-#endif
-	}
-}
-#else
-
 void PhysicsEngine::applyPhysics(ServerObject *obj1, ServerObject *obj2) {
 	CollisionModel *cmdl1 = obj1->getCollisionModel();
 	if( obj1->getPhysicsModel() == NULL ||
@@ -165,7 +114,6 @@ void PhysicsEngine::applyPhysics(ServerObject *obj1, ServerObject *obj2) {
 		}
 	}
 }
-#endif
 
 
 void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, AabbElement *el) {
@@ -177,6 +125,8 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, Aabb
 
 	
 	Box bx1 = el->bx + obj1->getPhysicsModel()->ref->getPos(), bx2;
+	Point_t pos;
+	float hdiff;
 
 	//AABBs can collide with anything
 	for(cur = cmdl2->getStart(); cur < cmdl2->getEnd(); ++cur) {
@@ -189,7 +139,15 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, Aabb
 			}
 			break;
 		case CMDL_HMAP:
-			DC::get()->print("TODO: Implement this!\n");
+			bx2 = ((HMapElement*)(*cur))->bxTotalVolume;
+			pos = obj2->getPhysicsModel()->ref->getPos();
+			if(areColliding(&hdiff, bx1, pos, *(HMapElement*)(*cur))) {
+				//TODO: Replace with appropriate collision code!
+				//getCollisionInfo(&shift, &dir, bx1, bx2 + pos);
+				shift = Vec3f(0, hdiff, 0);
+				dir = UP;
+				handleCollision(obj1, obj2, shift, dir);
+			}
 			break;
 		default:
 			//Unrecognized collision type
@@ -200,6 +158,36 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, Aabb
 
 void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, HMapElement *el) {
 	//el is always from obj1
+	DIRECTION dir;
+	Vec3f shift;
+	CollisionModel *cmdl2 = obj2->getCollisionModel();
+	vector<CollisionElement*>::iterator cur, end = cmdl2->getEnd();
+	
+	Box bx;
+	Point_t pos = obj1->getPhysicsModel()->ref->getPos();
+	float hdiff;
+
+	//AABBs can collide with anything
+	for(cur = cmdl2->getStart(); cur < cmdl2->getEnd(); ++cur) {
+		switch((*cur)->getType()) {
+		case CMDL_AABB:
+			bx = ((AabbElement*)(*cur))->bx + obj2->getPhysicsModel()->ref->getPos();
+			if(areColliding(&hdiff, bx, pos, *el)) {
+				//TODO: Replace with appropriate collision code!
+				//getCollisionInfo(&shift, &dir, el->bxTotalVolume + pos, bx);
+				shift = Vec3f(0, -hdiff, 0);
+				dir = DOWN;
+				handleCollision(obj1, obj2, shift, dir);
+			}
+			break;
+		case CMDL_HMAP:
+			DC::get()->print("WARNING: HMap on HMap collision- skipping\n");
+			break;
+		default:
+			//Unrecognized collision type
+			break;
+		}
+	}
 }
 
 
