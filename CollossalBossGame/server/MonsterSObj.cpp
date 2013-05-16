@@ -39,19 +39,19 @@ void MonsterSObj::removeTentacle(TentacleSObj* t)
 	tentacles.erase(t); 
 	Frame* fr = t->getPhysicsModel()->ref; 
 	//availablePlacements[fr->getPos()] = fr->getRot(); 
-	availablePlacements.push_back(pair<Point_t, Quat_t>(fr->getPos(), fr->getRot()));
+	availablePlacements.push_back(*fr);
 }
 
 /**
  * This is what tentacles call when they want to change their position
  */
-pair<Point_t, Quat_t> MonsterSObj::updatePosition(pair<Point_t, Quat_t> oldPos) {
+Frame MonsterSObj::updatePosition(Frame oldPos) {
 	// Make sure we actually have positions
 	assert(availablePlacements.size() > 0 && "You ran out of positions for your tentacles!");
 
 	// Now pick one at random
 	int index = rand() % availablePlacements.size();
-	pair<Point_t, Quat_t> result = availablePlacements[index];
+	Frame result = availablePlacements[index];
 	availablePlacements[index] = oldPos;
 
 	return result;
@@ -99,18 +99,18 @@ bool MonsterSObj::update() {
 		for (uint i=0; i<numParts; i++)
 		{
 			// pick the random position
-			pair<Point_t, Quat_t> currPlace = availablePlacements.back();
+			Frame currPlace = availablePlacements.back();
 			availablePlacements.pop_back();
 
 			TentacleSObj * newTentacle;
 			switch (phase)
 			{
 			case 0:
-				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.first, currPlace.second, this);
+				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			case 1:
 				// todo heads
-				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.first, currPlace.second, this);
+				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			default: // you beat all the phases!
 				GameServer::get()->event_monster_death();

@@ -29,7 +29,7 @@ public:
 	void addTentacle(TentacleSObj* t) { tentacles.insert(t); }
 	void removeTentacle(TentacleSObj* t);
 
-	pair<Point_t, Quat_t> updatePosition(pair<Point_t, Quat_t> oldPos);
+	Frame updatePosition(Frame oldPos);
 
 	char serialbuffer[100];
 
@@ -39,7 +39,7 @@ private:
 	int phase; // what phase of the monster you're in
 
 	set<TentacleSObj*> tentacles;
-	vector<pair<Point_t, Quat_t>> availablePlacements;
+	vector<Frame> availablePlacements;
 	//vector<Point_t> placements;
 	uint numParts;
 	//TentacleState state;

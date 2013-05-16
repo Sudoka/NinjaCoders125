@@ -99,37 +99,50 @@ bool TentacleSObj::update() {
 		{
 			int angryProb = attacked ? 85 : 60;
 		
-			// we're attacking!
+			// we're angry!
 			if ((rand() % 100) < angryProb) 
 			{
-				this->setFlag(IS_HARMFUL, 1);
+				// fight or flight?
+				int moveProb = 15;
 
-				playerAngle = this->angleToNearestPlayer();
-				bool playerNear = playerAngle != -1.f;
-
-				int targetAttackProb = playerNear ? 90 : 25;
-
-				// targetted attack
-				if ((rand() % 100) < targetAttackProb)
+				// Flight!
+				if ((rand() % 100) < moveProb)
 				{
-					// if we got here without a real target, just set a default
-					// for now anyway
-					if (playerAngle == -1.f) playerAngle = 0.f;
-
-					// randomly pick between shoot and slam
-					// maybe this will depend on if you're a tentacle or a head
-					if (rand() % 2) { actionState = SLAM_ACTION; }
-					else { actionState = SHOOT_ACTION; }
+					this->setFlag(IS_HARMFUL, 0);
+					actionState = MOVE_ACTION;
 				}
-				// non-targetted attack
+				// Fight!!
 				else
 				{
-					// randomly pick between slam combo, spike, and defense rage
-					switch(rand() % 3)
+					this->setFlag(IS_HARMFUL, 1);
+
+					playerAngle = this->angleToNearestPlayer();
+					bool playerNear = playerAngle != -1.f;
+
+					int targetAttackProb = playerNear ? 90 : 25;
+
+					// targetted attack
+					if ((rand() % 100) < targetAttackProb)
 					{
-					case 0:		actionState = COMBO_ACTION; break;
-					case 1:		actionState = SPIKE_ACTION; break;
-					default:	actionState = RAGE_ACTION; break;
+						// if we got here without a real target, just set a default
+						// for now anyway
+						if (playerAngle == -1.f) playerAngle = 0.f;
+
+						// randomly pick between shoot and slam
+						// maybe this will depend on if you're a tentacle or a head
+						if (rand() % 2) { actionState = SLAM_ACTION; }
+						else { actionState = SHOOT_ACTION; }
+					}
+					// non-targetted attack
+					else
+					{
+						// randomly pick between slam combo, spike, and defense rage
+						switch(rand() % 3)
+						{
+						case 0:		actionState = COMBO_ACTION; break;
+						case 1:		actionState = SPIKE_ACTION; break;
+						default:	actionState = RAGE_ACTION; break;
+						}
 					}
 				}
 			}
@@ -180,7 +193,7 @@ bool TentacleSObj::update() {
 
 	///////////////////// State logic ///////////////////////
 
-	//actionState = SLAM_ACTION;
+	// actionState = MOVE_ACTION;
 
 	switch(actionState)
 	{
@@ -234,13 +247,18 @@ void TentacleSObj::move() {
 	// Switch positions
 	else if (stateCounter == 16)
 	{
-		
+		Frame* currFrame = this->getPhysicsModel()->ref;
+		Frame newFrame = this->overlord->updatePosition(*currFrame);
+		currFrame->setPos(newFrame.getPos());
+		currFrame->setRot(newFrame.getRot());
 	}
 	// Wriggle back in
 	else
 	{
 		modelAnimationState = T_ENTER;
 	}
+
+	currStateDone = (stateCounter == 33);
 }
 
 void TentacleSObj::idle() {
