@@ -168,6 +168,7 @@ void RenderEngine::renderInitalization()
 
 void RenderEngine::startFog(float density)
 {
+	fogging = true;
 	direct3dDevice->SetRenderState(D3DRS_FOGENABLE, TRUE);
 	direct3dDevice->SetRenderState(D3DRS_FOGCOLOR, D3DXCOLOR(0.0f,0.0f,0.0f,1.0f));
 	direct3dDevice->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_EXP2 );
@@ -177,7 +178,11 @@ void RenderEngine::startFog(float density)
 
 void RenderEngine::stopFog(float density)
 {
-	if(density == 0) direct3dDevice->SetRenderState(D3DRS_FOGENABLE, false);
+	if(density <= 0) 
+	{
+		direct3dDevice->SetRenderState(D3DRS_FOGENABLE, false);
+		fogging = false;
+	}
 	else
 	{
 		startFog(density);
@@ -214,6 +219,7 @@ RenderEngine::RenderEngine() {
 	monsterHUDText = "DEFAULT";
 
 	this->gamestarted = false;
+	this->fogging = false;
 }
 
 
@@ -272,7 +278,7 @@ void RenderEngine::render() {
 	direct3dDevice->BeginScene(); // begins the 3D scene
 
 	gamestartdisplaylogic();
-	hud->displayBackground();
+	if(!fogging) hud->displayBackground();
 	sceneDrawing();
 	for(list<ParticleSystem *>::iterator it = particleSystems.begin();
 			it != particleSystems.end();
