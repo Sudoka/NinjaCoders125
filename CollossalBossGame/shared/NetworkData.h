@@ -177,6 +177,7 @@ struct MonsterState {
 struct TentacleState {
 	Model modelNum;
 	int animationState;
+	bool fog;
 };
 
 enum TentacleActionState {

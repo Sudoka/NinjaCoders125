@@ -16,21 +16,6 @@ SmokeEffect::~SmokeEffect(void)
 {
 }
 
-void SmokeEffect::preRender(LPDIRECT3DDEVICE9 direct3dDevice)
-{
-	ParticleSystem::preRender(direct3dDevice);
-   	direct3dDevice->SetRenderState(D3DRS_FOGENABLE, false);
-	//direct3dDevice->SetRenderState(D3DRS_RANGEFOGENABLE, TRUE);
-}
-
-void SmokeEffect::postRender(LPDIRECT3DDEVICE9 direct3dDevice)
-{
-	ParticleSystem::postRender(direct3dDevice);
-	direct3dDevice->SetRenderState( D3DRS_FOGENABLE, true);
-}
-
-
-
 void SmokeEffect::resetParticle(ParticleAttributes* a)
 {
 	a->isAlive = true;
@@ -63,4 +48,7 @@ void SmokeEffect::update(float timeDelta)
 void SmokeEffect::setPosition(Vec3f pos)
 {
 	this->pos = D3DXVECTOR3(pos.x, pos.y, pos.z);
+	if(particles.size() == 0)
+		for(int i =0; i< 512; i++) addParticle();
+
 }

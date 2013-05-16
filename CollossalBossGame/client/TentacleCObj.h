@@ -22,5 +22,7 @@ private:
 	SmokeEffect* smoking;
 	bool fogging;
 	bool startedFogging;
+	float density;
+	float densityCounter;
 };
 

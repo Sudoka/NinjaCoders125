@@ -11,6 +11,8 @@ TentacleCObj::TentacleCObj(uint id, char *data) : ClientObject(id, OBJ_TENTACLE)
 	RE::get()->addParticleEffect(smoking);
 	startedFogging = false;
 	fogging = false;
+	density = 0.f;
+	densityCounter = 0.f;
 }
 
 TentacleCObj::~TentacleCObj(void)
@@ -28,26 +30,32 @@ RenderModel* TentacleCObj::getBox() {
 bool TentacleCObj::update() {
 	if(fogging || startedFogging)
 	{
+		smoking->fogging = true;
 		startedFogging = true;
-		static float density = 0.f;
-		static float densityCounter = 0.f;
+
 		float change = .00002;
 		if(densityCounter < .01)
 		{
+			RE::get()->startFog(density);
 			smoking->setPosition(rm->getFrameOfRef()->getPos());
 			smoking->update(.33); 
 			density += change;
-			RE::get()->startFog(density);
 		}
 		else
 		{
-			RE::get()->stopFog(density);
-			density -= 2*change;
-			if(density <= 0) 
+			if(density <= .00002) 
 			{
 				smoking->kill();
 				density = 0;
 				startedFogging = false;
+				densityCounter = 0.f;
+				change = 0.f;
+				smoking->fogging = false;
+			}
+			else
+			{
+				density -= 2*change;
+				RE::get()->stopFog(density);
 			}
 		}
 		densityCounter += change;
@@ -58,7 +66,7 @@ bool TentacleCObj::update() {
 void TentacleCObj::deserialize(char* newState) {
 	TentacleState *state = (TentacleState*)newState;
 	this->getRenderModel()->setModelState(state->animationState);
-	//this->fogging = state->isFogging;
+	this->fogging = state->fog;
 	if (COM::get()->collisionMode)
 	{
 		CollisionState *collState = (CollisionState*)(newState + sizeof(TentacleState));

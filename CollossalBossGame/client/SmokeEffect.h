@@ -9,8 +9,6 @@ public:
 	virtual void resetParticle(ParticleAttributes* a);
 	virtual void update(float timeDelta);
 	virtual void setPosition(Vec3f pos);
-	virtual void preRender(LPDIRECT3DDEVICE9 direct3dDevice);
-	virtual void postRender(LPDIRECT3DDEVICE9 direct3dDevice);
 	D3DXVECTOR3 pos;
 
 };

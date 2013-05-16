@@ -42,6 +42,8 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 	std::uniform_int_distribution<int> distribution(1,50);
 	//attackCounter = distribution(generator);
 	
+	isFogging = false; 
+
 	//idleCounter = 0;
 	stateCounter = 0;
 	attacked = false; // haven't been attacked yet
@@ -170,6 +172,7 @@ bool TentacleSObj::update() {
 	// for testing todo remove
 
 	//actionState = RAGE_ACTION;
+	// actionState = SPIKE_ACTION;
 
 	///////////////////// State logic ///////////////////////
 
@@ -467,8 +470,8 @@ void TentacleSObj::spike() {
 	pm->colBoxes[1] = Box();
 	pm->colBoxes[2] = Box();
 
-	// I'm randomly making spike last 5 cycles, feel free to change this xD
-	currStateDone = (stateCounter == 4);
+	// I'm randomly making spike last 51 cycles, feel free to change this xD
+	currStateDone = (stateCounter == 50);
 }
 
 void TentacleSObj::rage() {
@@ -511,6 +514,7 @@ int TentacleSObj::serialize(char * buf) {
 	TentacleState *state = (TentacleState*)buf;
 	state->modelNum = this->modelNum;
 	state->animationState = this->modelAnimationState;
+	state->fog = this->isFogging;
 
 	if (SOM::get()->collisionMode)
 	{

@@ -34,6 +34,7 @@ public:
 	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal);
 	void setAnimationState(TentacleActionState state) { modelAnimationState = state; }
 	void setAction(TentacleAction action) { actionState = action; }
+	void setFogging(bool fog) { isFogging = fog; }
 
 	// Actions
 	void idle();
@@ -66,6 +67,7 @@ private:
 	int pushForce; // force of tentacle when it pushes player away after attacking it
 	Quat_t lastRotation;
 	float playerAngle;
+	bool isFogging;
 
 	// Collision boxes
 	Box idleBoxes[3]; // stores initial idle collision boxes

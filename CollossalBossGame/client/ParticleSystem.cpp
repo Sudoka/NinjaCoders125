@@ -23,6 +23,7 @@ ParticleSystem::ParticleSystem()
 	this->pointSize = 10.0f;
 	srand (time(NULL));
 	filename = "res/particle.bmp";
+	this->fogging = false;
 }
 
 void ParticleSystem::init(LPDIRECT3DDEVICE9 pDevice)
@@ -117,7 +118,7 @@ void ParticleSystem::postRender(LPDIRECT3DDEVICE9 direct3dDevice)
     direct3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, false);
 
     direct3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
-	direct3dDevice->SetRenderState( D3DRS_FOGENABLE, true);
+	if(fogging) direct3dDevice->SetRenderState( D3DRS_FOGENABLE, true);
 }
 
 bool ParticleSystem::isDead()
