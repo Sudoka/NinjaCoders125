@@ -18,6 +18,7 @@ enum TentacleAction {
 	SHOOT_ACTION,
 	COMBO_ACTION,
 	RAGE_ACTION,
+	DEATH_ACTION,
 	NUM_TENTACLE_ACTIONS
 };
 
@@ -42,6 +43,7 @@ public:
 	void slamCombo();
 	void spike();
 	void rage();
+	void death();
 
 	int getHealth() { return health; }
 

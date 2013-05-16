@@ -66,73 +66,82 @@ bool TentacleSObj::update() {
 
 	////////////////// State transitions /////////////////////
 	// These should maybe be moved to the monster...
-
-	// If you're dead, you're dead xD
-	if (health <= 0) {
-		// DEAD STATE
-		// todo Dead animation?...
-		health = 0;
-		overlord->removeTentacle(this);
-		return true; // I died!
-		//health = 0;
-		// fancy animation 
-		// just dont attack
-		//attackBuffer = 0;
-		//attackFrames = 0;
-	}
 	// Only change states when our current state has gone through a whole cycle
 	// This should be set by the individual state methods when their cycle is over
 	// i.e. idle(), slam(), spike(), etc...
-	else if (currStateDone)
+	if (currStateDone)
 	{
 		// we're about to start a new state =)
 		stateCounter = 0;
 		currStateDone = false; 
 
-		int angryProb = attacked ? 85 : 60;
-		
-		// we're attacking!
-		if ((rand() % 100) < angryProb) 
-		{
-			this->setFlag(IS_HARMFUL, 1);
+		// If you're dead, you're dead xD
+		if (health <= 0) {
+			health = 0;
 
-			playerAngle = this->angleToNearestPlayer();
-			bool playerNear = playerAngle != -1.f;
-
-			int targetAttackProb = playerNear ? 90 : 25;
-
-			// targetted attack
-			if ((rand() % 100) < targetAttackProb)
-			{
-				// if we got here without a real target, just set a default
-				// for now anyway
-				if (playerAngle == -1.f) playerAngle = 0.f;
-
-				// randomly pick between shoot and slam
-				// maybe this will depend on if you're a tentacle or a head
-				if (rand() % 2) { actionState = SLAM_ACTION; }
-				else { actionState = SHOOT_ACTION; }
+			// If my previous state was death, I already did my fancy animation
+			if (actionState == DEATH_ACTION) {
+				overlord->removeTentacle(this);
+				return true; // I died!
+				//health = 0;
+				// fancy animation 
+				// just dont attack
+				//attackBuffer = 0;
+				//attackFrames = 0;
 			}
-			// non-targetted attack
+			// Otherwise, do my fancy animation before actually dying
 			else
 			{
-				// randomly pick between slam combo, spike, and defense rage
-				switch(rand() % 3)
-				{
-				case 0:		actionState = COMBO_ACTION; break;
-				case 1:		actionState = SPIKE_ACTION; break;
-				default:	actionState = RAGE_ACTION; break;
-				}
+				actionState = DEATH_ACTION;
 			}
 		}
-		// we're not attacking!
 		else
 		{
-			this->setFlag(IS_HARMFUL, 0);
+			int angryProb = attacked ? 85 : 60;
+		
+			// we're attacking!
+			if ((rand() % 100) < angryProb) 
+			{
+				this->setFlag(IS_HARMFUL, 1);
 
-			// randomly pick between idle and probing
-			if (rand() % 2) { actionState = IDLE_ACTION; }
-			else { actionState = PROBE_ACTION; }
+				playerAngle = this->angleToNearestPlayer();
+				bool playerNear = playerAngle != -1.f;
+
+				int targetAttackProb = playerNear ? 90 : 25;
+
+				// targetted attack
+				if ((rand() % 100) < targetAttackProb)
+				{
+					// if we got here without a real target, just set a default
+					// for now anyway
+					if (playerAngle == -1.f) playerAngle = 0.f;
+
+					// randomly pick between shoot and slam
+					// maybe this will depend on if you're a tentacle or a head
+					if (rand() % 2) { actionState = SLAM_ACTION; }
+					else { actionState = SHOOT_ACTION; }
+				}
+				// non-targetted attack
+				else
+				{
+					// randomly pick between slam combo, spike, and defense rage
+					switch(rand() % 3)
+					{
+					case 0:		actionState = COMBO_ACTION; break;
+					case 1:		actionState = SPIKE_ACTION; break;
+					default:	actionState = RAGE_ACTION; break;
+					}
+				}
+			}
+			// we're not attacking!
+			else
+			{
+				this->setFlag(IS_HARMFUL, 0);
+
+				// randomly pick between idle and probing
+				if (rand() % 2) { actionState = IDLE_ACTION; }
+				else { actionState = PROBE_ACTION; }
+			}
 		}
 	}
 
@@ -171,7 +180,7 @@ bool TentacleSObj::update() {
 
 	// for testing todo remove
 
-	// actionState = SPIKE_ACTION;
+	// actionState = RAGE_ACTION;
 
 	///////////////////// State logic ///////////////////////
 
@@ -199,6 +208,9 @@ bool TentacleSObj::update() {
 		break;
 	case RAGE_ACTION:
 		rage();
+		break;
+	case DEATH_ACTION:
+		death();
 		break;
 	default:
 		if(actionState > NUM_TENTACLE_ACTIONS) DC::get()->print("ERROR: Tentacle state %d not known\n", modelAnimationState);
@@ -473,8 +485,22 @@ void TentacleSObj::spike() {
 	currStateDone = (stateCounter == 50);
 }
 
+void TentacleSObj::death() {
+	modelAnimationState = T_DEATH;
+
+	// No collision boxes in death
+	if (stateCounter == 0)
+	{
+		pm->colBoxes[0] = Box();
+		pm->colBoxes[1] = Box();
+		pm->colBoxes[2] = Box();
+	}
+
+	currStateDone = (stateCounter == 20);
+}
+
 void TentacleSObj::rage() {
-	modelAnimationState = T_IDLE; // todo rage animation
+	modelAnimationState = T_RAGE;
 
 	// First, we create the wave object
 	if (stateCounter == 0) {
