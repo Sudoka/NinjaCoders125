@@ -364,7 +364,7 @@ void TentacleSObj::slamMotion() {
 		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 	}
 
-	changePosT.z+=12;
+	changePosT.z+=15;
 
 	// Rotate the relative change according to where we're facing
 	tip.setRelPos(axis.rotateToThisAxis(changePosT));
