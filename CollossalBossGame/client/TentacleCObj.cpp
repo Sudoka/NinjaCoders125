@@ -55,8 +55,8 @@ bool TentacleCObj::update() {
 			else
 			{
 				density -= 2*change;
-				RE::get()->stopFog(density);
 			}
+			RE::get()->stopFog(density);
 		}
 		densityCounter += change;
 	}
