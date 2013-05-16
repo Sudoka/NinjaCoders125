@@ -11,7 +11,8 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 	this->modelNum = modelNum;
 	switch (modelNum) {
 		case MDL_TEST_BOX:
-			bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-5, 0, -5, 10, 10, 10);
+			// bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-5, 0, -5, 10, 10, 10);
+			bxVol = Box(-25, -25, -25, 50, 50, 50);
 			break;
 		case MDL_TEST_PYRAMID:
 			bxVol = CM::get()->find_config_as_box("BOX_PYRAMID");//Box(-20, 0, -20, 40, 40, 40);
@@ -27,7 +28,7 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 			bxVol = Box();
 			break;
 	}
-	pm = new PhysicsModel(pos, rot, 1);
+	pm = new PhysicsModel(pos, rot, 50);
 	testBoxIndex = pm->addBox(bxVol);
 	t = 0;
 }

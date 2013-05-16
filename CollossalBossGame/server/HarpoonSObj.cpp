@@ -7,24 +7,22 @@
 
 HarpoonSObj::HarpoonSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int dmg, int diameter, PlayerSObj * pso) : ServerObject(id)
 {
-	if(SOM::get()->debugFlag) DC::get()->print("Created new Bullet %d ", id);
-	Box bxVol;
+	if(SOM::get()->debugFlag) DC::get()->print("Created new Harpoon %d ", id);
+	
 	Quat_t rot = Quat_t();
-	int negathing = -(diameter/2);
-
-	bxVol = Box(negathing, negathing, negathing, diameter, diameter, diameter);
-	rot = Quat_t();
+	Box bxVol = Box(-(diameter/2), -(diameter/2), -(diameter/2), diameter, diameter, diameter);
 
 	pm = new PhysicsModel(pos, rot, 50);
 	pm->addBox(bxVol);
 	pm->applyForce(initialForce);
 
 	this->modelNum = modelNum;
-	t = 0;
-	health = 5;
+	state = HS_FLYING;
 	this->damage = dmg;
 	this->diameter = diameter;
-	this->pso = pso;
+	this->creatorid = pso->getId();
+
+	this->setFlag(IS_FLOATING, 1); // YAY IT'S A LASER PEWPEW
 }
 
 
@@ -33,31 +31,57 @@ HarpoonSObj::~HarpoonSObj(void)
 	delete pm;
 }
 
+void gracefullyfail(ServerObject * creator, ServerObject * target) {
+	// TODO: Implement
+	assert(false && "WTF");
+}
+
 bool HarpoonSObj::update() {
-	// Apply Force of Gravity on every time step - or not, since we wanted an arc-ing shot
-	// return true when it collides with something?
-	// That'll wait for onCollision, I suppose.
-	this->setFlag(IS_FALLING, 0); // YAY IT'S A LASER PEWPEW
-	if(this->getFlag(IS_STATIC)) {
-		assert(this->pso != NULL && "I'm not sure what happened here.");
-		Vec3f hl = this->pm->ref->getPos();
-		Vec3f pl = pso->getPhysicsModel()->ref->getPos();
-		Vec3f v = (hl - pl);
-		if(fabs(v.x) < 15 && fabs(v.y) < 15 && fabs(v.z) < 15) {
-			// pso->setFlag(IS_FLOATING, 1);
-			pso->getPhysicsModel()->accel = Vec3f();
-			pso->getPhysicsModel()->vel = Vec3f();
-		} else {
-			v.normalize();
-			pso->getPhysicsModel()->accel = (v/2);
-			// pso->getPhysicsModel()->vel = v;
-			pso->setFlag(IS_FLOATING, 1);
+	if(this->state == HS_FLYING) {
+		return false;
+	}  else if(this->state == HS_DEAD) {
+		return true;
+	} else if(this->state == HS_HARPOON) {
+		ServerObject * creator = SOM::get()->find(creatorid);
+		ServerObject * target = SOM::get()->find(targetid);
+		if(creator == NULL || target == NULL) {
+			gracefullyfail(creator, target);
+			return true;
 		}
-	}
-	if (this->health > 0) {
+		Vec3f v2creator = creator->getPhysicsModel()->ref->getPos() - this->getPhysicsModel()->ref->getPos();
+		v2creator.normalize();
+		Vec3f diffvector = this->pm->ref->getPos() - creator->getPhysicsModel()->ref->getPos();
+		if(magnitude(diffvector) < magnitude(v2creator)) {
+			this->getPhysicsModel()->ref->setPos(creator->getPhysicsModel()->ref->getPos());
+		} else {
+			this->getPhysicsModel()->vel = Vec3f();
+			this->getPhysicsModel()->accel = (v2creator*2);
+		}
+
+		Vec3f followpos = this->getPhysicsModel()->ref->getPos() + this->dist2target;
+		target->setFlag(IS_FLOATING, 1);
+		target->getPhysicsModel()->ref->setPos(followpos);
+
+		return false;
+	} else if(this->state == HS_GRAPPLE) {
+		ServerObject * creator = SOM::get()->find(creatorid);
+		if(creator == NULL) {
+			gracefullyfail(creator, NULL);
+			return true;
+		}
+		Vec3f diffvector = this->pm->ref->getPos() - creator->getPhysicsModel()->ref->getPos();
+		if(fabs(diffvector.x) < 15 && fabs(diffvector.y) < 15 && fabs(diffvector.z) < 15) {
+			creator->getPhysicsModel()->accel = Vec3f();
+			creator->getPhysicsModel()->vel = Vec3f();
+		} else {
+			diffvector.normalize();
+			creator->getPhysicsModel()->accel = (diffvector/2);
+			creator->setFlag(IS_FLOATING, 1);
+		}
 		return false;
 	} else {
-		return true;
+		assert(false && "Dunno how you got here =[");
+		return false;
 	}
 }
 
@@ -91,13 +115,23 @@ int HarpoonSObj::serialize(char * buf) {
 }
 
 void HarpoonSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
-	if(obj->getType() == OBJ_GENERAL) {
-		this->setFlag(IS_STATIC, 1);
-	}
-	if(obj->getType() == OBJ_TENTACLE) {
-		pso->clearAccessory();
-	}
-	if(obj->getType() == OBJ_PLAYER) {
-		// this->health = 0;
+	if(obj->getId() == creatorid && this->state == HS_HARPOON) {
+		this->state = HS_DEAD;
+		((PlayerSObj *)SOM::get()->find(this->creatorid))->clearAccessory();
+		ServerObject * target = SOM::get()->find(targetid);
+		if(target == NULL) {
+			gracefullyfail(NULL, target);
+		}
+		target->setFlag(IS_FLOATING, 0);
+	} else if(this->state == HS_FLYING && obj->getId() != creatorid) {
+		if(obj->getFlag(IS_STATIC)) {
+			this->setFlag(IS_STATIC, 1);
+			this->state = HS_GRAPPLE;
+		} else {
+			// this->setFlag(IS_STATIC, 1);
+			this->state = HS_HARPOON;
+			this->targetid = obj->getId();
+			this->dist2target = obj->getPhysicsModel()->ref->getPos() - this->getPhysicsModel()->ref->getPos();
+		}
 	}
 }

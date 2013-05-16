@@ -153,13 +153,13 @@ void ServerNetworkManager::update() {
 					case 0:
 						o = new CyborgSObj(som->genId(), client_id);
 						break;
-					case 1:
+					case 3:
 						o = new ShooterSObj(som->genId(), client_id);
 						break;
-					case 2:
+					case 1:
 						o = new MechanicSObj(som->genId(), client_id);
 						break;
-					case 3:
+					case 2:
 						o = new ScientistSObj(som->genId(), client_id);
 						break;
 				}

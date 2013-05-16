@@ -3,6 +3,13 @@
 #include "ServerObject.h"
 #include "PlayerSObj.h"
 
+enum HarpoonState {
+	HS_FLYING = 0,
+	HS_GRAPPLE = 1,
+	HS_HARPOON = 2,
+	HS_DEAD = 3
+};
+
 class HarpoonSObj : public ServerObject
 {
 public:
@@ -17,13 +24,14 @@ public:
 	Vec3f getNormal() { return normal; }
 	char serialbuffer[100];
 
-	int health;
+	HarpoonState state;
 	int damage;
 	int diameter;
 private:
 	PhysicsModel *pm;
 	Model modelNum;
-	int t;
 	Vec3f normal;
-	PlayerSObj * pso;
+	int creatorid;
+	int targetid;
+	Vec3f dist2target;
 };

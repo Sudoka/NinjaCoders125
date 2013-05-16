@@ -56,18 +56,20 @@ void ShooterSObj::releaseCharge() {
 	float anglepi = camPitch;
 	float upforce = -sin(anglepi);
 	float forwardforce = cos(anglepi);
+	float bulletforce = 50; //chargeForce * charge;
 	// TODO: force should be fetched from config file
-	Vec3f force = rotate(Vec3f(0, upforce * chargeForce * charge, forwardforce * chargeForce * charge), pm->ref->getRot());
+	Vec3f force = rotate(Vec3f(0, upforce * bulletforce, forwardforce * bulletforce), pm->ref->getRot());
 	BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1/*MDL_TEST_BOX*/, position, force, 1, 10*(charge/3));
 	SOM::get()->add(bso);
 }
 
 void ShooterSObj::clearAccessory() {
-	hso->health = 0;
+	hso->state = HS_DEAD;
 	this->setFlag(IS_FLOATING, 0);
-	this->pm->accel = this->pm->vel*-1;
-	this->pm->vel = Vec3f();
+	// this->pm->accel = this->pm->vel*-1;
+	// this->pm->vel = Vec3f();
 	this->setFlag(IS_FALLING, 1);
+	this->jumping = true;
 	this->hso = NULL;
 	
 }

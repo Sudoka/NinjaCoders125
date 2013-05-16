@@ -63,6 +63,9 @@ void gameInit() {
 	//MonsterSObj* monster = new MonsterSObj(som->genId(), 2);
 	MonsterSObj* monster = new MonsterSObj(som->genId(), 4); // 4
 	som->add(monster);
+
+	TestSObj * box = new TestSObj(som->genId(), MDL_TEST_BOX, Vec3f(), Quat_t());
+	som->add(box);
 /*
 	Point_t pos = Point_t(0, 10, 15);
 	Vec3f force = Vec3f(0, 0, 0);

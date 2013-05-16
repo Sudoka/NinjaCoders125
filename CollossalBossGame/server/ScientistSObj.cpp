@@ -63,7 +63,7 @@ void ScientistSObj::releaseCharge() {
 }
 
 void ScientistSObj::clearAccessory() {
-	hso->health = 0;
+	hso->state = HS_DEAD;
 	this->setFlag(IS_FLOATING, 0);
 	this->pm->accel = this->pm->vel*-1;
 	this->pm->vel = Vec3f();
