@@ -205,6 +205,9 @@ bool TentacleSObj::update() {
 	case RAGE_ACTION:
 		rage();
 		break;
+	case MOVE_ACTION:
+		move();
+		break;
 	case DEATH_ACTION:
 		death();
 		break;
@@ -217,6 +220,27 @@ bool TentacleSObj::update() {
 	attacked = false;
 
 	return false;
+}
+
+void TentacleSObj::move() {
+	// move in 16
+	// move out 18
+
+	// Wriggle out
+	if (stateCounter < 16)
+	{
+		modelAnimationState = T_EXIT;
+	}
+	// Switch positions
+	else if (stateCounter == 16)
+	{
+		
+	}
+	// Wriggle back in
+	else
+	{
+		modelAnimationState = T_ENTER;
+	}
 }
 
 void TentacleSObj::idle() {

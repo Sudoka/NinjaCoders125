@@ -44,6 +44,7 @@ public:
 	void slamCombo();
 	void spike();
 	void rage();
+	void move();
 	void death();
 
 	int getHealth() { return health; }
