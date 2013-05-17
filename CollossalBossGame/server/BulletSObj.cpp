@@ -35,6 +35,8 @@ bool BulletSObj::update() {
 	// return true when it collides with something?
 	// That'll wait for onCollision, I suppose.
 	this->setFlag(IS_FALLING, 0); // YAY IT'S A LASER PEWPEW
+	Vec3f velocity = this->getPhysicsModel()->vel;
+	float velocitymagnitude = magnitude(velocity);
 	Vec3f magvec = this->getPhysicsModel()->vel;
 	Vec3f magacc = this->getPhysicsModel()->accel;
 	if(fabs(magvec.x) < 0.1 && fabs(magvec.y) < 0.1 && fabs(magvec.z) < 0.1 && fabs(magacc.x) < 0.1 && fabs(magacc.y) < 0.1 && fabs(magacc.z) < 0.1) {
@@ -78,11 +80,16 @@ int BulletSObj::serialize(char * buf) {
 }
 
 void BulletSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
+	/*
 	if(obj->getType() == OBJ_GENERAL) {
 		this->health = 0;
 	} else {
  		if(obj->getType() == OBJ_TENTACLE) {
 			this->health = 0;
 		}
-	}
+	}*/
+	Vec3f velocity = this->getPhysicsModel()->vel;
+	float velocitymagnitude = magnitude(velocity);
+	this->getPhysicsModel()->applyForce(Vec3f()-(this->getPhysicsModel()->vel));
+	this->getPhysicsModel()->vel = Vec3f();
 }
