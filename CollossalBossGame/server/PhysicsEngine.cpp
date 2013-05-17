@@ -126,7 +126,6 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, Aabb
 	
 	Box bx1 = el->bx + obj1->getPhysicsModel()->ref->getPos(), bx2;
 	Point_t pos;
-	float hdiff;
 
 	//AABBs can collide with anything
 	for(cur = cmdl2->getStart(); cur < cmdl2->getEnd(); ++cur) {
@@ -141,11 +140,9 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, Aabb
 		case CMDL_HMAP:
 			bx2 = ((HMapElement*)(*cur))->bxTotalVolume;
 			pos = obj2->getPhysicsModel()->ref->getPos();
-			if(areColliding(&hdiff, bx1, pos, *(HMapElement*)(*cur))) {
+			if(areColliding(&shift, &dir, bx1, pos, *(HMapElement*)(*cur))) {
 				//TODO: Replace with appropriate collision code!
 				//getCollisionInfo(&shift, &dir, bx1, bx2 + pos);
-				shift = Vec3f(0, hdiff, 0);
-				dir = UP;
 				handleCollision(obj1, obj2, shift, dir);
 			}
 			break;
@@ -165,18 +162,15 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, HMap
 	
 	Box bx;
 	Point_t pos = obj1->getPhysicsModel()->ref->getPos();
-	float hdiff;
 
 	//AABBs can collide with anything
 	for(cur = cmdl2->getStart(); cur < cmdl2->getEnd(); ++cur) {
 		switch((*cur)->getType()) {
 		case CMDL_AABB:
 			bx = ((AabbElement*)(*cur))->bx + obj2->getPhysicsModel()->ref->getPos();
-			if(areColliding(&hdiff, bx, pos, *el)) {
+			if(areColliding(&shift, &dir, bx, pos, *el)) {
 				//TODO: Replace with appropriate collision code!
 				//getCollisionInfo(&shift, &dir, el->bxTotalVolume + pos, bx);
-				shift = Vec3f(0, -hdiff, 0);
-				dir = DOWN;
 				handleCollision(obj1, obj2, shift, dir);
 			}
 			break;
@@ -198,11 +192,6 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	PhysicsModel *mdl1 = obj1->getPhysicsModel(),
 				 *mdl2 = obj2->getPhysicsModel();
 	Vec3f shift1, shift2, axis;
-
-	//Clear the velocity vectors in the specified direction
-	axis = dirAxis(dir);
-	//mdl1->vel -= (mdl1->vel) * axis;	//Removes exactly one velocity component
-	//mdl2->vel -= (mdl2->vel) * axis;
 
 	//Handle not-falling status
 	if(flip(dir) == gravDir) {
@@ -232,6 +221,11 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	//Inform the logic module of the collision event
 	obj1->onCollision(obj2, dirVec(dir));
 	obj2->onCollision(obj1, dirVec(flip(dir)));
+
+	//Clear the velocity vectors in the specified direction
+	axis = dirAxis(dir);
+	mdl1->vel -= (mdl1->vel) * axis;	//Removes exactly one velocity component
+	mdl2->vel -= (mdl2->vel) * axis;
 }
 
 #if 0
@@ -469,19 +463,6 @@ void PhysicsEngine::setGravDir(DIRECTION dir) {
 		curGravRot = Quat_t();
 		break;
 	}
-	/*
-	DC::get()->print(LOGFILE, "Old/New vecs: (%f,%f,%f)/(%f,%f,%f) ", gravVec.x, gravVec.y, gravVec.z, newVec.x, newVec.y, newVec.z);
-	cross(&crossVec, newVec, gravVec);
-	crossVec.normalize();
-	float ang = M_PI * 2 - angle(gravVec, newVec);
-	static Quat_t q = Quat_t();
-	curGravRot = Quat_t(crossVec, ang);
-	q *= curGravRot;
-	DC::get()->print(LOGFILE, "Axis: (%f,%f,%f) Angle: %f ", crossVec.x, crossVec.y, crossVec.z, ang * 180 / M_PI);
-	Vec3f up, fwd, rt;
-	getCorrectedAxes(q, &fwd, &up, &rt);
-	DC::get()->print(LOGFILE, "Up/Forward/Right: (%f,%f,%f)/(%f,%f,%f)/(%f,%f,%f)\n",
-		up.x, up.y, up.z, fwd.x, fwd.y, fwd.z,rt.x,rt.y, rt.z);
-	*/
+
 	gravVec = newVec;
 }

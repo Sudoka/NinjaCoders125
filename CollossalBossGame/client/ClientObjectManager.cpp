@@ -138,26 +138,4 @@ void ClientObjectManager::add(ClientObject *obj) {
 	mObjs.insert(pair<uint,ClientObject*>(obj->getId(), obj));
 }
 
-#if 0
-uint ClientObjectManager::genId() {
-	if(vFreeIds.size() == 0) {
-		return curId++;
-	}
-
-	//Recycle an existing id
-	uint id = vFreeIds[vFreeIds.size() - 1];
-	vFreeIds.pop_back();
-	return id;
-}
-
-void ClientObjectManager::freeId(uint id) {
-	//Mark this ID as being ready for recycling
-	vFreeIds.push_back(id);
-}
-
-
-void ClientObjectManager::remove(uint id) {
-	mObjs.erase(id);
-}
-#endif
 

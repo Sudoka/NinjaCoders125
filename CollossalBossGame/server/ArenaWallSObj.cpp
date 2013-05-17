@@ -30,5 +30,7 @@ bool ArenaWallSObj::update() {
 }
 
 int ArenaWallSObj::serialize(char * buf) {
+	ObjectState *state = (ObjectState*)buf;
+	state->modelNum = modelNum;
 	return pm->ref->serialize(buf + sizeof(ObjectState)) + sizeof(ObjectState);
 }

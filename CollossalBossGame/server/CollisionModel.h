@@ -71,6 +71,7 @@ private:
 };
 
 bool areColliding(const Box &bx1, const Box &bx2);
-bool areColliding(float *hdiff, const Box &bx, const Point_t &hmapCenter, const HMapElement &hmap);
+//bool areColliding(float *hdiff, const Box &bx, const Point_t &hmapCenter, const HMapElement &hmap);
+bool areColliding(Vec3f *shift, DIRECTION *collDir, const Box &bx, const Point_t &hmapCenter, const HMapElement &hmap);
 
 void getCollisionInfo(Vec3f *shift, DIRECTION *collDir, const Box &bx1, const Box &bx2);

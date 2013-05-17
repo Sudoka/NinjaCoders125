@@ -53,6 +53,7 @@ HMapElement::HMapElement(HMap *hmap, const Vec3f &offset, DIRECTION normalDir) {
 
 void HMapElement::init(HMap *hmap, const Vec3f &offset, DIRECTION normalDir) {
 	this->hmap = hmap;
+	this->dir = normalDir;
 	float max = hmap->getMax();
 	this->bxTotalVolume = Box(offset.x, offset.y, offset.z,
 		(float)hmap->getWidth() * hmap->getUnitLength(), max, (float)hmap->getLength() * hmap->getUnitLength());
@@ -119,15 +120,54 @@ bool pointOnHMapCollision(float *hdiff, const Point_t &pt, const Point_t &hmapPo
 	return *hdiff >= 0;	//hdiff is the amount of shift that needs to happen to move the object out of the heightmap.
 }
 
-bool areColliding(float *hdiff, const Box &bx, const Point_t &hmapCenter, const HMapElement &hmap) {
-	return pointOnHMapCollision(hdiff, Point_t(bx.x + bx.w / 2, bx.y, bx.z + bx.l / 2), hmapCenter, hmap);
-	/*
-	if(areColliding(bx1, hmap.bxTotalVolume + hmapCenter)) {
-		//TODO: Replace with a call to the pointOnHMap function
+bool areColliding(Vec3f *shift, DIRECTION *collDir, const Box &bx, const Point_t &hmapCenter, const HMapElement &hmap) {
+	Point_t objPos = Point_t(), hmapPos = Point_t();
+	float hdiff;
+	*collDir = hmap.dir;
+
+	//Rotate x, y, z values so that the hmap shift direction is on the y axis
+	switch(hmap.dir) {
+	case NORTH:
+		break;
+	case SOUTH:
+		break;
+	case EAST:
+		break;
+	case WEST:
+		break;
+	case DOWN:
+		break;
+	default:	//UP
+		//No rotations
+		objPos = Point_t(bx.x + bx.w / 2, bx.y, bx.z + bx.l / 2);	//Bottom of the box
+		hmapPos = hmapCenter;
+		break;
+	}
+	if(pointOnHMapCollision(&hdiff, objPos, hmapPos, hmap)) {
+		switch(hmap.dir) {
+		case NORTH:
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		case SOUTH:
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		case EAST:
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		case WEST:
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		case DOWN:
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		default:	//UP
+			//No rotations
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		}
 		return true;
 	}
 	return false;
-	*/
 }
 
 /*
