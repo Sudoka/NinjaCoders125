@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "defs.h"
+#include "Frame.h"
 
 using namespace std;
 
@@ -26,7 +27,7 @@ public:
 	bool find_config_as_bool(string key);
 	Vec3f find_config_as_point(string key);
 	Box   find_config_as_box(string key);
-	vector<pair<Point_t, Quat_t>> find_config_as_places(string key);
+	vector<Frame> find_config_as_places(string key);
 
 private:
 	void init();

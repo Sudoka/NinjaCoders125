@@ -71,7 +71,7 @@ public:
 	bool debugFlag;
 	//Debug
 	IXAnimator *getAnim() { return xAnimator; }
-
+	HeadsUpDisplay* getHUD() { return hud; }
 	bool gamestarted; // begins as false, when everyone's pressed start, then set this to true.
 
 private:

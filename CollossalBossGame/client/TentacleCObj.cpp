@@ -9,6 +9,8 @@ TentacleCObj::TentacleCObj(uint id, char *data) : ClientObject(id, OBJ_TENTACLE)
 	rm = new RenderModel(Point_t(), Quat_t(), state->modelNum);
 	smoking = new SmokeEffect();
 	RE::get()->addParticleEffect(smoking);
+	portal = new PortalEffect();
+	RE::get()->addParticleEffect(portal);
 	startedFogging = false;
 	fogging = false;
 	density = 0.f;
@@ -17,7 +19,9 @@ TentacleCObj::TentacleCObj(uint id, char *data) : ClientObject(id, OBJ_TENTACLE)
 
 TentacleCObj::~TentacleCObj(void)
 {
+	if(density > 0) RE::get()->stopFog(0);
 	RE::get()->removeParticleEffect(smoking);
+	RE::get()->removeParticleEffect(portal);
 	delete rm;
 }
 
@@ -28,6 +32,8 @@ RenderModel* TentacleCObj::getBox() {
 }
 
 bool TentacleCObj::update() {
+	portal->setPosition(rm->getFrameOfRef()->getPos());
+	portal->update(.33);
 	if(fogging || startedFogging)
 	{
 		smoking->fogging = true;
