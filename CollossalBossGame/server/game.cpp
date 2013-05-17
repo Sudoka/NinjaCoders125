@@ -17,6 +17,7 @@
 #include "MonsterSObj.h"
 #include "TentacleSObj.h"
 #include "ConfigurationManager.h"
+#include "ArenaWallSObj.h"
 
 /*
  * buildRoom()
@@ -30,11 +31,13 @@ void buildRoom() {
 
 	ServerObjectManager *som = SOM::get();
 
-	WallSObj *floor, *ceiling,
+	WallSObj //*floor,
+			 *ceiling,
 			 *north, *south,
 			 *east, *west;
-
-	floor   = new WallSObj(som->genId(), MDL_FLOOR, Point_t(), DOWN);
+	ArenaWallSObj *floor;
+	floor = new ArenaWallSObj(som->genId(), "../floor_hmap.bmp", MDL_FLOOR, Point_t());
+	//floor   = new WallSObj(som->genId(), MDL_FLOOR, Point_t(), DOWN);
 	ceiling = new WallSObj(som->genId(), MDL_CEILING, Point_t(0.f, (float)height, 0.f), UP);
 	north   = new WallSObj(som->genId(), MDL_NORTH_WALL, Point_t(0.f, (float)height/2.f, (float)-depth/2.f), NORTH);
 	south   = new WallSObj(som->genId(), MDL_SOUTH_WALL, Point_t(0.f, (float)height/2.f, (float)depth/2.f), SOUTH);

@@ -3,6 +3,7 @@
 #include "PhysicsModel.h"
 #include <assert.h>
 #include "NetworkData.h"
+#include "CollisionModel.h"
 
 class ServerObject
 {
@@ -32,9 +33,11 @@ public:
 	inline uint getId() { return id; }
 	inline uint getFlag(uint flag) { return GET_FLAG(flags, flag); }
 	inline void setFlag(uint flag, uint val) { flags = SET_FLAG(flags, flag, val); }
+	inline CollisionModel *getCollisionModel() { return cm; }	//Get this object's collision model
 
 private:
 	uint id;
 	uint flags;
+	CollisionModel *cm;
 };
 
