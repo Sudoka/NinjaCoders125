@@ -2,8 +2,9 @@
 #include "ServerObject.h"
 #include "TentacleSObj.h"
 #include <random>
-#include <map>
-//#include <vector>
+//#include <list>
+//#include <map>
+#include <vector>
 
 /* MonsterSObj.h
  * This defines our tentacle & it's strategy
@@ -28,6 +29,8 @@ public:
 	void addTentacle(TentacleSObj* t) { tentacles.insert(t); }
 	void removeTentacle(TentacleSObj* t);
 
+	Frame updatePosition(Frame oldPos);
+
 	char serialbuffer[100];
 
 private:
@@ -36,8 +39,8 @@ private:
 	int phase; // what phase of the monster you're in
 
 	set<TentacleSObj*> tentacles;
-	map<Point_t, Quat_t> availablePlacements;
-	vector<Point_t> placements;
+	vector<Frame> availablePlacements;
+	//vector<Point_t> placements;
 	uint numParts;
 	//TentacleState state;
 

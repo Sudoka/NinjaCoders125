@@ -5,6 +5,7 @@
 #include "PlayerSObj.h"
 #include "GameServer.h"
 #include <time.h>
+#include <algorithm>
 
 MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 {
@@ -16,9 +17,9 @@ MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 	
 	this->availablePlacements = CM::get()->find_config_as_places("TENTACLE_POSITIONS");
 
-	for(map<Point_t,Quat_t>::iterator it = availablePlacements.begin(); it != availablePlacements.end(); ++it) {
+	/*for(map<Point_t,Quat_t>::iterator it = availablePlacements.begin(); it != availablePlacements.end(); ++it) {
 	  placements.push_back(it->first);
-	}
+	}*/
 
 	this->numParts = numParts;
 	phase = -1;
@@ -37,7 +38,32 @@ void MonsterSObj::removeTentacle(TentacleSObj* t)
 { 
 	tentacles.erase(t); 
 	Frame* fr = t->getPhysicsModel()->ref; 
-	availablePlacements[fr->getPos()] = fr->getRot(); 
+	//availablePlacements[fr->getPos()] = fr->getRot(); 
+	availablePlacements.push_back(*fr);
+}
+
+/**
+ * This is what tentacles call when they want to change their position
+ */
+Frame MonsterSObj::updatePosition(Frame oldPos) {
+	// Make sure we actually have positions
+	assert(availablePlacements.size() > 0 && "You ran out of positions for your tentacles!");
+
+	// Now pick one at random
+	int index = rand() % availablePlacements.size();
+	Frame result = availablePlacements[index];
+	availablePlacements[index] = oldPos;
+
+	return result;
+	//vector<Point_t> possiblePlacements(placements);
+
+	//map<Point_t, Quat_t>::iterator it;
+	//do {
+	//	Point_t randPoint = possiblePlacements[rand() % possiblePlacements.size()];
+	//	it = availablePlacements.find(randPoint);
+	//} while (it == availablePlacements.end());
+	//pair<Point_t, Quat_t> currPlace = *it;
+	//availablePlacements.erase(it);
 }
 
 /* update()
@@ -63,27 +89,28 @@ bool MonsterSObj::update() {
 	if (numTentacles == 0) {
 		phase++;
 
+		// Make sure we've got enough positions
+		assert(availablePlacements.size() >= numParts && "You ran out of positions for your tentacles!");
+
+		// shuffle your positions
+		std::random_shuffle(availablePlacements.begin(), availablePlacements.end());
+
 		// Initialize your parts (tentacles, or hydras, or mixed, or whatever)
 		for (uint i=0; i<numParts; i++)
 		{
 			// pick the random position
-			map<Point_t, Quat_t>::iterator it;
-			do {
-				Point_t randPoint = placements[rand() % placements.size()];
-				it = availablePlacements.find(randPoint);
-			} while (it == availablePlacements.end());
-			pair<Point_t, Quat_t> currPlace = *it;
-			availablePlacements.erase(it);
+			Frame currPlace = availablePlacements.back();
+			availablePlacements.pop_back();
 
 			TentacleSObj * newTentacle;
 			switch (phase)
 			{
 			case 0:
-				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.first, currPlace.second, this);
+				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			case 1:
 				// todo heads
-				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.first, currPlace.second, this);
+				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			default: // you beat all the phases!
 				GameServer::get()->event_monster_death();

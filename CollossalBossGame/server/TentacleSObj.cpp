@@ -66,73 +66,95 @@ bool TentacleSObj::update() {
 
 	////////////////// State transitions /////////////////////
 	// These should maybe be moved to the monster...
-
-	// If you're dead, you're dead xD
-	if (health <= 0) {
-		// DEAD STATE
-		// todo Dead animation?...
-		health = 0;
-		overlord->removeTentacle(this);
-		return true; // I died!
-		//health = 0;
-		// fancy animation 
-		// just dont attack
-		//attackBuffer = 0;
-		//attackFrames = 0;
-	}
 	// Only change states when our current state has gone through a whole cycle
 	// This should be set by the individual state methods when their cycle is over
 	// i.e. idle(), slam(), spike(), etc...
-	else if (currStateDone)
+	if (currStateDone)
 	{
 		// we're about to start a new state =)
 		stateCounter = 0;
 		currStateDone = false; 
 
-		int angryProb = attacked ? 85 : 60;
-		
-		// we're attacking!
-		if ((rand() % 100) < angryProb) 
-		{
-			this->setFlag(IS_HARMFUL, 1);
+		// If you're dead, you're dead xD
+		if (health <= 0) {
+			health = 0;
 
-			playerAngle = this->angleToNearestPlayer();
-			bool playerNear = playerAngle != -1.f;
-
-			int targetAttackProb = playerNear ? 90 : 25;
-
-			// targetted attack
-			if ((rand() % 100) < targetAttackProb)
-			{
-				// if we got here without a real target, just set a default
-				// for now anyway
-				if (playerAngle == -1.f) playerAngle = 0.f;
-
-				// randomly pick between shoot and slam
-				// maybe this will depend on if you're a tentacle or a head
-				if (rand() % 2) { actionState = SLAM_ACTION; }
-				else { actionState = SHOOT_ACTION; }
+			// If my previous state was death, I already did my fancy animation
+			if (actionState == DEATH_ACTION) {
+				overlord->removeTentacle(this);
+				return true; // I died!
+				//health = 0;
+				// fancy animation 
+				// just dont attack
+				//attackBuffer = 0;
+				//attackFrames = 0;
 			}
-			// non-targetted attack
+			// Otherwise, do my fancy animation before actually dying
 			else
 			{
-				// randomly pick between slam combo, spike, and defense rage
-				switch(rand() % 3)
-				{
-				case 0:		actionState = COMBO_ACTION; break;
-				case 1:		actionState = SPIKE_ACTION; break;
-				default:	actionState = RAGE_ACTION; break;
-				}
+				actionState = DEATH_ACTION;
 			}
 		}
-		// we're not attacking!
 		else
 		{
-			this->setFlag(IS_HARMFUL, 0);
+			int angryProb = attacked ? 85 : 60;
+		
+			// we're angry!
+			if ((rand() % 100) < angryProb) 
+			{
+				// fight or flight?
+				int moveProb = 15;
 
-			// randomly pick between idle and probing
-			if (rand() % 2) { actionState = IDLE_ACTION; }
-			else { actionState = PROBE_ACTION; }
+				// Flight!
+				if ((rand() % 100) < moveProb)
+				{
+					this->setFlag(IS_HARMFUL, 0);
+					actionState = MOVE_ACTION;
+				}
+				// Fight!!
+				else
+				{
+					this->setFlag(IS_HARMFUL, 1);
+
+					playerAngle = this->angleToNearestPlayer();
+					bool playerNear = playerAngle != -1.f;
+
+					int targetAttackProb = playerNear ? 90 : 25;
+
+					// targetted attack
+					if ((rand() % 100) < targetAttackProb)
+					{
+						// if we got here without a real target, just set a default
+						// for now anyway
+						if (playerAngle == -1.f) playerAngle = 0.f;
+
+						// randomly pick between shoot and slam
+						// maybe this will depend on if you're a tentacle or a head
+						if (rand() % 2) { actionState = SLAM_ACTION; }
+						else { actionState = SHOOT_ACTION; }
+					}
+					// non-targetted attack
+					else
+					{
+						// randomly pick between slam combo, spike, and defense rage
+						switch(rand() % 3)
+						{
+						case 0:		actionState = COMBO_ACTION; break;
+						case 1:		actionState = SPIKE_ACTION; break;
+						default:	actionState = RAGE_ACTION; break;
+						}
+					}
+				}
+			}
+			// we're not attacking!
+			else
+			{
+				this->setFlag(IS_HARMFUL, 0);
+
+				// randomly pick between idle and probing
+				if (rand() % 2) { actionState = IDLE_ACTION; }
+				else { actionState = PROBE_ACTION; }
+			}
 		}
 	}
 
@@ -169,15 +191,10 @@ bool TentacleSObj::update() {
 	//	}
 	//}
 
-	// for testing todo remove
-
-	//actionState = RAGE_ACTION;
-	// actionState = SPIKE_ACTION;
-
 	///////////////////// State logic ///////////////////////
 
-	//actionState = COMBO_ACTION;
-	
+	// actionState = MOVE_ACTION;
+
 	switch(actionState)
 	{
 	case IDLE_ACTION:
@@ -201,6 +218,12 @@ bool TentacleSObj::update() {
 	case RAGE_ACTION:
 		rage();
 		break;
+	case MOVE_ACTION:
+		move();
+		break;
+	case DEATH_ACTION:
+		death();
+		break;
 	default:
 		if(actionState > NUM_TENTACLE_ACTIONS) DC::get()->print("ERROR: Tentacle state %d not known\n", modelAnimationState);
 		break;
@@ -210,6 +233,32 @@ bool TentacleSObj::update() {
 	attacked = false;
 
 	return false;
+}
+
+void TentacleSObj::move() {
+	// move in 16
+	// move out 18
+
+	// Wriggle out
+	if (stateCounter < 16)
+	{
+		modelAnimationState = T_EXIT;
+	}
+	// Switch positions
+	else if (stateCounter == 16)
+	{
+		Frame* currFrame = this->getPhysicsModel()->ref;
+		Frame newFrame = this->overlord->updatePosition(*currFrame);
+		currFrame->setPos(newFrame.getPos());
+		currFrame->setRot(newFrame.getRot());
+	}
+	// Wriggle back in
+	else
+	{
+		modelAnimationState = T_ENTER;
+	}
+
+	currStateDone = (stateCounter == 33);
 }
 
 void TentacleSObj::idle() {
@@ -333,20 +382,15 @@ void TentacleSObj::slamCombo() {
 void TentacleSObj::slamMotion() {
 	modelAnimationState = T_SLAM;
 
-		/* Cycle logic:
-	 * CYCLE*1/2 = The tentacle is extended
-	 * CYCLE = when the tentacle is back at the default position
-	 */
+	// Keep the base and middle, make the tip grow and move back
 	Box base = this->getPhysicsModel()->colBoxes.at(0);
 	Box middle = this->getPhysicsModel()->colBoxes.at(1);
 	Box tip = this->getPhysicsModel()->colBoxes.at(2);
-	Vec3f changePosT = Vec3f(), changeProportionT = Vec3f();
-	Vec3f changePosM = Vec3f(), changeProportionM = Vec3f();
+	Vec3f changePosT = Vec3f();
 
 	//get the actual axis
 	Vec4f axis = this->getPhysicsModel()->ref->getRot();
 
-	//if (((attackCounter - attackBuffer))%CYCLE == 0) {
 	if (stateCounter%CYCLE == 0) {
 		Box origBase = slamBoxes[0];
 		Box origMiddle = slamBoxes[1];
@@ -361,95 +405,134 @@ void TentacleSObj::slamMotion() {
 		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
 		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 	}
-	/*
-		* What I want when I start slamming:
-		* BOX_TENT_BASE = -12, -20, 0, 28, 28, 75
-		* BOX_TENT_MID = -12, -50, -95, 28, 90, 90
-		* BOX_TENT_TIP = -12, 30, -165, 28, 30, 40
-		*
-		* When I'm in the middle of slamming:
-		* BOX_TENT_BASE = -12, -20, 28, 28, 28, 35
-		* BOX_TENT_MID = -12, -20, -28, 28, 70, 50
-		* BOX_TENT_TIP = -12, 8, 28, 28, 105, 35
-		*
-		* Base z: 0 -> 28 (-28, or -2 * 2 per 5 + a remainder)
-		* Base d: 75 -> 35 (-40, or -4 * 2 per 5)
-		*
-		* Mid y: -50 -> -20 (+30 or +6 per 5)
-		* Mid z: -95 -> -28 (+67 or +12 per 5 + a remainder)
-		* Mid h: 90 -> 70 (-20 or -4 per 5)
-		* Mid d: 90 -> 50 (-40 or -8 per 5)
-		*
-		* Tip y: 30 -> 8 (-22 or -4 per 5)
-		* Tip z: -165 -> 28 (+193 or +38 per 5)
-		* Tip h: 28 -> 105 (+77 or +14 per 5)
-		* Tip d: 40 -> 35 (-5 or -1 per 5)
-		* 
-		* Algorithm: 
-		*  1. at the beginning and end, move DIF % 10 units
-		*  2. per CYCLE / 10 iterations move everything DIF / 10 units.
-		* 
-		* With Cycle = 50, that means we need to get there in 25
-		* 
-		*/
-	Vec3f pos;
-//	if ( ((attackCounter - attackBuffer))%5 == 0 )
-	if ( stateCounter%5 == 0 )
-	{
-		//if ((attackCounter - attackBuffer)%CYCLE < CYCLE/2) {
-		if (stateCounter%CYCLE < CYCLE/2) {
-			//Base z
-			//Base d
 
-			//Mid y
-			changePosM.y -= 5;
-			//Mid z
-			changePosM.z += 14;
-			//Mid d
-			//changeProportionM.z -= 20;
-				
-			//Tip y
-			changePosT.y += 4;
-			//Tip z
-			changePosT.z += 39;
-			//Tip h
-			changeProportionT.y -= 30;
-				
-		//} else if ((attackCounter - attackBuffer)%CYCLE < CYCLE) {
-		} else if (stateCounter%CYCLE < CYCLE) {
-			//Mid y
-			changePosM.y += 5;
-			//Mid z
-			changePosM.z -= 14;
-			//Mid d
-			//changeProportionM.z += 20;
-				
-			//Tip y
-			changePosT.y -= 4;
-			//Tip z
-			changePosT.z -= 39;
-			//Tip h
-			changeProportionT.y += 30;
-				
-		}
-	}
-	
+	changePosT.z+=15;
+
 	// Rotate the relative change according to where we're facing
-	changePosT = axis.rotateToThisAxis(changePosT);
-	changeProportionT = axis.rotateToThisAxis(changeProportionT);
-	changePosM = axis.rotateToThisAxis(changePosM);
-	changeProportionM = axis.rotateToThisAxis(changeProportionM);
-	
-	tip.setRelPos(changePosT);
-	tip.setRelSize(changeProportionT);
-
-	middle.setRelPos(changePosM);
-	middle.setRelSize(changeProportionM);
+	tip.setRelPos(axis.rotateToThisAxis(changePosT));
 	
 	// Set new collision boxes
 	pm->colBoxes[0] = *(base.fix());
 	pm->colBoxes[1] = *(middle.fix());
 	pm->colBoxes[2] = *(tip.fix());
+
+//	/* Cycle logic:
+//	 * CYCLE*1/2 = The tentacle is extended
+//	 * CYCLE = when the tentacle is back at the default position
+//	 */
+//	Box base = this->getPhysicsModel()->colBoxes.at(0);
+//	Box middle = this->getPhysicsModel()->colBoxes.at(1);
+//	Box tip = this->getPhysicsModel()->colBoxes.at(2);
+//	Vec3f changePosT = Vec3f(), changeProportionT = Vec3f();
+//	Vec3f changePosM = Vec3f(), changeProportionM = Vec3f();
+//
+//	//get the actual axis
+//	Vec4f axis = this->getPhysicsModel()->ref->getRot();
+//
+//	//if (((attackCounter - attackBuffer))%CYCLE == 0) {
+//	if (stateCounter%CYCLE == 0) {
+//		Box origBase = slamBoxes[0];
+//		Box origMiddle = slamBoxes[1];
+//		Box origTip = slamBoxes[2];
+//
+//		base.setPos(axis.rotateToThisAxis(origBase.getPos()));
+//		base.setSize(axis.rotateToThisAxis(origBase.getSize()));
+//
+//		middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+//		middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+//
+//		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+//		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+//	}
+//	/*
+//		* What I want when I start slamming:
+//		* BOX_TENT_BASE = -12, -20, 0, 28, 28, 75
+//		* BOX_TENT_MID = -12, -50, -95, 28, 90, 90
+//		* BOX_TENT_TIP = -12, 30, -165, 28, 30, 40
+//		*
+//		* When I'm in the middle of slamming:
+//		* BOX_TENT_BASE = -12, -20, 28, 28, 28, 35
+//		* BOX_TENT_MID = -12, -20, -28, 28, 70, 50
+//		* BOX_TENT_TIP = -12, 8, 28, 28, 105, 35
+//		*
+//		* Base z: 0 -> 28 (-28, or -2 * 2 per 5 + a remainder)
+//		* Base d: 75 -> 35 (-40, or -4 * 2 per 5)
+//		*
+//		* Mid y: -50 -> -20 (+30 or +6 per 5)
+//		* Mid z: -95 -> -28 (+67 or +12 per 5 + a remainder)
+//		* Mid h: 90 -> 70 (-20 or -4 per 5)
+//		* Mid d: 90 -> 50 (-40 or -8 per 5)
+//		*
+//		* Tip y: 30 -> 8 (-22 or -4 per 5)
+//		* Tip z: -165 -> 28 (+193 or +38 per 5)
+//		* Tip h: 28 -> 105 (+77 or +14 per 5)
+//		* Tip d: 40 -> 35 (-5 or -1 per 5)
+//		* 
+//		* Algorithm: 
+//		*  1. at the beginning and end, move DIF % 10 units
+//		*  2. per CYCLE / 10 iterations move everything DIF / 10 units.
+//		* 
+//		* With Cycle = 50, that means we need to get there in 25
+//		* 
+//		*/
+//	Vec3f pos;
+////	if ( ((attackCounter - attackBuffer))%5 == 0 )
+//	if ( stateCounter%5 == 0 )
+//	{
+//		//if ((attackCounter - attackBuffer)%CYCLE < CYCLE/2) {
+//		if (stateCounter%CYCLE < CYCLE/2) {
+//			//Base z
+//			//Base d
+//
+//			//Mid y
+//			changePosM.y -= 5;
+//			//Mid z
+//			changePosM.z += 14;
+//			//Mid d
+//			//changeProportionM.z -= 20;
+//				
+//			//Tip y
+//			changePosT.y += 4;
+//			//Tip z
+//			changePosT.z += 39;
+//			//Tip h
+//			changeProportionT.y -= 30;
+//				
+//		//} else if ((attackCounter - attackBuffer)%CYCLE < CYCLE) {
+//		} else if (stateCounter%CYCLE < CYCLE) {
+//			//Mid y
+//			changePosM.y += 5;
+//			//Mid z
+//			changePosM.z -= 14;
+//			//Mid d
+//			//changeProportionM.z += 20;
+//				
+//			//Tip y
+//			changePosT.y -= 4;
+//			//Tip z
+//			changePosT.z -= 39;
+//			//Tip h
+//			changeProportionT.y += 30;
+//				
+//		}
+//	}
+//	
+//	// Rotate the relative change according to where we're facing
+//	changePosT = axis.rotateToThisAxis(changePosT);
+//	changeProportionT = axis.rotateToThisAxis(changeProportionT);
+//	changePosM = axis.rotateToThisAxis(changePosM);
+//	changeProportionM = axis.rotateToThisAxis(changeProportionM);
+//	
+//	tip.setRelPos(changePosT);
+//	tip.setRelSize(changeProportionT);
+//
+//	middle.setRelPos(changePosM);
+//	middle.setRelSize(changeProportionM);
+//	
+//	// Set new collision boxes
+//	pm->colBoxes[0] = *(base.fix());
+//	pm->colBoxes[1] = *(middle.fix());
+//	pm->colBoxes[2] = *(tip.fix());
 }
 
 void TentacleSObj::spike() {
@@ -474,8 +557,22 @@ void TentacleSObj::spike() {
 	currStateDone = (stateCounter == 50);
 }
 
+void TentacleSObj::death() {
+	modelAnimationState = T_DEATH;
+
+	// No collision boxes in death
+	if (stateCounter == 0)
+	{
+		pm->colBoxes[0] = Box();
+		pm->colBoxes[1] = Box();
+		pm->colBoxes[2] = Box();
+	}
+
+	currStateDone = (stateCounter == 20);
+}
+
 void TentacleSObj::rage() {
-	modelAnimationState = T_IDLE; // todo rage animation
+	modelAnimationState = T_RAGE;
 
 	// First, we create the wave object
 	if (stateCounter == 0) {

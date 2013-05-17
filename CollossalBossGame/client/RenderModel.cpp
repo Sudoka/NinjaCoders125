@@ -173,7 +173,7 @@ void RenderModel::render() {
 		if (RE::get()->debugFlag) DC::get()->print("ANIMATION STATE %d\n", modelState);
 		if(modelState != prevModelState) {
 			RE::get()->getAnim()->ChangeAnimationSet(modelId, this->modelState);
-			RE::get()->getAnim()->ChangeAnimationPlaybackSpeed(modelId, 2.0);
+			//RE::get()->getAnim()->ChangeAnimationPlaybackSpeed(modelId, 2.0);
 		}
 		RE::get()->animate(modelId, /*rotX * rotY * rotZ*/ rotMat * trans);
 		prevModelState = modelState;
