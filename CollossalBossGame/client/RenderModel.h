@@ -27,6 +27,7 @@ public:
 	virtual ~RenderModel(void);
 	virtual void render();
 	virtual void setModelState(int state_id);
+	virtual void setAnimationFrame(int frame);
 	Frame *getFrameOfRef() { return ref; }
 	vector<Box> colBoxes;
 

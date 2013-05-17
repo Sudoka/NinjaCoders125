@@ -177,8 +177,13 @@ struct MonsterState {
 struct TentacleState {
 	Model modelNum;
 	int animationState;
+	int animationFrame;
 	bool fog;
 };
+
+#define IDLE_CYCLE_SIZE = 30
+#define SLAM_CYCLE_SIZE = 20
+#define DEFENSE_CYCLE_SIZE = 30
 
 enum TentacleActionState {
 	T_IDLE,

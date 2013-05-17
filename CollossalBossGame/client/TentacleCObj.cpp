@@ -66,6 +66,9 @@ bool TentacleCObj::update() {
 void TentacleCObj::deserialize(char* newState) {
 	TentacleState *state = (TentacleState*)newState;
 	this->getRenderModel()->setModelState(state->animationState);
+	//Collision sensing: Client side. Just set the animation frame equal to the sent animation frame
+	if (state->animationFrame >= 0)
+		this->getRenderModel()->setAnimationFrame(state->animationFrame);
 	this->fogging = state->fog;
 	if (COM::get()->collisionMode)
 	{

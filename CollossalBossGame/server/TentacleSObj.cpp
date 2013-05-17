@@ -570,6 +570,7 @@ int TentacleSObj::serialize(char * buf) {
 	state->modelNum = this->modelNum;
 	state->animationState = this->modelAnimationState;
 	state->fog = this->isFogging;
+	state->animationFrame = -1;
 
 	if (SOM::get()->collisionMode)
 	{

@@ -11,7 +11,7 @@ ChargeEffect::ChargeEffect(int numParticles)
 	this->numParticles = numParticles;
 	charge = 0; // todo horrendous
 	killCounter = 2;
-	filename = "res/smoke.bmp";
+	filename = "res/smokey.png";
 }
 
 

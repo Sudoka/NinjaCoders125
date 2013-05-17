@@ -224,3 +224,15 @@ void RenderModel::setModelState(int state_id) {
 		RE::get()->getAnim()->SetAnimationFrame(this->modelId, 0);
 
 }
+
+/* setAnimationFrame
+ *  Frame: the absolute frame this needs to be set to
+ * If the server needs this model to jump to a new part of the animation,
+ *   it figures out the frame and sends that to the client.
+ *   This is currently only being implemented for tentacles.
+ *
+ * Author: Bryan
+ */
+void RenderModel::setAnimationFrame(int frame) {
+	RE::get()->getAnim()->SetAnimationFrame(this->modelId, frame);
+}
