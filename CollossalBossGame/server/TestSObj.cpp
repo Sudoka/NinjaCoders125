@@ -28,13 +28,15 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 			bxVol = Box();
 			break;
 	}
-	pm = new PhysicsModel(pos, rot, 50);
-	testBoxIndex = pm->addBox(bxVol);
+
+	pm = new PhysicsModel(pos, rot, 1);
+	testBoxIndex = getCollisionModel()->add(new AabbElement(bxVol));
 	t = 0;
 }
 
 
 TestSObj::~TestSObj(void) {
+	delete pm;
 }
 
 bool TestSObj::update() {
@@ -84,13 +86,14 @@ int TestSObj::serialize(char * buf) {
 	{
 		CollisionState *collState = (CollisionState*)(buf + sizeof(ObjectState));
 
-		vector<Box> objBoxes = pm->colBoxes;
+		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
+			end = getCollisionModel()->getEnd();
 
-		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
+		collState->totalBoxes = min(end - cur, maxBoxes);
 
-		for (int i=0; i<collState->totalBoxes; i++)
-		{
-			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
+		for(int i=0; i < collState->totalBoxes; i++, cur++) {
+			//The collision box is relative to the object's frame-of-ref.  Get the non-relative collision box
+			collState->boxes[i] = ((AabbElement*)(*cur))->bx + pm->ref->getPos();
 		}
 
 		return pm->ref->serialize(buf + sizeof(ObjectState) + sizeof(CollisionState)) + sizeof(ObjectState) + sizeof(CollisionState);

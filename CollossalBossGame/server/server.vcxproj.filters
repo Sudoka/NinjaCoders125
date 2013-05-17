@@ -71,6 +71,9 @@
     <ClCompile Include="MechanicSObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ArenaWallSObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameServer.h">
@@ -128,6 +131,11 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MechanicSObj.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClInclude Include="ArenaWallSObj.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

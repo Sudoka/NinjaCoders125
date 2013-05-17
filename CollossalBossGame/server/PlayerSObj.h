@@ -1,6 +1,7 @@
 #pragma once
 #include "ServerObject.h"
 #include "Action.h"
+#include "CollisionModel.h"
 
 
 class PlayerSObj : public ServerObject

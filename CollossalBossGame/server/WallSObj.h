@@ -13,6 +13,7 @@ public:
 	virtual int serialize(char * buf);
 	virtual ObjectType getType() { return OBJ_GENERAL; }
 	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal) {}
+
 	Vec3f getNormal() { return normal; }
 	char serialbuffer[100];
 

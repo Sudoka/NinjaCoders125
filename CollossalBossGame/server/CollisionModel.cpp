@@ -2,31 +2,72 @@
 #include <math.h>
 
 /*
- * Model constructors
+ * CollisionModel functions
  */
-HMapModel::HMapModel(const char *filename, const Vec3f &offset, int unitLength, float scale, DIRECTION normalDir) {
+CollisionModel::~CollisionModel() {
+	clean();
+}
+
+int CollisionModel::add(CollisionElement *ce) {
+	vCollisionElements.push_back(ce);
+	return vCollisionElements.size() - 1;
+}
+
+CollisionElement *CollisionModel::get(int i) {
+	return vCollisionElements[i];
+}
+
+void CollisionModel::clean() {
+	for(vector<CollisionElement*>::iterator iter = vCollisionElements.begin();
+			iter < vCollisionElements.end();
+			++iter) {
+		delete *iter;
+	}
+	vCollisionElements.clear();
+}
+
+/*
+ * AabbElement functions
+ */
+AabbElement::AabbElement(float x, float y, float z, float w, float h, float l) {
+	bx = Box(x, y, z, w, h, l);
+}
+
+AabbElement::AabbElement(const Box &bx) {
+	this->bx = bx;
+}
+
+/*
+ * HMapElement functions
+ */
+HMapElement::HMapElement(const char *filename, const Vec3f &offset, int unitLength, float scale, DIRECTION normalDir) {
 	bCreatedHMap = true;
 	init(new HMap(filename, unitLength, scale), offset, normalDir);
 }
 
 //We're ignoring the normal direction atm
-HMapModel::HMapModel(HMap *hmap, const Vec3f &offset, DIRECTION normalDir) {
+HMapElement::HMapElement(HMap *hmap, const Vec3f &offset, DIRECTION normalDir) {
 	bCreatedHMap = false;
 	init(hmap, offset, normalDir);				
 }
 
-void HMapModel::init(HMap *hmap, const Vec3f &offset, DIRECTION normalDir) {
+void HMapElement::init(HMap *hmap, const Vec3f &offset, DIRECTION normalDir) {
 	this->hmap = hmap;
+	this->dir = normalDir;
 	float max = hmap->getMax();
-	this->bxTotalVolume = Box(offset.x, offset.y, offset.z, hmap->getWidth(), max, hmap->getLength());
+	this->bxTotalVolume = Box(offset.x, offset.y, offset.z,
+		(float)hmap->getWidth() * hmap->getUnitLength(), max, (float)hmap->getLength() * hmap->getUnitLength());
 }
 
-HMapModel::~HMapModel() {
+HMapElement::~HMapElement() {
 	if(bCreatedHMap) {
 		delete hmap;
 	}
 }
 
+/*
+ * Collision detection functions
+ */
 bool areColliding(const Box &bx1, const Box &bx2) {
 	return !(bx1.x + bx1.w < bx2.x ||
 			 bx1.y + bx1.h < bx2.y ||
@@ -36,17 +77,17 @@ bool areColliding(const Box &bx1, const Box &bx2) {
 			 bx1.z > bx2.z + bx2.l);
 }
 
-bool pointOnHMapCollision(const Point_t &pt, const Point_t &hmapPos, const HMapModel &hmap) {
+bool pointOnHMapCollision(float *hdiff, const Point_t &pt, const Point_t &hmapPos, const HMapElement &hmap) {
 	//Transform point so it is relative to the hmap top-left corner
 	float x = (pt.x - (hmapPos.x + hmap.bxTotalVolume.x)) / hmap.hmap->getUnitLength(),
 		  y = (pt.y - (hmapPos.y + hmap.bxTotalVolume.y)),	//Don't normalize the height
 		  z = (pt.z - (hmapPos.z + hmap.bxTotalVolume.z)) / hmap.hmap->getUnitLength();
 	
 	//Get indices of corners
-	int minI = floor(x),
-		minJ = floor(z),
-		maxI = ceil(x),
-		maxJ = ceil(z);
+	int minI = (int)floor(x),
+		minJ = (int)floor(z),
+		maxI = (int)ceil(x),
+		maxJ = (int)ceil(z);
 
 	//Determine which triangle to check
 	Vec3f v0, v1, norm;
@@ -62,7 +103,7 @@ bool pointOnHMapCollision(const Point_t &pt, const Point_t &hmapPos, const HMapM
 		v0 = Vec3f(0, h11 - h01, 1);
 		v1 = Vec3f(-1, h00 - h01, 0);
 	}
-	Point_t ptOnPlane = Point_t(minI,h00,minJ);	//guaranteed to be on both planes
+	Point_t ptOnPlane = Point_t((float)minI,h00,(float)minJ);	//guaranteed to be on both planes
 	cross(&norm, v0, v1);
 	norm.normalize();	//We only normalize this because it might serve as the collision normal later
 
@@ -74,16 +115,64 @@ bool pointOnHMapCollision(const Point_t &pt, const Point_t &hmapPos, const HMapM
 	// and height difference as well.
 
 	//Equation of a plane: norm * (pt - ptOnPlane), except using adjusted pt values.
-	float hdiff = ptOnPlane.y - (norm.x * (x - ptOnPlane.x) + norm.z * (z - ptOnPlane.z)) / norm.y	//height of the hmap at the current position
+	*hdiff = ptOnPlane.y - (norm.x * (x - ptOnPlane.x) + norm.z * (z - ptOnPlane.z)) / norm.y	//height of the hmap at the current position
 		- y;	//The current player's y-position, translated so it is relative the hmap's topleft-most corner
-	return hdiff >= 0;	//hdiff is the amount of shift that needs to happen to move the object out of the heightmap.
+	return *hdiff >= 0;	//hdiff is the amount of shift that needs to happen to move the object out of the heightmap.
 }
 
-bool areColliding(const Box &bx1, const Point_t &hmapCenter, const HMapModel &hmap) {
-	if(areColliding(bx1, hmap.bxTotalVolume)) {
+bool areColliding(Vec3f *shift, DIRECTION *collDir, const Box &bx, const Point_t &hmapCenter, const HMapElement &hmap) {
+	Point_t objPos = Point_t(), hmapPos = Point_t();
+	float hdiff;
+	*collDir = hmap.dir;
+
+	//Rotate x, y, z values so that the hmap shift direction is on the y axis
+	switch(hmap.dir) {
+	case NORTH:
+		break;
+	case SOUTH:
+		break;
+	case EAST:
+		break;
+	case WEST:
+		break;
+	case DOWN:
+		break;
+	default:	//UP
+		//No rotations
+		objPos = Point_t(bx.x + bx.w / 2, bx.y, bx.z + bx.l / 2);	//Bottom of the box
+		hmapPos = hmapCenter;
+		break;
+	}
+	if(pointOnHMapCollision(&hdiff, objPos, hmapPos, hmap)) {
+		switch(hmap.dir) {
+		case NORTH:
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		case SOUTH:
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		case EAST:
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		case WEST:
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		case DOWN:
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		default:	//UP
+			//No rotations
+			*shift = Point_t(0, hdiff, 0);
+			break;
+		}
+		return true;
 	}
 	return false;
 }
+
+/*
+ * Collision handling functions
+ */
 
 /*
  * Extract the shift axis and magnitude, as well as the collision normal
@@ -109,49 +198,13 @@ void getCollisionInfo(Vec3f *shift, DIRECTION *collDir, const Box &bx1, const Bo
         //Shift by X
 		shift->x = fXShift;
 		*collDir = fXShift < 0 ? WEST : EAST;
-#if 0
-		//Stop the lower object from falling
-        if( ((gravDir == WEST) && (bx2.x + obj2Shift.x > bx1.x + obj1Shift.x)) ||
-			((gravDir == EAST) && (bx2.x + obj2Shift.x < bx1.x + obj1Shift.x)) ) {
-            obj2->setFlag(IS_FALLING, false);
-			obj2->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-        } else if( ((gravDir == WEST) && (bx1.x + obj1Shift.x > bx2.x + obj2Shift.x)) ||
-				   ((gravDir == EAST) && (bx1.x + obj1Shift.x < bx2.x + obj2Shift.x)) ) {
-			obj1->setFlag(IS_FALLING, false);
-			obj1->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-		}
-#endif
     } else if(fabs(fYShift) < fabs(fXShift) && fabs(fYShift) < fabs(fZShift)) {
         //Shift by Y (vertical)
 		shift->y = fYShift;
 		*collDir = fYShift < 0 ? DOWN : UP;
-#if 0
-		//Stop the lower object from falling
-        if( ((gravDir == DOWN) && (bx2.y + obj2Shift.y > bx1.y + obj1Shift.y)) ||
-			((gravDir == UP)   && (bx2.y + obj2Shift.y < bx1.y + obj1Shift.y)) ) {
-            obj2->setFlag(IS_FALLING, false);
-			obj2->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-        } else if( ((gravDir == DOWN) && (bx1.y + obj1Shift.y > bx2.y + obj2Shift.y)) ||
-				   ((gravDir == UP)   && (bx1.y + obj1Shift.y < bx2.y + obj2Shift.y)) ) {
-			obj1->setFlag(IS_FALLING, false);
-			obj1->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-		}
-#endif
     } else {
         //Shift by Z
 		shift->z = fZShift;
 		*collDir = fZShift < 0 ? SOUTH : NORTH;
-#if 0
-		//Stop the lower object from falling
-        if( ((gravDir == SOUTH) && (bx2.z + obj2Shift.z > bx1.z + obj1Shift.z)) ||
-			((gravDir == NORTH) && (bx2.z + obj2Shift.z < bx1.z + obj1Shift.z)) ) {
-            obj2->setFlag(IS_FALLING, false);
-			obj2->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-        } else if( ((gravDir == SOUTH) && (bx1.z + obj1Shift.z > bx2.z + obj2Shift.z)) ||
-				   ((gravDir == NORTH) && (bx1.z + obj1Shift.z < bx2.z + obj2Shift.z)) ) {
-			obj1->setFlag(IS_FALLING, false);
-			obj1->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
-		}
-#endif
 	}
 }

@@ -69,6 +69,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ArenaWallSObj.cpp" />
     <ClCompile Include="BulletSObj.cpp" />
     <ClCompile Include="CyborgSObj.cpp" />
     <ClCompile Include="CollisionModel.cpp" />
@@ -91,6 +92,7 @@
     <ClCompile Include="WorldSObj.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ArenaWallSObj.h" />
     <ClInclude Include="BulletSObj.h" />
     <ClInclude Include="CyborgSObj.h" />
     <ClInclude Include="CollisionModel.h" />
