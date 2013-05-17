@@ -5,6 +5,7 @@
 #include "PlayerSObj.h"
 #include "BulletSObj.h"
 #include "ConfigurationManager.h"
+#include "CollisionModel.h"
 #include "PhysicsEngine.h"
 #include <time.h>
 #include <random>
@@ -28,7 +29,7 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 	CollisionModel *cm = getCollisionModel();
 
 	for (int i=0; i<3; i++) {
-		assert((cm->add(idleBoxes[i]) == i) && "Your physics model is out of sync with the rest of the world...");
+		assert((cm->add(new AabbElement(idleBoxes[i])) == i) && "Your physics model is out of sync with the rest of the world...");
 	}
 
 	this->setFlag(IS_STATIC, 1);
