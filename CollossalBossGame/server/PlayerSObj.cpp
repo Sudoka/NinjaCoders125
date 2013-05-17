@@ -105,7 +105,9 @@ bool PlayerSObj::update() {
 	Quat_t upRot;
 	calcUpVector(&upRot);
 	controlCamera(upRot);
-
+	bool f = this->getFlag(IS_STATIC);
+	bool g = this->getFlag(IS_FLOATING);
+	bool h = this->getFlag(IS_FALLING);
 	if(this->health > 0)
 	{
 		firedeath = false;

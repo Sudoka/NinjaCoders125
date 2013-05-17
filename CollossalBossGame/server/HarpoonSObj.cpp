@@ -24,6 +24,7 @@ HarpoonSObj::HarpoonSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForc
 	this->targetid = -1;
 
 	this->setFlag(IS_FLOATING, 1); // YAY IT'S A LASER PEWPEW
+	this->setFlag(IS_PASSABLE, 1); // YAY IT'S A GHOST PEWPEW
 }
 
 

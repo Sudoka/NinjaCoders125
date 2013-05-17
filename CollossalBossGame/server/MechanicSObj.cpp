@@ -58,15 +58,17 @@ void MechanicSObj::clearAccessory() {
 	ServerObject * so = SOM::get()->find(harpoon);
 	if(so != NULL && so->getType() == OBJ_HARPOON) {
 		HarpoonSObj * hso = reinterpret_cast<HarpoonSObj *>(so);
-		hso->state = HS_DEAD;
-		this->harpoon = -1;
 		if(hso->state == HS_HARPOON) {
 			if((so = SOM::get()->find(hso->targetid)) != NULL) {
-				((PlayerSObj *)so)->setFlag(IS_FLOATING, 0);
-				((PlayerSObj *)so)->setFlag(IS_FALLING, 1);
-				((PlayerSObj *)so)->jumping = true;
+				so->setFlag(IS_FLOATING, 0);
+				Vec3f pos = so->getPhysicsModel()->ref->getPos();
+				pos.y += 10;
+				so->getPhysicsModel()->ref->setPos(pos);
+				so->setFlag(IS_FALLING, 1);
 			}
 		}
+		hso->state = HS_DEAD;
+		this->harpoon = -1;
 	}
 	this->setFlag(IS_FLOATING, 0);
 	this->setFlag(IS_FALLING, 1);
