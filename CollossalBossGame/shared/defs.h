@@ -8,7 +8,9 @@
 //Standard includes
 #include <stdio.h>
 #include "DebugConsole.h"
+#include "Windows.h"
 #include <set>
+#include <math.h>
 
 //Constants (that we don't want to change, if we might, they should go in the config file)
 #define M_PI 3.141592653589793238462643383279502884197169399375105820974944592307816406286
@@ -131,7 +133,7 @@ typedef struct Vec3f {
 		y /= mag;
 		z /= mag;
 	}
-} Point_t;	//, Rot_t;
+} Point_t, Rot_t;
 
 typedef struct Vec4f {
 	//   (0, 1, 2, 3)
@@ -177,6 +179,11 @@ typedef struct Vec4f {
 		return res;
 	}
 
+	Vec3f extractAxis() {
+		float halfAngle = acos(this->w);
+		return Vec3f(this->x / halfAngle, this->y / halfAngle, this->z / halfAngle);
+	}
+
 	inline void normalize() {
 		float mag = sqrt(x * x + y * y + z * z + w * w);
 		x /= mag;
@@ -184,6 +191,15 @@ typedef struct Vec4f {
 		z /= mag;
 		w /= mag;
 	}
+
+	
+	/* Given a vector of the change we want to make,
+	 *  and the actual axis we are currently on,
+	 *  make the appropriate change in this vector.
+	 *
+	 * Author: Bryan
+	 */
+	Vec3f rotateToThisAxis(Vec3f change);
 } Quat_t;
 
 Quat_t inverse(const Quat_t &q);
@@ -196,6 +212,14 @@ Vec3f rotateRight(const Quat_t &q);
 Vec3f rotateFwd(const Quat_t &q);
 void cross(Vec3f *res, const Vec3f &v1, const Vec3f &v2);
 void slerp(Quat_t *res, const Quat_t &start, const Quat_t &end, float t);
+
+/*
+ * For communicating it's state across the server
+ */
+struct CollisionBoxState {
+	Vec3f position;
+	Vec3f dimensions;
+};
 
 //Axis-aligned bounding box
 typedef struct Box {
@@ -218,6 +242,58 @@ typedef struct Box {
 	Box operator+ (const Vec3f &pt) const {
 		return Box(x + pt.x, y + pt.y, z + pt.z,
 				   w,        h,        l);
+	}
+
+	Box operator- (const Box &bx) const {
+		return Box(x - bx.x, y - bx.y, z - bx.z,
+				   w - bx.w, h - bx.h, l - bx.l);
+	}
+
+	Box* fix() {
+		// This part works with negative height, width, length
+		if (this->w < 0 || this->h < 0 || this->l < 0)
+		{
+			Vec3f minCorner = Vec3f(	min(this->x + this->w, this->x), 
+										min(this->y + this->h, this->y), 
+										min(this->z + this->l, this->z));
+
+			Vec3f maxCorner = Vec3f(	max(this->x + this->w, this->x), 
+										max(this->y + this->h, this->y), 
+										max(this->z + this->l, this->z));
+
+			this->x = minCorner.x;
+			this->y = minCorner.y; 
+			this->z = minCorner.z,
+			this->w = maxCorner.x - minCorner.x;
+			this->h = maxCorner.y - minCorner.y;
+			this->l = maxCorner.z - minCorner.z;
+		}
+
+		return this;
+	}
+
+	void setPos(const Vec3f &pos) {
+		x = pos.x; y = pos.y; z = pos.z;
+	}
+
+	void setRelPos(const Vec3f &pos) {
+		x += pos.x; y += pos.y; z += pos.z;
+	}
+
+	void setSize(const Vec3f &size) {
+		w = size.x; h = size.y; l = size.z;
+	}
+
+	void setRelSize(const Vec3f &size) {
+		w += size.x; h += size.y; l += size.z;
+	}
+
+	Vec3f getPos() {
+		return Vec3f(x, y, z);
+	}
+
+	Vec3f getSize() {
+		return Vec3f(w, h, l);
 	}
 } Vol_t;
 
@@ -265,6 +341,21 @@ typedef enum ACTION {
 	ACT_SPECIAL,
 	ACT_ATTACK,
 	ACT_NUM_ACTIONS
+};
+
+struct GameData {
+	int start;
+	int hardreset;
+	int left;
+	int right;
+	
+	int clientready;
+
+	int playerid;
+
+	void clear() {
+		SecureZeroMemory(this, sizeof(GameData));
+	}
 };
 
 #endif

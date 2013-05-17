@@ -60,6 +60,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -69,26 +70,29 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ArenaWallSObj.cpp" />
+    <ClCompile Include="BulletSObj.cpp" />
+    <ClCompile Include="CyborgSObj.cpp" />
     <ClCompile Include="CollisionModel.cpp" />
-    <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="GameServer.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="MonsterSObj.cpp" />
     <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="PlayerSObj.cpp" />
     <ClCompile Include="ServerNetworkManager.cpp" />
     <ClCompile Include="ServerObject.cpp" />
     <ClCompile Include="ServerObjectManager.cpp" />
+    <ClCompile Include="ShooterSObj.cpp" />
     <ClCompile Include="TentacleSObj.cpp" />
     <ClCompile Include="TestSObj.cpp" />
     <ClCompile Include="WallSObj.cpp" />
     <ClCompile Include="WorldSObj.cpp" />
-    <ClCompile Include="WorldManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArenaWallSObj.h" />
+    <ClInclude Include="BulletSObj.h" />
+    <ClInclude Include="CyborgSObj.h" />
     <ClInclude Include="CollisionModel.h" />
-    <ClInclude Include="EventManager.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="GameServer.h" />
     <ClInclude Include="MonsterSObj.h" />
@@ -98,11 +102,10 @@
     <ClInclude Include="ServerNetworkManager.h" />
     <ClInclude Include="ServerObject.h" />
     <ClInclude Include="ServerObjectManager.h" />
+    <ClInclude Include="ShooterSObj.h" />
     <ClInclude Include="TentacleSObj.h" />
     <ClInclude Include="TestSObj.h" />
     <ClInclude Include="WallSObj.h" />
-    <ClInclude Include="WorldSObj.h" />
-    <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\shared\shared.vcxproj">

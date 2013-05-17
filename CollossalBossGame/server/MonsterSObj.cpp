@@ -3,6 +3,7 @@
 #include "ServerObjectManager.h"
 #include "defs.h"
 #include "PlayerSObj.h"
+#include "GameServer.h"
 #include <time.h>
 
 MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
@@ -21,14 +22,11 @@ MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 
 	this->numParts = numParts;
 	phase = -1;
-	EventManager::get()->fireEvent(EVENT_MONSTER_SPAWN, NULL);
+	GameServer::get()->event_monster_spawn();
 
 	srand((uint)time(NULL)); // initialize our random number generator
 
-//	stateCounter = 1;
-//	state=IDLE;
 }
-
 
 MonsterSObj::~MonsterSObj(void)
 {
@@ -48,7 +46,7 @@ void MonsterSObj::removeTentacle(TentacleSObj* t)
  * Once we get aiming & smashing a single player, if aiming and we've waited enough time, then we smash
  * If attacking or sweeping, we continue.
  *
- * Author: Bryan
+ * Author: Bryan, Haro, Suman
  */
 bool MonsterSObj::update() {
 	int numTentacles = tentacles.size();
@@ -87,7 +85,7 @@ bool MonsterSObj::update() {
 				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.first, currPlace.second, this);
 				break;
 			default: // you beat all the phases!
-				EventManager::get()->fireEvent(EVENT_MONSTER_DEATH, NULL);
+				GameServer::get()->event_monster_death();
 				return true; // I died!
 				// DO NOTHING MORE
 				// DONT YOU DARE

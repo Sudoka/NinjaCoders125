@@ -18,30 +18,31 @@
 #pragma comment (lib, "AdvApi32.lib")
 
 //each client has a client networker
-class ClientNetworkManager
-{
-
+class ClientNetworkManager {
 public:
+	static void init() { CNM = new ClientNetworkManager(); }
+	static ClientNetworkManager * get() { return CNM; }
+	static void clean() { delete CNM; }
+
     int iResult;			// for error checking function calls in Winsock library
     SOCKET ConnectSocket;	// socket for client to connect to server
 	char network_data[MAX_PACKET_SIZE];
 
-	static ClientNetworkManager * get();
 	int receivePackets(char *);
 	bool update();
-	void sendData(char * data, int datalen, int objectID);
+	void sendData(PacketTypes messagetype, char * data, int datalen, int objectID);
 	bool isConnected();
 private:
 	// ctor/dtor
     ClientNetworkManager(void);
     ~ClientNetworkManager(void);
 
-	static ClientNetworkManager CNM;
+	static ClientNetworkManager * CNM;
 	static unsigned int exper;
 	unsigned int iteration_count;
 	unsigned int response_packet_number;
 	bool connected;
 	int debugFlag;
 };
-
+typedef ClientNetworkManager CNM;
 #endif

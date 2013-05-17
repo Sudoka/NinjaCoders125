@@ -3,9 +3,10 @@
 
 ChargeEffect::ChargeEffect(int numParticles)
 {
-	vbSize = 2048;
+//	vbSize = 2048;
+	vbSize = 128;
 	vbOffset = 0;
-	vbBatchSize = 512;
+	vbBatchSize = 32;
 	pointSize = 5.0f;
 	this->numParticles = numParticles;
 	charge = 0; // todo horrendous
@@ -59,7 +60,7 @@ void ChargeEffect::setPosition(Vec3f pos, int charge)
 	
 	if(charge > 0 && charge < 14)
 	{
-		if(particles.size() < 100)
+		if(particles.size() + numParticles < this->vbBatchSize)
 			for(int i = 0; i < numParticles; i++) addParticle();
 	}
 }

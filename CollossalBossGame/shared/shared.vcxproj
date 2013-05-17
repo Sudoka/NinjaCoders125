@@ -76,6 +76,7 @@
     <ClCompile Include="DebugConsole.cpp" />
     <ClCompile Include="defs.cpp" />
     <ClCompile Include="Frame.cpp" />
+    <ClCompile Include="GameState.cpp" />
     <ClCompile Include="HMap.cpp" />
     <ClCompile Include="NetworkServices.cpp" />
   </ItemGroup>
@@ -85,6 +86,7 @@
     <ClInclude Include="DebugConsole.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="Frame.h" />
+    <ClInclude Include="GameState.h" />
     <ClInclude Include="HMap.h" />
     <ClInclude Include="NetworkData.h" />
     <ClInclude Include="NetworkServices.h" />

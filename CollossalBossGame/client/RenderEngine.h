@@ -58,10 +58,11 @@ public:
 
 	void setHUDText(string newText, int health, float charge) { hudText = newText; healthPts = health; this->charge = charge;}
 	void setMonsterHUDText(string newText, int health) { monsterHUDText = newText; monsterHealthPts = health; }
-	void addParticleEffect(ParticleSystem* ps) { ps->init(this->direct3dDevice); this->particleSystems.push_back(ps);  }
-	
+	void addParticleEffect(ParticleSystem* ps) { ps->init(this->direct3dDevice); this->particleSystems.push_back(ps); }
+	void removeParticleEffect(ParticleSystem* ps) { this->particleSystems.remove(ps); delete ps; }
 	//Models
 	void animate(int id, const D3DXMATRIX &pos);
+
 	bool loadModel(const char * filename, int * idAddr, const D3DXMATRIX &rootMat);
 
 	bool debugFlag;
@@ -96,7 +97,7 @@ private:
 
 	Camera* cam;
 	HeadsUpDisplay* hud;
-	vector<ParticleSystem*> particleSystems;
+	list<ParticleSystem*> particleSystems;
 	CollisionBoxPoints* colBxPts;
 	//Configuration fields
 	float cameraDist;

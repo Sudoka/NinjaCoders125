@@ -1,21 +1,23 @@
 #pragma once
-#include "ClientObject.h"
 
-class TentacleCObj : public ClientObject
+#include "ClientObject.h"
+#include "Action.h"
+#include "ShootingEffect.h"
+
+class BulletCObj : public ClientObject
 {
 public:
-	TentacleCObj(uint id, char *serializedData);
-	virtual ~TentacleCObj(void);
+	BulletCObj(uint id, char *serializedData);
+	virtual ~BulletCObj(void);
 
 	virtual bool update();
 
 	virtual RenderModel* getRenderModel() { return rm; }
 
 	virtual void deserialize(char* newState);
-	virtual RenderModel * getBox();
 
 private:
-	RenderModel * box;
 	RenderModel *rm;
+	ShootingEffect* pewPew;
 };
 

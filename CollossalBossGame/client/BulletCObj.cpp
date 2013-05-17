@@ -1,4 +1,4 @@
-#include "TestObject.h"
+#include "BulletCObj.h"
 #include "ClientEngine.h"
 #include "ClientObjectManager.h"
 #include <math.h>
@@ -6,30 +6,35 @@
 #include "RenderEngine.h"
 #include "NetworkData.h"
 
-
-TestObject::TestObject(uint id, char *serializedData) :
+BulletCObj::BulletCObj(uint id, char *serializedData) :
 	ClientObject(id)
 {
 	if (COM::get()->debugFlag) DC::get()->print("Created new TestObject %d\n", id);
 
 	ObjectState *state = (ObjectState*)serializedData;
 
-	rm = new RenderModel(Point_t(), Quat_t(), state->modelNum);
+	// todo send -1
+	rm = new RenderModel(Point_t(),Quat_t(), (Model)-1);
 	deserialize(serializedData);
+	pewPew = new ShootingEffect();
+	RE::get()->addParticleEffect(pewPew);
 }
 
 
-TestObject::~TestObject(void)
+BulletCObj::~BulletCObj(void)
 {
 	// delete xctrl;
 	delete rm;
+	RE::get()->removeParticleEffect(pewPew);
 }
 
-bool TestObject::update() {
+bool BulletCObj::update() {
+	pewPew->setPosition(rm->getFrameOfRef()->getPos());
+	pewPew->update(.33);
 	return false;
 }
 
-void TestObject::deserialize(char* newState) {
+void BulletCObj::deserialize(char* newState) {
 	ObjectState *state = (ObjectState*)newState;
 
 	if (COM::get()->collisionMode)
@@ -48,8 +53,4 @@ void TestObject::deserialize(char* newState) {
 	{
 		rm->getFrameOfRef()->deserialize(newState + sizeof(ObjectState));
 	}
-}
-
-RenderModel * TestObject::getBox(){
-	return NULL;
 }

@@ -1,15 +1,15 @@
 #pragma once
 #include "ParticleSystem.h"
-#include <vector>
-class CollisionBoxPoints :
+class ShootingEffect :
 	public ParticleSystem
 {
 public:
-	CollisionBoxPoints(void);
-	virtual ~CollisionBoxPoints(void);
+	ShootingEffect(void);
+	virtual ~ShootingEffect(void);
 	virtual void resetParticle(ParticleAttributes* a);
 	virtual void update(float timeDelta);
-	virtual void addParticles(vector<Vec3f> pts);
+	virtual void setPosition(Vec3f pos);
 
+	D3DXVECTOR3 pos;
 };
 

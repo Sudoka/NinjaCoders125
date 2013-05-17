@@ -27,6 +27,7 @@ public:
 	void add(ServerObject *obj);
 	ServerObject *find(uint id);
 	ServerObject *remove(uint id);
+	void findObjects(ObjectType type, vector<ServerObject *> * l);
 
 	bool debugFlag;
 	bool collisionMode;

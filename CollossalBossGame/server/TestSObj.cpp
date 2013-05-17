@@ -27,7 +27,8 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 			bxVol = Box();
 			break;
 	}
-	pm = new PhysicsModel(pos, rot, 50);
+
+	pm = new PhysicsModel(pos, rot, 1);
 	testBoxIndex = getCollisionModel()->add(new AabbElement(bxVol));
 	t = 0;
 }

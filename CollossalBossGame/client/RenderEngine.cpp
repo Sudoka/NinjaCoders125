@@ -49,7 +49,7 @@ void RenderEngine::startWindow()
 	windowHandle = CreateWindowEx(
 		NULL,
 		"WindowClass",
-		"Our First Direct3D Program",
+		"Seek, Scavenge, Slay",
 		WS_EX_TOPMOST | WS_POPUP,
 		CW_USEDEFAULT, CW_USEDEFAULT, //0, 0,
 		SCREEN_WIDTH, SCREEN_HEIGHT,
@@ -96,15 +96,15 @@ void RenderEngine::renderInitalization()
 		D3DDEVTYPE_HAL,
 		windowHandle,
 //		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-		D3DCREATE_MIXED_VERTEXPROCESSING,
-//		D3DCREATE_HARDWARE_VERTEXPROCESSING,
+//		D3DCREATE_MIXED_VERTEXPROCESSING,
+		D3DCREATE_HARDWARE_VERTEXPROCESSING,
 		&deviceInfo,
 		&direct3dDevice);
 
 
 	D3DXMATRIX matProj;
 	//TODO: determine clipping
-	D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/4, 800.0f/600.0f, 1.0f, CM::get()->find_config_as_float("CLIPPING_PLANE") );
+	D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/3, 800.0f/600.0f, 1.0f, CM::get()->find_config_as_float("CLIPPING_PLANE") );
 	direct3dDevice->SetTransform( D3DTS_PROJECTION, &matProj );
 	
 	direct3dDevice->SetRenderState( D3DRS_ZENABLE , D3DZB_TRUE );	//Enable depth buffering
@@ -194,6 +194,8 @@ RenderEngine::~RenderEngine() {
 	RE::re = NULL;
 	direct3dDevice->Release(); // close and release the 3D device
 	direct3dInterface->Release(); // close and release Direct3D
+	this->removeParticleEffect(colBxPts);
+
 	delete hud;
 	delete cam;
 }
@@ -203,16 +205,24 @@ void RenderEngine::drawHUD() {
 		hud->displayText(this->hudText,this->monsterHUDText);
 		hud->displayHealthBars(this->healthPts, this->monsterHealthPts, this->charge);
 	}
+	else
+	{
+		this->colBxPts->kill();
+	}
 }
 
 /*where we actually draw a scene
 * Bryan
 */
 void RenderEngine::sceneDrawing() {
+	//Telling the world to advance any animations we have
 	for(list<ClientObject *>::iterator it = lsObjs.begin();
 			it != lsObjs.end();
 			++it) {
-		(*it)->getRenderModel()->render();
+		if ((*it)->getRenderModel() != NULL)
+			(*it)->getRenderModel()->render();
+		/*if ((*it)->getBox() != NULL)
+			(*it)->getBox()->render();*/
 	}
 	lsObjs.clear();
 }
@@ -237,9 +247,10 @@ void RenderEngine::render() {
 	gamestartdisplaylogic();
 	hud->displayBackground();
 	sceneDrawing();
-	for(int i = 0; i < this->particleSystems.size(); i++)
-	{
-		this->particleSystems[i]->render(direct3dDevice);
+	for(list<ParticleSystem *>::iterator it = particleSystems.begin();
+			it != particleSystems.end();
+			++it) {
+		(*it)->render(direct3dDevice);
 	}
 	drawHUD();
 	//ps->render(direct3dDevice);

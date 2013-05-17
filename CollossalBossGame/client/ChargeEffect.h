@@ -5,7 +5,7 @@ class ChargeEffect :
 {
 public:
 	ChargeEffect(int numParticles);
-	~ChargeEffect(void);
+	virtual ~ChargeEffect(void);
 	virtual void resetParticle(ParticleAttributes* a);
 	virtual void update(float timeDelta);
 	virtual void setPosition(Vec3f pos, int charge);

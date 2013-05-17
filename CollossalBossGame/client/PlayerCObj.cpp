@@ -49,7 +49,7 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 PlayerCObj::~PlayerCObj(void)
 {
 	delete rm;
-	delete chargingEffect;
+	RE::get()->removeParticleEffect(chargingEffect);
 
 	//Quit the game
 	CE::get()->exit();
@@ -105,6 +105,7 @@ void PlayerCObj::deserialize(char* newState) {
 
 	if(this->ready == false) {
 		RE::get()->gamestarted = false;
+		// chargingEffect->kill();
 	}
 
 	this->getRenderModel()->setModelState(state->animationstate);

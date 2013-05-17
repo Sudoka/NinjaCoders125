@@ -53,6 +53,11 @@ void ParticleSystem::reset()
 	}
 }
 
+void ParticleSystem::kill()
+{
+	particles.clear();
+}
+
 void ParticleSystem::addParticle()
 {
 	ParticleAttributes a;
@@ -139,62 +144,6 @@ void ParticleSystem::removeDeadParticles()
 	}
 }
 
-//// the shits and giggles
-//void ParticleSystem::render(LPDIRECT3DDEVICE9 direct3dDevice)
-//{
-//	if(!particles.empty())
-//	{
-//		preRender(direct3dDevice);
-//		direct3dDevice->SetTexture(0,texture);	
-//		direct3dDevice->SetFVF(Particle::FVF);
-//		direct3dDevice->SetStreamSource(0, vb, 0, sizeof(Particle));
-//
-//		if(vbOffset >= vbSize) vbOffset = 0;
-//		Particle* v = 0;
-//
-//		vb->Lock( vbOffset * sizeof(Particle),
-//				  vbBatchSize * sizeof(Particle),
-//				  (void**)&v,
-//				  vbOffset ? D3DLOCK_NOOVERWRITE : D3DLOCK_DISCARD);
-//		DWORD numParticlesInBatch = 0;
-//
-//		list<ParticleAttributes>::iterator i;
-//		for(i = particles.begin(); i != particles.end(); i++)
-//		{
-//			if(i->isAlive)
-//			{
-//				v->pt = i->pos;
-//				v->color = i->color;
-//				//v->color = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);
-//				v++;
-//				//numParticlesInBatch++;
-//				//if(numParticlesInBatch == vbBatchSize)
-//				//{
-//					//vb->Unlock();
-//					direct3dDevice->DrawPrimitive( D3DPT_POINTLIST, vbOffset, vbBatchSize);
-//					//vbOffset += vbBatchSize;
-//					//if(vbOffset >= vbSize) vbOffset = 0;
-//					//vb->Lock( vbOffset * sizeof(Particle),
-//					//		  vbBatchSize * sizeof(Particle),
-//					//		  (void**)&v,
-//					//		  vbOffset ? D3DLOCK_NOOVERWRITE : D3DLOCK_DISCARD);
-//					//numParticlesInBatch = 0;
-//				//}
-//			}
-//		}
-//	
-//		vb->Unlock();
-//
-//		//if(numParticlesInBatch)
-//		//{
-//		//	direct3dDevice->DrawPrimitive( D3DPT_POINTLIST, vbOffset, vbBatchSize);
-//		//}
-//
-//		//vbOffset += vbBatchSize;
-//		postRender(direct3dDevice);
-//	}
-//}
-
 // the shits and giggles
 void ParticleSystem::render(LPDIRECT3DDEVICE9 direct3dDevice)
 {
@@ -221,7 +170,6 @@ void ParticleSystem::render(LPDIRECT3DDEVICE9 direct3dDevice)
 			{
 				v->pt = i->pos;
 				v->color = i->color;
-				//v->color = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);
 				v++;
 				numParticlesInBatch++;
 				if(numParticlesInBatch == vbBatchSize)
@@ -243,11 +191,12 @@ void ParticleSystem::render(LPDIRECT3DDEVICE9 direct3dDevice)
 
 		if(numParticlesInBatch)
 		{
-			direct3dDevice->DrawPrimitive( D3DPT_POINTLIST, vbOffset, vbBatchSize);
+			direct3dDevice->DrawPrimitive( D3DPT_POINTLIST, vbOffset, numParticlesInBatch);
 		}
 
 		vbOffset += vbBatchSize;
 		postRender(direct3dDevice);
+
 	}
 }
 

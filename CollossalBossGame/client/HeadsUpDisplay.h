@@ -18,11 +18,14 @@ public:
 
 	void displayText(string hudText, string monsterHUDText);
 	void displayHealthBars(int playerHealth, int monsterHealth, float charge);
+
 	void displayBackground();
 	void displayGameOver();
 	void displayVictory();
 	void displayStart();
-
+	void displaySceneSelect();
+	void displayLoadingScreen();
+	void displayClassSelect();
 private:
 	bool * gamestart;
 	ID3DXFont* direct3dText; // the pointer to the device class

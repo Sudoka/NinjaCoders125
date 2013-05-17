@@ -13,29 +13,19 @@ using namespace std;
 
 class ServerNetworkManager
 {
-private:
-	ServerNetworkManager(void);
-    ~ServerNetworkManager(void);
-
-	SOCKET getSocketById(int client_id);
-	inline int initPacketBuffer(unsigned int iteration, unsigned int packet_type, unsigned int object_id, CommandTypes command_type, unsigned int data_size);
-
-	static ServerNetworkManager SNM;	// Class Singleton
-	char network_data[MAX_PACKET_SIZE];	// data buffer
-	char packet_buffer[MAX_PACKET_SIZE];	// data buffer
-	bool prepare_packet;
-
-	bool debugFlag;
 public:
-	static unsigned int client_id;		// Unique Client Ids for each connecting client TODO private, numClients
+	static void init() { SNM = new ServerNetworkManager(); }
+	static ServerNetworkManager * get() { return SNM; }
+	static void clean() { delete SNM; }
 
-	static ServerNetworkManager * get();
+	static unsigned int client_id;		// Unique Client Ids for each connecting client TODO private, numClients
 
 	void update();												// Generic Update cycle - manages buffer and connections.
 	void receiveFromClients();									// Collects data from all clients
 	bool acceptNewClient(unsigned int & id);					// accept new connections
     int  receiveData(unsigned int client_id, char * recvbuf);	// receive incoming data
 	char* getSendBuffer();										// Fetches send buffer to fill for sending.
+
 	// send data to a single client
 	int sendToClient(SOCKET sock_id, unsigned int packet_type, unsigned int data_size);
 	int sendToClient(SOCKET sock_id, unsigned int packet_type, unsigned int object_id, unsigned int data_size);
@@ -56,5 +46,19 @@ public:
 	std::map<long, unsigned int> sessionsip; // table to keep track of each client's ipaddress in the form of a long
 	std::map<unsigned int, unsigned int> sessionsobjid; // table <client id, object id>
 	Packet send_buffer;
+
+private:
+	ServerNetworkManager(void);
+    ~ServerNetworkManager(void);
+
+	SOCKET getSocketById(int client_id);
+	inline int initPacketBuffer(unsigned int iteration, unsigned int packet_type, unsigned int object_id, CommandTypes command_type, unsigned int data_size);
+
+	static ServerNetworkManager * SNM;	// Class Singleton
+	char network_data[MAX_PACKET_SIZE];	// data buffer
+	char packet_buffer[MAX_PACKET_SIZE];	// data buffer
+	bool prepare_packet;
+
+	bool debugFlag;
 };
 typedef ServerNetworkManager SNM;

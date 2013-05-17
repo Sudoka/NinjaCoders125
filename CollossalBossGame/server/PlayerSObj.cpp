@@ -1,12 +1,12 @@
 #include "PlayerSObj.h"
 #include "ConfigurationManager.h"
 #include "ServerObjectManager.h"
-#include "WorldManager.h"
+#include "GameServer.h"
 #include "WallSObj.h"
 #include "defs.h"
 #include "PhysicsEngine.h"
 
-PlayerSObj::PlayerSObj(uint id, uint clientId) : ServerObject(id) {
+PlayerSObj::PlayerSObj(uint id, uint clientId, CharacterClass cc) : ServerObject(id) {
 	// Save parameters here
 	this->clientId = clientId;
 	DC::get()->print("Player %d with obj id %d created\n", clientId, id);
@@ -14,10 +14,12 @@ PlayerSObj::PlayerSObj(uint id, uint clientId) : ServerObject(id) {
 	// Set all your pointers to NULL here, so initialize()
 	// knows if it should create them or not
 	pm = NULL;
+	charclass = cc;
 
 	// Other re-initializations (things that don't depend on parameters, like config)
 	this->initialize();
 }
+
 
 void PlayerSObj::initialize() {
 	// Configuration options
@@ -79,6 +81,7 @@ void PlayerSObj::initialize() {
 	initUpRot = Quat_t();
 	finalUpRot = Quat_t();
 	camYaw = 0;
+	camPitch = 0;
 	camKpSlow = CM::get()->find_config_as_float("CAM_KP_SLOW");
 	camKpFast = CM::get()->find_config_as_float("CAM_KP_FAST");
 	camKp = camKpSlow;
@@ -108,11 +111,12 @@ bool PlayerSObj::update() {
 	{
 		firedeath = false;
 
-		attacking = istat.attack && newAttack;
-		newAttack = !istat.attack;
+		attacking = istat.specialPower && newAttack;
+		newAttack = !istat.specialPower;
 
-		//if (attacking) attackCounter++;
-		//else attackCounter = 0;
+		if (attacking) {
+			actionAttack();
+		}
 
 		// Jumping can happen in two cases
 		// 1. Collisions
@@ -147,6 +151,16 @@ bool PlayerSObj::update() {
 		if(fabs(istat.forwardDist) > 0.0f || fabs(istat.rightDist) > 0.0f) {
 			yaw = camYaw + istat.rotAngle;
 		}
+		if(istat.camLock) {
+			camPitch = 0.f;
+		} else {
+			camPitch += istat.rotVert;
+		}
+		if (camPitch > M_PI / 2.f) {
+			camPitch = (float)M_PI / 2.f;
+		} else if(camPitch < -M_PI / 4) {
+			camPitch = (float)-M_PI / 4.f;
+		}
 
 		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
 		pm->ref->setRot(qRot);
@@ -161,7 +175,7 @@ bool PlayerSObj::update() {
 		pm->applyForce(total);
 
 		// Apply special power
-		if (istat.specialPower && !getFlag(IS_FALLING)) // holding down increases the charge
+		if (istat.attack && !getFlag(IS_FALLING)) // holding down increases the charge
 		{
 			charge+=chargeUpdate;
 			if(charge > 13) charge = 13.f;
@@ -171,10 +185,7 @@ bool PlayerSObj::update() {
 			// If we accumulated some charge, fire!
 			if (charge > 0.f)
 			{
-				// Vec3f up = (PE::get()->getGravVec() * -1);
-				//pm->applyForce(up * (chargeForce * charge));
-				pm->applyForce(rotate(Vec3f(0, chargeForce * charge, chargeForce * charge), qRot));
-				charging = true;
+				releaseCharge();
 			}
 
 			charge = 0.f;
@@ -194,7 +205,7 @@ bool PlayerSObj::update() {
 		// NOTE: Player should probably be also getting their client id.
 		if(!firedeath) {
 			firedeath = true;
-			EventManager::get()->fireEvent(EVENT_PLAYER_DEATH, this); 
+			GameServer::get()->event_player_death(this->getId());
 		}
 	}
 
@@ -267,7 +278,20 @@ float PlayerSObj::controlAngles(float des, float cur) {
 int PlayerSObj::serialize(char * buf) {
 	PlayerState *state = (PlayerState*)buf;
 	// This helps us distinguish between what model goes to what player
-	state->modelNum = (Model)(MDL_PLAYER_1 + this->clientId);
+	switch(this->charclass) {
+		case CHAR_CLASS_CYBORG:
+			state->modelNum = (Model)(MDL_PLAYER_1);
+			break;
+		case CHAR_CLASS_SHOOTER:
+			state->modelNum = (Model)(MDL_PLAYER_2);
+			break;
+		case CHAR_CLASS_SCIENTIST:
+			state->modelNum = (Model)(MDL_PLAYER_3);
+			break;
+		case CHAR_CLASS_MECHANIC:
+			state->modelNum = (Model)(MDL_PLAYER_4);
+			break;
+	}
 	state->health = health;
 	state->ready = ready;
 	state->charge = charge;
@@ -302,7 +326,7 @@ void PlayerSObj::deserialize(char* newInput)
 	inputstatus* newStatus = reinterpret_cast<inputstatus*>(newInput);
 	istat = *newStatus;
 	if (istat.start) {
-		EventManager::get()->fireEvent(EVENT_RESET, this); 
+		GameServer::get()->event_reset(this->getId());
 	}
 }
 

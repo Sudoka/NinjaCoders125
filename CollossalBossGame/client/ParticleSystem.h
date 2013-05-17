@@ -34,6 +34,7 @@ public:
 	virtual void update(float timeDelta) = 0;
 	virtual void render(LPDIRECT3DDEVICE9 direct3dDevice);
 	virtual void init(LPDIRECT3DDEVICE9 pDevice);
+	virtual void kill();
 
 	bool isDead();
 	bool isEmpty();

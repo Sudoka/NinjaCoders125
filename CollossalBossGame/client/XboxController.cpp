@@ -1,5 +1,6 @@
 #include "ClientNetworkManager.h"
 #include "ClientObjectManager.h"
+#include "RenderEngine.h"
 #include "XboxController.h"
 #include "Action.h"
 #include "defs.h"
@@ -91,7 +92,7 @@ void XboxController::sendInput() {
 		}*/
 	}
 	//Send the input data, zero'd if nothing is there
-	ClientNetworkManager::get()->sendData(reinterpret_cast<char*>(&istat), sizeof(inputstatus), COM::get()->player_id);
+	ClientNetworkManager::get()->sendData(OBJECT_MANAGER, reinterpret_cast<char*>(&istat), sizeof(inputstatus), COM::get()->player_id);
 }
 
 bool XboxController::isConnected()

@@ -4,14 +4,6 @@
 #include <random>
 #include <map>
 //#include <vector>
-/*
-typedef enum TentacleState {
-	IDLE,
-	SWEEP,
-	NUM_States
-};
-*/
-#define CYCLE 30
 
 /* MonsterSObj.h
  * This defines our tentacle & it's strategy
@@ -39,8 +31,8 @@ public:
 	char serialbuffer[100];
 
 private:
-//	PhysicsModel *pm;
-//	AABBModel *cm;
+	TentacleSObj *tentacle[10];
+	PhysicsModel *pm;
 	int health;
 	int phase; // what phase of the monster you're in
 

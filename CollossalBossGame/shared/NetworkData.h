@@ -5,14 +5,16 @@
 #include "defs.h"
 
 #define MAX_PACKET_SIZE 1000000
-#define PACKET_SIZE 1024
+#define PACKET_SIZE 256
 
 // The type of message sent between client and server.
 enum PacketTypes {
     INIT_CONNECTION = 0,
-    ACTION_EVENT = 1,
-	MESSAGE = 2,
-	COMPLETE
+    OBJECT_MANAGER = 1,
+    GAMESTATE_MANAGER = 2,
+    RESET = 3,
+    CLIENT_READY = 4,
+    COMPLETE
 };
 
 // Commands sent from the ServerObjectManager to the ClientObjectManager.
@@ -86,9 +88,21 @@ enum ObjectType {
 	OBJ_PLAYER,
 	OBJ_MONSTER,
 	OBJ_TENTACLE,
+	OBJ_BULLET,
 	NUM_OBJS
 };
 
+/*
+ * Character Classes
+ * These tell the client which object to create.
+ */
+enum CharacterClass {
+	CHAR_CLASS_GENERAL,
+	CHAR_CLASS_CYBORG,
+	CHAR_CLASS_SHOOTER,
+	CHAR_CLASS_SCIENTIST,
+	CHAR_CLASS_MECHANIC 
+};
 /*
  * Data format structures
  * These structures are used for formatting serialized data.  No actual
@@ -109,6 +123,7 @@ enum ObjectType {
  */
 struct CreateHeader {
 	ObjectType type;
+	CharacterClass cc;
 };
 
 /*
@@ -160,6 +175,13 @@ struct MonsterState {
  */
 struct TentacleState {
 	Model modelNum;
+	int animationState;
+};
+
+enum TentacleActionState {
+	T_IDLE,
+	T_SLAM,
+	NUM_T
 	//int health;
 };
 
@@ -173,3 +195,4 @@ enum PlayerAnimationState {
 	ATK  = 3,
 	DEAD = 4
 };
+
