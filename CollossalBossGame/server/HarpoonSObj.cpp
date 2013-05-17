@@ -21,6 +21,7 @@ HarpoonSObj::HarpoonSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForc
 	this->damage = dmg;
 	this->diameter = diameter;
 	this->creatorid = pso->getId();
+	this->targetid = -1;
 
 	this->setFlag(IS_FLOATING, 1); // YAY IT'S A LASER PEWPEW
 }
@@ -123,6 +124,7 @@ void HarpoonSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 			gracefullyfail(NULL, target);
 		}
 		target->setFlag(IS_FLOATING, 0);
+		target->setFlag(IS_FALLING, 1);
 	} else if(this->state == HS_FLYING && obj->getId() != creatorid) {
 		if(obj->getFlag(IS_STATIC)) {
 			this->setFlag(IS_STATIC, 1);

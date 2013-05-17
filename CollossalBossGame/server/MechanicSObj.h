@@ -11,7 +11,7 @@ public:
 
 	virtual void initialize();
 	virtual void clearAccessory();
-	HarpoonSObj * hso;
+	int harpoon;
 
 protected:
 	virtual void releaseCharge();

@@ -29,12 +29,13 @@ public:
 	int damage;
 	bool ready;
 	CharacterClass charclass;
+	bool jumping;
 protected:
 	uint clientId;
 	PhysicsModel *pm;
 	inputstatus istat;
 	Point_t lastCollision;
-	bool jumping, newJump, appliedJumpForce;
+	bool newJump, appliedJumpForce;
 	bool charging, newCharge;
 	float charge;
 	// Configuration options

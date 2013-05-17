@@ -24,14 +24,16 @@ public:
 	Vec3f getNormal() { return normal; }
 	char serialbuffer[100];
 
+	// void resetAttachedObjects();
+
 	HarpoonState state;
 	int damage;
 	int diameter;
+	int creatorid;
+	int targetid;
 private:
 	PhysicsModel *pm;
 	Model modelNum;
 	Vec3f normal;
-	int creatorid;
-	int targetid;
 	Vec3f dist2target;
 };
