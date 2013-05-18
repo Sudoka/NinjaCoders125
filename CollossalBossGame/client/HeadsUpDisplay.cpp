@@ -120,18 +120,18 @@ void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
 
 	SetRect(&font_rect,
 			hudTopX,
-			hudTopY,
+			hudTopY+50,
 			1024,
 			768);
 
 	SetRect(&monstr_rect,
 			hudTopX,
-			hudTopY + 50,
+			hudTopY,
 			1024,
 			768);
 
 	SetRect(&charge_rect,
-			hudTopX,
+			hudTopX ,
 			hudTopY + 100,
 			1024,
 			768);
@@ -166,23 +166,35 @@ void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
 
 void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, float charge)
 {
-
-	D3DXVECTOR2 blines[] = {D3DXVECTOR2(10.0f, 40.0f), D3DXVECTOR2(110.0f, 40.0f)};
+	//The background for the monster
+	D3DXVECTOR2 blines[] = {D3DXVECTOR2(300.0f, 40.0f), D3DXVECTOR2(500.0f, 40.0f)};
 	backgroundLine->SetWidth(15.0f);
 	backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
 
-	D3DXVECTOR2 hlines[] = {D3DXVECTOR2(10.0f, 40.0f), D3DXVECTOR2(playerHealth + 10.f , 40.0f)};
-	healthLine->SetWidth(15.0f);
-	healthLine->Draw(hlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100.0 - playerHealth) / 100.0), (int)(255.0 * playerHealth / 100.0), 0));
-
-    blines[0] = D3DXVECTOR2(10.0f, 90.0f); blines[1] = D3DXVECTOR2(110.0f, 90.0f);
-	backgroundLine->SetWidth(15.0f);
-	backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
-
-	D3DXVECTOR2 mlines[] = {D3DXVECTOR2(10.0f, 90.0f), D3DXVECTOR2(monsterHealth + 10.f , 90.0f)};
+	//The actual health for the monster
+	//we want it to map so 100% health = 200 pixels in width, and the initial health is determined by the config file
+	float max_health = (float) CM::get()->find_config_as_int("INIT_HEALTH");
+	float percentage = ((float)monsterHealth)/max_health;
+	float inverse = 1.f-((float)monsterHealth)/max_health;
+	D3DXVECTOR2 mlines[] = {D3DXVECTOR2(300.0f, 40.0f), D3DXVECTOR2(percentage*200.f + 300.f , 40.0f)};
 	monsterLine->SetWidth(15.0f);
-	monsterLine->Draw(mlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100.0 - monsterHealth) / 100.0), (int)(255.0 * monsterHealth / 100.0), 0));
+	monsterLine->Draw(mlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * inverse), (int)(255.0 * percentage), 0));
 
+	//player health background
+	blines[0] = D3DXVECTOR2(10.0f, 90.0f); blines[1] = D3DXVECTOR2(110.0f, 90.0f);
+	backgroundLine->SetWidth(15.0f);
+	backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
+
+	//player health
+	max_health = (float) CM::get()->find_config_as_int("INIT_HEALTH");
+	percentage = ((float)playerHealth)/max_health;
+	inverse = 1.f - ((float)playerHealth)/max_health;
+	D3DXVECTOR2 hlines[] = {D3DXVECTOR2(10.0f, 90.0f), D3DXVECTOR2(percentage*100.f + 10.f , 90.0f)};
+	healthLine->SetWidth(15.0f);
+	healthLine->Draw(hlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * inverse), (int)(255.0 * percentage), 0));
+
+
+	//background for the charge
 	blines[0] = D3DXVECTOR2(10.0f, 140.0f); blines[1] = D3DXVECTOR2(110.0f, 140.0f);
 	backgroundLine->SetWidth(10.0f);
 	backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
@@ -190,6 +202,7 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 	charge = charge * 8;
 	if (charge > 100) charge = 100;
 
+	//charge bar
 	D3DXVECTOR2 clines[] = {D3DXVECTOR2(10.0f, 140.0f), D3DXVECTOR2(charge + 10.f , 140.0f)};
 	chargeLine->SetWidth(10.0f);
 	chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100.0 - charge) / 100.0), (int)(255.0 * charge / 100.0), (int)(charge * 2)));
