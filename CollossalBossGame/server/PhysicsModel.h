@@ -37,5 +37,5 @@ struct PhysicsModel
 	Vec3f accel;		//Current acceleration
 	float mass;			//Mass of this object
 	float frictCoeff;	//Friction coefficient
-	Vec3f frictNorm;	//Normal on which the friction will be applied
+	//Vec3f frictNorm;	//Normal on which the friction will be applied
 };

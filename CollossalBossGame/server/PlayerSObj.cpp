@@ -345,6 +345,14 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 	// jump force once every iteration
 	if(!appliedJumpForce && (jumpCounter > 0 && jumpCounter < 10))
 	{
+		//Clear player's velocity along the gravity axis
+		pm->vel -= pm->vel * dirAxis(PE::get()->getGravDir());
+
+		//Apply jump force
+		Vec3f jumpVec = collNorm - PE::get()->getGravVec();
+		jumpVec.normalize();
+		pm->applyForce(jumpVec * jumpDist);
+#if 0
 		// surface bouncing
 		// Get the collNorm from the surface
 		float bounceDamp = 0.05f;
@@ -370,7 +378,7 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 			// optimize: *= ^= better!
 			pm->vel = (collNorm * (((incident ^ collNorm) * -2.f )) + incident) * bounceDamp;
 		}
-
+#endif
 		appliedJumpForce = true;
 	}
 

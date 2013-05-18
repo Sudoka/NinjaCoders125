@@ -197,14 +197,14 @@ void getCollisionInfo(Vec3f *shift, DIRECTION *collDir, const Box &bx1, const Bo
     if(fabs(fXShift) < fabs(fYShift) && fabs(fXShift) < fabs(fZShift)) {
         //Shift by X
 		shift->x = fXShift;
-		*collDir = fXShift < 0 ? WEST : EAST;
+		*collDir = ((fXShift < 0) || ((fXShift == 0) && (bx1.x < bx2.x))) ? WEST : EAST;
     } else if(fabs(fYShift) < fabs(fXShift) && fabs(fYShift) < fabs(fZShift)) {
         //Shift by Y (vertical)
 		shift->y = fYShift;
-		*collDir = fYShift < 0 ? DOWN : UP;
+		*collDir = ((fYShift < 0) || ((fYShift == 0) && (bx1.y < bx2.h))) ? DOWN : UP;
     } else {
         //Shift by Z
 		shift->z = fZShift;
-		*collDir = fZShift < 0 ? SOUTH : NORTH;
+		*collDir = ((fZShift < 0) || ((fZShift == 0) && (bx1.z < bx2.z))) ? SOUTH : NORTH;
 	}
 }

@@ -38,13 +38,13 @@ HMap::HMap(const char * filename, int unitLength, float scale) {
 		_ul = unitLength;
 
 		// create an array that can take the pixel data
-		pixelData = new BYTE[info.biSizeImage];
+		pixelData = new BYTE[_w * _l * 3];//info.biSizeImage];
 
 		//We want to store the actual heights
 		_hdata = new float[_w * _l];
 
 		// read the pixels
-		fin.read((char *)(pixelData), info.biSizeImage);
+		fin.read((char *)(pixelData), _w * _l * 3);//info.biSizeImage);
 
 		// close the file
 		fin.close();
