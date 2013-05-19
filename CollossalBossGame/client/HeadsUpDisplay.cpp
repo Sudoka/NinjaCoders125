@@ -28,7 +28,7 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 							"res/tentacleMenu.png",
 							&monsterHealth_texture);
 	D3DXCreateTextureFromFile(direct3dDevice,
-							"res/playerMenuSmall.png",
+							"res/playerMenu.png",
 							&playerHealth_texture);
 
 	D3DXCreateFont(	direct3dDevice,     //D3D Device
