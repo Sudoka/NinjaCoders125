@@ -2,7 +2,7 @@
 
 #include "ClientObject.h"
 #include "Action.h"
-#include "ShootingEffect.h"
+#include "HarpoonEffect.h"
 
 class HarpoonCObj : public ClientObject
 {
@@ -18,7 +18,7 @@ public:
 
 private:
 	RenderModel *rm;
-	ShootingEffect* pewPew;
+	HarpoonEffect* pewPew;
 	int diameter;
 };
 
