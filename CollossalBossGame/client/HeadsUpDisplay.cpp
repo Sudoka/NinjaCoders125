@@ -122,48 +122,21 @@ HeadsUpDisplay::~HeadsUpDisplay(void)
 
 void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
 {
-	RECT font_rect;
-	RECT monstr_rect;
 	RECT charge_rect;
 
 	//#define SCREEN_WIDTH 1024
     //#define SCREEN_HEIGHT 768 
 
-	SetRect(&font_rect,
-			hudTopX,
-			hudTopY+50,
-			1024,
-			768);
-
-	SetRect(&monstr_rect,
-			hudTopX,
-			hudTopY,
-			1024,
-			768);
-
 	SetRect(&charge_rect,
-			hudTopX ,
-			hudTopY + 100,
+			hudTopX + 800 ,
+			hudTopY + 130 ,
 			1024,
 			768);
 
 	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
-    direct3dText->DrawText(sprite1,        //pSprite
-						   hudText.c_str(),	 //pString
-                           -1,          //Count
-                           &font_rect,  //pRect
-                           DT_LEFT|DT_NOCLIP,//Format,
-                           0xFFFFFFFF);//0xFF000000); //Color
-
-    direct3dText->DrawText(sprite1,        //pSprite
-						   monsterHUDText.c_str(),	 //pString
-                           -1,          //Count
-                           &monstr_rect,  //pRect
-                           DT_LEFT|DT_NOCLIP,//Format,
-                           0xFFFFFFFF);//0xFF000000); //Color
 
 	direct3dText->DrawText(sprite1,        //pSprite
-						  "Charge",	 //pString
+						  "LT: Camera Track\nRT: Power\nA: Jump\nLS: Move\nRS: Camera",	 //pString
                            -1,          //Count
                            &charge_rect,  //pRect
                            DT_LEFT|DT_NOCLIP,//Format,
@@ -185,7 +158,7 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 
 		D3DXVECTOR3 test1;
 	
-		test1.x= 650; //CM::get()->find_config_as_float("TEST1_X");
+		test1.x= 750; //CM::get()->find_config_as_float("TEST1_X");
 		test1.y= 0; //CM::get()->find_config_as_float("TEST1_Y");
 		test1.z= 0; //CM::get()->find_config_as_float("TEST1_Z");
 
@@ -193,7 +166,7 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 		playerHealthSprite->Draw(playerHealth_texture,NULL,NULL,&test1,0xFFFFFFFF);
 		playerHealthSprite->End();
 
-		float healthBarPos[] = {750.f, 25.f};
+		float healthBarPos[] = {test1.x+100.f, test1.y+25.f};
 		//player health background
 		D3DXVECTOR2 blines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(healthBarPos[0]+100.f, healthBarPos[1])};
 		backgroundLine->SetWidth(15.0f);
@@ -206,7 +179,6 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 		D3DXVECTOR2 hlines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(percentage*100.f + healthBarPos[0], healthBarPos[1])};
 		healthLine->SetWidth(15.0f);
 		healthLine->Draw(hlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * inverse), (int)(255.0 * percentage), 0));
-
 
 		//background for the charge
 		blines[0] = D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40); blines[1] = D3DXVECTOR2(healthBarPos[0]+100.f, healthBarPos[1]+40);
