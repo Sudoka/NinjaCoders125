@@ -131,11 +131,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MechanicSObj.h">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ArenaWallSObj.h">
-      <Filter>Source Files</Filter>
-    </ClCompile>
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

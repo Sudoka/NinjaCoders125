@@ -92,14 +92,6 @@ void PhysicsEngine::applyPhysics(ServerObject *obj1, ServerObject *obj2) {
 			return;
 	}
 
-	//Passable or static collision objects will always have onCollision called, for now
-	if((obj1->getFlag(IS_PASSABLE) || obj2->getFlag(IS_PASSABLE)) ||
-			(obj1->getFlag(IS_STATIC) && obj2->getFlag(IS_STATIC))) {
-		obj1->onCollision(obj2, Vec3f());
-		obj2->onCollision(obj1, Vec3f());
-		return;
-	}
-
 	vector<CollisionElement*>::iterator cur;
 	for(cur = cmdl1->getStart(); cur < cmdl1->getEnd(); ++cur) {
 		switch((*cur)->getType()) {
@@ -194,6 +186,14 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	PhysicsModel *mdl1 = obj1->getPhysicsModel(),
 				 *mdl2 = obj2->getPhysicsModel();
 	Vec3f shift1, shift2, axis;
+
+	//Passable or static collision objects should not be moved because of a collision
+	if((obj1->getFlag(IS_PASSABLE) || obj2->getFlag(IS_PASSABLE)) ||
+			(obj1->getFlag(IS_STATIC) && obj2->getFlag(IS_STATIC))) {
+		obj1->onCollision(obj2, Vec3f());
+		obj2->onCollision(obj1, Vec3f());
+		return;
+	}
 
 	//Handle not-falling status
 	if(flip(dir) == gravDir) {

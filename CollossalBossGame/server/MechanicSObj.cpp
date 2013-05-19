@@ -41,13 +41,14 @@ void MechanicSObj::actionAttack() {
 
 void MechanicSObj::releaseCharge() {
 	Vec3f position;
-	position.x = this->pm->ref->getPos().x;
-	position.y = 10 + this->pm->ref->getPos().y;
-	position.z = this->pm->ref->getPos().z;
+	Vec3f offset = rotateFwd(pm->ref->getRot())*15;
+	position.x = this->pm->ref->getPos().x + offset.x;
+	position.y = 10 + this->pm->ref->getPos().y + offset.y;
+	position.z = this->pm->ref->getPos().z + offset.z;
 	float anglepi = camPitch;
 	float upforce = -sin(anglepi);
 	float forwardforce = cos(anglepi);
-	float bulletforce = 50; //chargeForce * charge;
+	float bulletforce = 10; //chargeForce * charge;
 	// TODO: force should be fetched from config file
 	Vec3f force = rotate(Vec3f(0, upforce * bulletforce, forwardforce * bulletforce), pm->ref->getRot());
 	BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1/*MDL_TEST_BOX*/, position, force, 1, 10*(charge/3));

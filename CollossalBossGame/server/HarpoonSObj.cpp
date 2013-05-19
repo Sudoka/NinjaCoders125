@@ -13,7 +13,8 @@ HarpoonSObj::HarpoonSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForc
 	Box bxVol = Box(-(diameter/2), -(diameter/2), -(diameter/2), diameter, diameter, diameter);
 
 	pm = new PhysicsModel(pos, rot, 50);
-	pm->addBox(bxVol);
+	//pm->addBox(bxVol);
+	getCollisionModel()->add(new AabbElement(bxVol));
 	pm->applyForce(initialForce);
 
 	this->modelNum = modelNum;
@@ -97,15 +98,16 @@ int HarpoonSObj::serialize(char * buf) {
 
 	if (SOM::get()->collisionMode)
 	{
-		CollisionState *collState = (CollisionState*)(buf + sizeof(ObjectState));
+		CollisionState *collState = (CollisionState*)(buf + sizeof(TentacleState));
 
-		vector<Box> objBoxes = pm->colBoxes;
+		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
+			end = getCollisionModel()->getEnd();
 
-		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
+		collState->totalBoxes = min(end - cur, maxBoxes);
 
-		for (int i=0; i<collState->totalBoxes; i++)
-		{
-			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
+		for(int i=0; i < collState->totalBoxes; i++, cur++) {
+			//The collision box is relative to the object's frame-of-ref.  Get the non-relative collision box
+			collState->boxes[i] = ((AabbElement*)(*cur))->bx + pm->ref->getPos();
 		}
 
 		return pm->ref->serialize(buf + sizeof(ObjectState) + sizeof(CollisionState)) + sizeof(ObjectState) + sizeof(CollisionState);
@@ -128,7 +130,9 @@ void HarpoonSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 		target->setFlag(IS_FALLING, 1);
 	} else if(this->state == HS_FLYING && obj->getId() != creatorid) {
 		if(obj->getFlag(IS_STATIC)) {
-			this->setFlag(IS_STATIC, 1);
+			// this->setFlag(IS_STATIC, 1);
+			this->pm->accel = Vec3f();
+			this->pm->vel = Vec3f();
 			this->state = HS_GRAPPLE;
 		} else {
 			// this->setFlag(IS_STATIC, 1);

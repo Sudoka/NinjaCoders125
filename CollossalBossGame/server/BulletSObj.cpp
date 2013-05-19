@@ -81,16 +81,18 @@ int BulletSObj::serialize(char * buf) {
 }
 
 void BulletSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
-	/*
+	
 	if(obj->getType() == OBJ_GENERAL) {
 		this->health = 0;
 	} else {
  		if(obj->getType() == OBJ_TENTACLE) {
 			this->health = 0;
 		}
-	}*/
+	}
+	/*
 	Vec3f velocity = this->getPhysicsModel()->vel;
 	float velocitymagnitude = magnitude(velocity);
 	this->getPhysicsModel()->applyForce(Vec3f()-(this->getPhysicsModel()->vel));
 	this->getPhysicsModel()->vel = Vec3f();
+	*/
 }
