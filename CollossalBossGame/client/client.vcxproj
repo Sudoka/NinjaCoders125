@@ -91,6 +91,7 @@
     <ClCompile Include="CollisionBoxPoints.cpp" />
     <ClCompile Include="CyborgCObj.cpp" />
     <ClCompile Include="HarpoonCObj.cpp" />
+    <ClCompile Include="HarpoonEffect.cpp" />
     <ClCompile Include="HeadsUpDisplay.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MechanicCObj.cpp" />
@@ -118,6 +119,7 @@
     <ClInclude Include="CollisionBoxPoints.h" />
     <ClInclude Include="CyborgCObj.h" />
     <ClInclude Include="HarpoonCObj.h" />
+    <ClInclude Include="HarpoonEffect.h" />
     <ClInclude Include="HeadsUpDisplay.h" />
     <ClInclude Include="MechanicCObj.h" />
     <ClInclude Include="MonsterCObj.h" />
