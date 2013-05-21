@@ -155,6 +155,10 @@ int AudioEngine::startFMOD() {
 		return 0;
 }
 
+void AudioEngine::update() {
+	system->update();
+}
+
 /*
  * If the sound is not currently in our soundbank, adds it and returns the soundId
  */
@@ -199,7 +203,6 @@ bool AudioEngine::loadSound(char* filename, uint soundId) {
 	if(fmodErrThrown)
 		return false;
 
-	//add our sound to the hashtable
 	loadedSounds.insert(pair<uint,FMOD::Sound*>(soundId,sound));
 	return true;
 }
@@ -214,7 +217,6 @@ bool AudioEngine::loadStream(char* filename, uint soundId) {
 	if(fmodErrThrown)
 		return false;
 
-	//add our sound to the hashtable
 	loadedSounds.insert(pair<uint,FMOD::Sound*>(soundId,stream));
 	return true;
 }
@@ -229,7 +231,7 @@ void AudioEngine::playOneShot(uint soundId) {
 	{
 		FMOD::Channel *chan;
 		FMOD::Sound *sound = res->second;
-		result = sound->setMode(FMOD_LOOP_OFF); //set to loop
+		result = sound->setMode(FMOD_LOOP_OFF); //one shot
 		FMOD_ERRCHECK(result);
 		result = system->playSound(FMOD_CHANNEL_FREE,sound,false,&chan);
 		FMOD_ERRCHECK(result);
@@ -246,7 +248,7 @@ void AudioEngine::playOneShot(uint SoundId, float volume) {
 	{
 		FMOD::Channel *chan;
 		FMOD::Sound *sound = res->second;
-		result = sound->setMode(FMOD_LOOP_OFF); //set to loop
+		result = sound->setMode(FMOD_LOOP_OFF); //one shot
 		FMOD_ERRCHECK(result);
 		result = system->playSound(FMOD_CHANNEL_FREE,sound,true,&chan);
 		FMOD_ERRCHECK(result);
@@ -267,7 +269,7 @@ void AudioEngine::playLoop(uint SoundId) {
 	{
 		FMOD::Channel *chan;
 		FMOD::Sound *sound = res->second;
-		result = sound->setMode(FMOD_LOOP_NORMAL); //set to loop
+		result = sound->setMode(FMOD_LOOP_NORMAL); //loop
 		FMOD_ERRCHECK(result);
 		result = system->playSound(FMOD_CHANNEL_FREE,sound,true,&chan);
 		FMOD_ERRCHECK(result);

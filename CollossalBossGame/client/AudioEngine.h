@@ -31,6 +31,9 @@ public:
 	uint addSound(char* filename);
 	uint addStream(char* filename);
 
+	void update();
+
+	//playback
 	void playOneShot(uint soundId);
 	void playOneShot(uint soundId, float volume);
 	void playLoop(uint soundId);

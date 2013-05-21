@@ -92,6 +92,30 @@ enum ObjectType {
 };
 
 /*
+ * These enums are used for specifying which sounds to play
+ */
+enum SoundState {
+	SOUND_SILENT,
+	SOUND_PLAYER_WALK,
+	SOUND_PLAYER_FALL,
+	SOUND_CYBORG_CHARGE,
+	SOUND_BOSS_IDLE,
+};
+
+enum SoundTrigger {
+	SOUND_NO_NEW_TRIG,
+	SOUND_PLAYER_JUMP,
+	SOUND_PLAYER_HIT,
+	SOUND_PLAYER_HURT,
+	SOUND_CYBORG_ATTACK,
+	SOUND_SHOOT_GUN,
+	SOUND_SHOOT_GRAPPEL,
+	SOUND_BOSS_SLAM,
+	SOUND_ARENA_DOOR_OPEN,
+	SOUND_ARENA_DOOR_CLOSE
+};
+
+/*
  * Data format structures
  * These structures are used for formatting serialized data.  No actual
  * instance of these structures should be created; they should be used by
@@ -122,6 +146,8 @@ struct PlayerState {
 	int ready;
 	int charge;
 	int animationstate;
+	SoundState sState;
+	SoundTrigger sTrig;
 	Quat_t camRot;
 };
 

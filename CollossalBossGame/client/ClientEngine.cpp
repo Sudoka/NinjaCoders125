@@ -74,6 +74,9 @@ void ClientEngine::run() {
 
 		//Render
 		RE::get()->render();
+
+		//Update Sound Events
+		AE::get()->update();
 		
 		//Poll events
 		

@@ -103,6 +103,8 @@ bool PlayerSObj::update() {
 	Quat_t upRot;
 	calcUpVector(&upRot);
 	controlCamera(upRot);
+	sState = SOUND_SILENT;
+	sTrig = SOUND_NO_NEW_TRIG;
 
 	if(this->health > 0)
 	{
@@ -128,6 +130,9 @@ bool PlayerSObj::update() {
 		// when they pressed 'jump' before they got there
 		if (jumping) jumpCounter++;
 		else jumpCounter = 0; 
+
+		//this is HACKY! HELP ME!!!!!!
+		//if(jumpCounter == 1)
 
 		appliedJumpForce = false; // we apply it on collision
 
@@ -273,6 +278,8 @@ int PlayerSObj::serialize(char * buf) {
 	state->charge = charge;
 	if (SOM::get()->debugFlag) DC::get()->print("CURRENT MODEL STATE %d\n",this->modelAnimationState);
 	state->animationstate = this->modelAnimationState;
+	state->sState = this->sState;
+	state->sTrig = this->sTrig;
 	state->camRot = this->camRot;
 
 	if (SOM::get()->collisionMode)
@@ -325,6 +332,9 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 		float bounceDamp = 0.05f;
 
 		Vec3f incident = pm->ref->getPos() - lastCollision;
+
+		//play jump sound
+		sTrig = SOUND_PLAYER_JUMP;
 
 		// incident is zero, so we just jump upwards
 		// this happens when you jump of the same surface

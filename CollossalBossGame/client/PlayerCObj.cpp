@@ -61,16 +61,6 @@ bool PlayerCObj::update() {
 					cameraPitch = (float)-M_PI / 4.f;
 				}
 			}
-			//Hacky solution! CHANGE ME!!! Please I beg you!!!!
-			if(xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_A) {
-				if(!buttonheld) {
-					ss->playOneShot(jumpsound);
-					buttonheld = true;
-				}
-				else {
-					buttonheld = false;
-				}
-			}
 		}
 
 		Point_t objPos = rm->getFrameOfRef()->getPos();
@@ -79,6 +69,12 @@ bool PlayerCObj::update() {
 		chargingEffect->setPosition(objPos, charge);
 		chargingEffect->update(.33);
 	}
+
+	if(this->sTrig == SOUND_PLAYER_JUMP)
+	{
+		ss->playOneShot(jumpsound);
+	}
+
 	return false;
 }
 
@@ -87,6 +83,8 @@ void PlayerCObj::deserialize(char* newState) {
 	this->health = state->health;
 	this->ready = state->ready;
 	this->charge = state->charge;
+	this->sState = state->sState;
+	this->sTrig = state->sTrig;
 	camRot = state->camRot;
 
 	if(this->ready == false) {
