@@ -36,12 +36,17 @@ HMap::HMap(const char * filename, int unitLength, float scale) {
 		_w = info.biWidth;
 		_l = info.biHeight;
 		_ul = unitLength;
+		int numPx = _w * _l;
 
+
+		if(info.biSizeImage == 0) {
+			info.biSizeImage = numPx * 3;
+		}
 		// create an array that can take the pixel data
 		pixelData = new BYTE[info.biSizeImage];
 
 		//We want to store the actual heights
-		_hdata = new float[_w * _l];
+		_hdata = new float[numPx];
 
 		// read the pixels
 		fin.read((char *)(pixelData), info.biSizeImage);
@@ -60,7 +65,7 @@ HMap::HMap(const char * filename, int unitLength, float scale) {
 			 curByte = 0;
 
 		//Convert 24-bit rgb pixels to floating-point heights
-		for(int index(0); index <  _w * _l; index++) {
+		for(int index(0); index <  numPx; index++) {
 			// Convert the average rgb value from 0-255 to an arbitrary floating-point scale
 			curByte = ((*(src + 2)) + (*(src + 1)) + (*(src + 0))) / 3.0f;
 			*(dst) = scale * curByte;
