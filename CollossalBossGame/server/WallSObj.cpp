@@ -12,9 +12,21 @@ WallSObj::WallSObj(uint id, Model modelNum, Point_t pos, DIRECTION dir) : Server
 	vector<Box> bxVols;
 	Quat_t rot = Quat_t();
 	uint collDir = dir;
+	Quat_t rotAxis = Quat_t();
+
+	// Determine collision normal, add plane collision box
 	switch(dir) {
 	case NORTH:
 		DC::get()->print("(north)\n");
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_LEFT_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_TOP_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_LEFT_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_TOP_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_LEFT_1"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_1"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_TOP_1"));
 		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_1"));
 		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_2"));
 		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_3"));
@@ -28,6 +40,24 @@ WallSObj::WallSObj(uint id, Model modelNum, Point_t pos, DIRECTION dir) : Server
 		break;
 	case SOUTH:
 		DC::get()->print("(south)\n");
+		rotAxis = Quat_t(Vec3f(0,1,0), (float)-M_PI);
+
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_4").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_5").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PLATFORM_LO").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PLATFORM_HI").rotate(rotAxis)));
 		bxVols.push_back(Box((-WALL_WIDTH / 2), -WALL_WIDTH / 2, 0 - 5 ,
 			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS));
 		collDir = SOUTH;
@@ -60,6 +90,7 @@ WallSObj::WallSObj(uint id, Model modelNum, Point_t pos, DIRECTION dir) : Server
 	}
 
 	pm = new PhysicsModel(pos, rot, 500, collDir);
+
 	vector<Box>::iterator i;
 	for(i = bxVols.begin(); i != bxVols.end(); i++) getCollisionModel()->add(new AabbElement(*i));
 
