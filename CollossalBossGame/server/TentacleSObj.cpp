@@ -80,7 +80,7 @@ bool TentacleSObj::update() {
 			health = 0;
 
 			// If my previous state was death, I already did my fancy animation
-			if (actionState == DEATH_ACTION) {
+			if (actionState == DEATH_ACTION_T) {
 				overlord->removeTentacle(this);
 				return true; // I died!
 				//health = 0;
@@ -92,7 +92,7 @@ bool TentacleSObj::update() {
 			// Otherwise, do my fancy animation before actually dying
 			else
 			{
-				actionState = DEATH_ACTION;
+				actionState = DEATH_ACTION_T;
 			}
 		}
 		else
@@ -109,7 +109,7 @@ bool TentacleSObj::update() {
 				if ((rand() % 100) < moveProb)
 				{
 					this->setFlag(IS_HARMFUL, 0);
-					actionState = MOVE_ACTION;
+					actionState = MOVE_ACTION_T;
 				}
 				// Fight!!
 				else
@@ -130,8 +130,8 @@ bool TentacleSObj::update() {
 
 						// randomly pick between shoot and slam
 						// maybe this will depend on if you're a tentacle or a head
-						if (rand() % 2) { actionState = SLAM_ACTION; }
-						else { actionState = SHOOT_ACTION; }
+						if (rand() % 2) { actionState = SLAM_ACTION_T; }
+						else { actionState = SHOOT_ACTION_T; }
 					}
 					// non-targetted attack
 					else
@@ -139,9 +139,9 @@ bool TentacleSObj::update() {
 						// randomly pick between slam combo, spike, and defense rage
 						switch(rand() % 3)
 						{
-						case 0:		actionState = COMBO_ACTION; break;
-						case 1:		actionState = SPIKE_ACTION; break;
-						default:	actionState = RAGE_ACTION; break;
+						case 0:		actionState = COMBO_ACTION_T; break;
+						case 1:		actionState = SPIKE_ACTION_T; break;
+						default:	actionState = RAGE_ACTION_T; break;
 						}
 					}
 				}
@@ -152,8 +152,8 @@ bool TentacleSObj::update() {
 				this->setFlag(IS_HARMFUL, 0);
 
 				// randomly pick between idle and probing
-				if (rand() % 2) { actionState = IDLE_ACTION; }
-				else { actionState = PROBE_ACTION; }
+				if (rand() % 2) { actionState = IDLE_ACTION_T; }
+				else { actionState = PROBE_ACTION_T; }
 			}
 		}
 	}
@@ -197,31 +197,31 @@ bool TentacleSObj::update() {
 
 	switch(actionState)
 	{
-	case IDLE_ACTION:
+	case IDLE_ACTION_T:
 		idle();
 		break;
-	case PROBE_ACTION:
+	case PROBE_ACTION_T:
 		idle(); // todo probe
 		break;
-	case SLAM_ACTION:
+	case SLAM_ACTION_T:
 		slam();
 		break;
-	case COMBO_ACTION:
+	case COMBO_ACTION_T:
 		slamCombo();
 		break;
-	case SHOOT_ACTION:
+	case SHOOT_ACTION_T:
 		slam(); // todo shoot (maybe wait until we have a head model?)
 		break;
-	case SPIKE_ACTION:
+	case SPIKE_ACTION_T:
 		spike();
 		break;
-	case RAGE_ACTION:
+	case RAGE_ACTION_T:
 		rage();
 		break;
-	case MOVE_ACTION:
+	case MOVE_ACTION_T:
 		move();
 		break;
-	case DEATH_ACTION:
+	case DEATH_ACTION_T:
 		death();
 		break;
 	default:
@@ -671,7 +671,7 @@ float TentacleSObj::angleToNearestPlayer()
 void TentacleSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
 	// if the monster is attacking, it pushes everything off it on the last attack frame
 //	if (attackCounter == (attackBuffer + attackFrames))
-	if (actionState == RAGE_ACTION)
+	if (actionState == RAGE_ACTION_T)
 	{
 		Vec3f up = (PE::get()->getGravVec() * -1);
 		obj->getPhysicsModel()->applyForce((up + collisionNormal)*(float)pushForce);

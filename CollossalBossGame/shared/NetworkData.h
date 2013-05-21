@@ -198,6 +198,18 @@ enum TentacleActionState {
 	NUM_T
 };
 
+enum HeadAnimationState {
+	H_IDLE,
+	H_SPIKE,
+	H_RAGE,
+	H_DEATH,
+	H_EXIT,
+	H_ENTER,
+	H_PROBE,
+	H_SHOOT,
+	NUM_H
+};
+
 /*
  * Types of player animation states
  */

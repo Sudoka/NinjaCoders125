@@ -60,10 +60,16 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BulletSObj.cpp">
-	  <Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CollisionModel.cpp">
-	  <Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HeadSObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MonsterPartSObj.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,12 +116,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BulletSObj.h">
-	  <Filter>Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CollisionModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RageSObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HeadSObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MonsterPartSObj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
