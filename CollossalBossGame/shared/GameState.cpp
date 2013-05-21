@@ -10,8 +10,7 @@ GameState::GameState(void)
 
 GameState::~GameState(void) { }
 
-void GameState::reset()
-{
+void GameState::reset() {
 	SecureZeroMemory(this, sizeof(GameState));
 }
 
@@ -22,16 +21,6 @@ int GameState::serialize(char * buf) {
 
 void GameState::deserialize(char * buf) {
 	memcpy(this, buf, sizeof(GameState));
-}
-
-void GameState::playerconnect(int playerid) {
-	for(int i = 0; i < 4; i++) {
-		if(playersconnected[i] == playerid+1) {
-			return;
-		}
-	}
-	playersconnected[totalPlayerCount] = playerid+1;
-	totalPlayerCount++;
 }
 
 void GameState::playerready(int playerid) {
@@ -58,11 +47,10 @@ void GameState::clientready(int playerid) {
 		// Dunno where this is coming from. IGNORE
 		return;
 	}
+	playersready[getplayerindex(playerid)] = true;
+
 	bool allready = true;
 	for(int i = 0; i < totalPlayerCount; i++) {
-		if(playersconnected[i] == playerid+1) {
-			playersready[i] = true;
-		}
 		if(playersready[i] == false) {
 			allready = false;
 		}
@@ -72,23 +60,24 @@ void GameState::clientready(int playerid) {
 	}
 }
 
-int GameState::getplayerlocation(int playerid) {
+int GameState::getplayerindex(int playerid) {
 	for(int i = 0; i < 4; i++) {
 		if(playersconnected[i] == playerid+1) {
 			return i;
 		}
 	}
+	return -1;
 }
 
 void GameState::classselect(int playerid, bool inc, bool dec) {
 	bool done = false;
 	int i = (inc) ? 1 : -1;
 	while(!done) {
-		int playerloc = getplayerlocation(playerid);
+		int playerloc = getplayerindex(playerid);
 		int searchvalue = (classselection[playerloc]+i)%5;
 		bool acceptablevalue = true;
-		for(int i = 0; i < 4; i++) {
-			if(classselection[i] == searchvalue) {
+		for(int j = 0; i < 4; j++) {
+			if(classselection[j] == searchvalue) {
 				acceptablevalue = false;
 			}
 		}
@@ -99,3 +88,34 @@ void GameState::classselect(int playerid, bool inc, bool dec) {
 		}
 	}
 }
+
+#pragma region World Events
+
+void GameState::playerconnect(int playerid) {
+	for(int i = 0; i < 4; i++) {
+		if(playersconnected[i] == playerid+1) {
+			return;
+		}
+	}
+	playersconnected[totalPlayerCount] = playerid+1;
+	totalPlayerCount++;
+}
+
+void GameState::playerdeath(int playerid) {
+	playerDeathCount++;
+	assert((playerDeathCount <= totalPlayerCount) && "Implementation Error");
+}
+
+void GameState::monsterdeath() {
+	monsterDeathCount++;
+	if(monsterDeathCount == totalMonsterCount) {
+		currentState = GAME_END;
+	}
+	assert((monsterDeathCount <= totalMonsterCount) && "Implementation Error");
+}
+
+void GameState::monsterspawn() {
+	totalMonsterCount++;
+}
+
+#pragma endregion END World Events

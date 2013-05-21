@@ -30,7 +30,7 @@ public:
 
 	int receivePackets(char *);
 	bool update();
-	void sendData(char * data, int datalen, int objectID);
+	void sendData(PacketTypes messagetype, char * data, int datalen, int objectID);
 	bool isConnected();
 private:
 	// ctor/dtor

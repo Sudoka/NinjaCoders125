@@ -67,7 +67,6 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	initTime = clock();
 }
 
-
 HeadsUpDisplay::~HeadsUpDisplay(void)
 {
 	sprite->Release();
@@ -205,6 +204,8 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 	//sprite->End();
 }
 
+#pragma region Display Methods
+
 void HeadsUpDisplay::displayBackground()
 {
 	D3DXVECTOR3 pos;
@@ -321,3 +322,38 @@ void HeadsUpDisplay::displayStart()
 	}
 
 }
+
+void HeadsUpDisplay::displayClassSelect() {
+	D3DXVECTOR3 blk(0,0,0.5);
+	displaytexture(&blackbackground, &blk, &blackbackgroundtxt);
+
+	RECT middleofscreen;
+	SetRect(&middleofscreen, hudTopX+300, hudTopY+300, 1024, 768);
+	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
+    direct3dText->DrawText(sprite1, "CLASS SELECT SCREEN", -1, &middleofscreen, DT_LEFT|DT_NOCLIP, 0xFFFFFFFF);
+	sprite1->End();
+}
+
+void HeadsUpDisplay::displaySceneSelect() {
+	D3DXVECTOR3 blk(0,0,0.5);
+	displaytexture(&blackbackground, &blk, &blackbackgroundtxt);
+
+	RECT middleofscreen;
+	SetRect(&middleofscreen, hudTopX+300, hudTopY+300, 1024, 768);
+	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
+    direct3dText->DrawText(sprite1, "SCENE SELECT SCREEN", -1, &middleofscreen, DT_LEFT|DT_NOCLIP, 0xFFFFFFFF);
+	sprite1->End();
+}
+
+void HeadsUpDisplay::displayLoadingScreen() {
+	D3DXVECTOR3 blk(0,0,0.5);
+	displaytexture(&blackbackground, &blk, &blackbackgroundtxt);
+
+	RECT middleofscreen;
+	SetRect(&middleofscreen, hudTopX+300, hudTopY+300, 1024, 768);
+	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
+    direct3dText->DrawText(sprite1, "WE'RE LOADING", -1, &middleofscreen, DT_LEFT|DT_NOCLIP, 0xFFFFFFFF);
+	sprite1->End();
+}
+
+#pragma endregion

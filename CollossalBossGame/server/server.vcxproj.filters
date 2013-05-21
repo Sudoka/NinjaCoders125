@@ -41,9 +41,6 @@
     <ClCompile Include="MonsterSObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WorldManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TentacleSObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -51,6 +48,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CyborgSObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShooterSObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BulletSObj.cpp">
+	  <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArenaWallSObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -85,16 +97,25 @@
     <ClInclude Include="WallSObj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WorldSObj.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MonsterSObj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WorldManager.h">
+    <ClInclude Include="TentacleSObj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TentacleSObj.h">
+    <ClInclude Include="CyborgSObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShooterSObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BulletSObj.h">
+	  <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArenaWallSObj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

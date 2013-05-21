@@ -4,14 +4,11 @@
  * HMap
  * This class is used for reading in and storing information about heightmaps.
  */
-#include <stdlib.h>
-#include <windows.h>
 using namespace std;
 
-class HMap
-{
+class HMap {
 public:
-	HMap(char * filename, float scale = 1.0f);
+	HMap(const char * filename, int unitLength, float scale = 1.0f);
 	virtual ~HMap(void);
 
 	// Number of units wide
@@ -20,11 +17,19 @@ public:
 	// Number of units long
 	int getLength() { return _l; }
 
+	int getUnitLength() { return _ul; }
+
 	// returns a long int with rgba data for point (x, y)
 	float getHeightAt(int i, int j);
+	const float *getIterator() { return _hdata; }
+
+	float getMax() { return _max; }
+	float getMin() { return _min; }
 
 private:
-	int _w, _l;
+	int _w, _l, _ul;
+
+	float _max, _min;
 
 	// pixel data
 	float * _hdata;

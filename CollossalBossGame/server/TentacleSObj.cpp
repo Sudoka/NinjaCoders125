@@ -3,7 +3,9 @@
 #include "ServerObjectManager.h"
 #include "defs.h"
 #include "PlayerSObj.h"
+#include "BulletSObj.h"
 #include "ConfigurationManager.h"
+#include "CollisionModel.h"
 #include "PhysicsEngine.h"
 #include <time.h>
 #include <random>
@@ -13,9 +15,10 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 	if(SOM::get()->debugFlag) DC::get()->print("Created new TentacleObj %d\n", id);
 	overlord = master;
 	overlord->addTentacle(this);
-	Box bxVol = CM::get()->find_config_as_box("BOX_MONSTER");
+	//Box bxVol = CM::get()->find_config_as_box("BOX_MONSTER");
 	this->modelNum = modelNum;
 	this->health = CM::get()->find_config_as_int("INIT_HEALTH");
+
 	pm = new PhysicsModel(pos, rot, 50*CM::get()->find_config_as_float("PLAYER_MASS"));
 
 	/////////////// Collision Boxes /////////////////
@@ -23,8 +26,10 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 	idleBoxes[1] = CM::get()->find_config_as_box("BOX_TENT_MID");
 	idleBoxes[2] = CM::get()->find_config_as_box("BOX_TENT_TIP");
 
+	CollisionModel *cm = getCollisionModel();
+
 	for (int i=0; i<3; i++) {
-		assert(pm->addBox(idleBoxes[i]) == i && "Your physics model is out of sync with the rest of the world...");
+		assert((cm->add(new AabbElement(idleBoxes[i])) == i) && "Your physics model is out of sync with the rest of the world...");
 	}
 
 	this->setFlag(IS_STATIC, 1);
@@ -78,9 +83,10 @@ bool TentacleSObj::update() {
 	 * CYCLE*1/2 = The tentacle is extended
 	 * CYCLE = when the tentacle is back at the default position
 	 */
-	Box base = this->getPhysicsModel()->colBoxes.at(0);
-	Box middle = this->getPhysicsModel()->colBoxes.at(1);
-	Box tip = this->getPhysicsModel()->colBoxes.at(2);
+	CollisionModel *cm = getCollisionModel();
+	Box base =	 ((AabbElement*)cm->get(0))->bx; //this->getPhysicsModel()->colBoxes.at(0);
+	Box middle = ((AabbElement*)cm->get(1))->bx; //this->getPhysicsModel()->colBoxes.at(1);
+	Box tip =	 ((AabbElement*)cm->get(2))->bx; //this->getPhysicsModel()->colBoxes.at(2);
 	Vec3f changePosT = Vec3f(), changeProportionT = Vec3f();
 	Vec3f changePosM = Vec3f(), changeProportionM = Vec3f();
 
@@ -181,9 +187,9 @@ bool TentacleSObj::update() {
 	middle.setRelSize(changeProportionM);
 	
 	// Set new collision boxes
-	pm->colBoxes[0] = *(base.fix());
-	pm->colBoxes[1] = *(middle.fix());
-	pm->colBoxes[2] = *(tip.fix());
+	((AabbElement*)cm->get(0))->bx = *(base.fix());		//pm->colBoxes[0] = *(base.fix());
+	((AabbElement*)cm->get(1))->bx = *(middle.fix());	//pm->colBoxes[1] = *(middle.fix());
+	((AabbElement*)cm->get(2))->bx = *(tip.fix());		//pm->colBoxes[2] = *(tip.fix());
 
 	if (health <= 0) {
 		health = 0;
@@ -208,12 +214,15 @@ int TentacleSObj::serialize(char * buf) {
 	if (SOM::get()->collisionMode)
 	{
 		CollisionState *collState = (CollisionState*)(buf + sizeof(TentacleState));
-		vector<Box> objBoxes = pm->colBoxes;
-		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
-		
-		for (int i=0; i<collState->totalBoxes; i++)
-		{
-			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
+
+		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
+			end = getCollisionModel()->getEnd();
+
+		collState->totalBoxes = min(end - cur, maxBoxes);
+
+		for(int i=0; i < collState->totalBoxes; i++, cur++) {
+			//The collision box is relative to the object's frame-of-ref.  Get the non-relative collision box
+			collState->boxes[i] = ((AabbElement*)(*cur))->bx + pm->ref->getPos();
 		}
 		return pm->ref->serialize(buf + sizeof(TentacleState) + sizeof(CollisionState)) + sizeof(TentacleState) + sizeof(CollisionState);
 	}
@@ -260,9 +269,6 @@ float TentacleSObj::angleToNearestPlayer()
 }
 
 void TentacleSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
-	// if I collided against the player, AND they're attacking me, loose health
-	string s = typeid(*obj).name();
-
 	// if the monster is attacking, it pushes everything off it on the last attack frame
 	if (attackCounter == (attackBuffer + attackFrames))
 	{
@@ -270,10 +276,18 @@ void TentacleSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) 
 		obj->getPhysicsModel()->applyForce((up + collisionNormal)*(float)pushForce);
 	}
 
-	if(!s.compare("class PlayerSObj")) 
+	// if I collided against the player, AND they're attacking me, loose health
+	if(obj->getType() == OBJ_PLAYER)
 	{	
 		PlayerSObj* player = reinterpret_cast<PlayerSObj*>(obj);
 		health-= player->damage;
+		if(this->health < 0) health = 0;
+		if(this->health > 100) health = 100;
+	}
+
+	if(obj->getType() == OBJ_BULLET) {
+		BulletSObj* bullet = reinterpret_cast<BulletSObj*>(obj);
+		health -= bullet->damage;
 		if(this->health < 0) health = 0;
 		if(this->health > 100) health = 100;
 	}

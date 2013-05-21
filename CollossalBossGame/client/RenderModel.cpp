@@ -188,40 +188,41 @@ void RenderModel::render() {
 		if(modelState != prevModelState) RE::get()->getAnim()->ChangeAnimationSet(modelId, this->modelState);
 		RE::get()->animate(modelId, /*rotX * rotY * rotZ*/ rotMat * trans);
 		prevModelState = modelState;
-		//Draw Boxes
-		if(colBoxes.size() > 0)
+	}
+
+	//Draw Boxes
+	if(colBoxes.size() > 0)
+	{
+		for (int i=0; i<colBoxes.size(); i++)
 		{
-			for (int i=0; i<colBoxes.size(); i++)
-			{
-				Box curr = colBoxes[i];
+			Box curr = colBoxes[i];
 
-				// calculate the box corners
-				Point_t botLeftFront, botRightFront, botLeftBack, botRightBacl, topLeftFront, topRightFront, topLeftBack, topRightBacl;
+			// calculate the box corners
+			Point_t botLeftFront, botRightFront, botLeftBack, botRightBacl, topLeftFront, topRightFront, topLeftBack, topRightBacl;
 
-				botLeftFront = Vec3f(curr.x, curr.y, curr.z);
-				botRightFront = Vec3f(curr.x + curr.w, curr.y, curr.z);
-				botLeftBack = Vec3f(curr.x, curr.y, curr.z + curr.l);
-				botRightBacl = Vec3f(curr.x + curr.w, curr.y, curr.z + curr.l);
+			botLeftFront = Vec3f(curr.x, curr.y, curr.z);
+			botRightFront = Vec3f(curr.x + curr.w, curr.y, curr.z);
+			botLeftBack = Vec3f(curr.x, curr.y, curr.z + curr.l);
+			botRightBacl = Vec3f(curr.x + curr.w, curr.y, curr.z + curr.l);
 				
-				topLeftFront = Vec3f(curr.x, curr.y + curr.h, curr.z);
-				topRightFront = Vec3f(curr.x + curr.w, curr.y + curr.h, curr.z);
-				topLeftBack = Vec3f(curr.x, curr.y + curr.h, curr.z + curr.l);
-				topRightBacl = Vec3f(curr.x + curr.w, curr.y + curr.h, curr.z + curr.l);
+			topLeftFront = Vec3f(curr.x, curr.y + curr.h, curr.z);
+			topRightFront = Vec3f(curr.x + curr.w, curr.y + curr.h, curr.z);
+			topLeftBack = Vec3f(curr.x, curr.y + curr.h, curr.z + curr.l);
+			topRightBacl = Vec3f(curr.x + curr.w, curr.y + curr.h, curr.z + curr.l);
 
-				vector<Vec3f> pts;
+			vector<Vec3f> pts;
 
-				pts.push_back(botLeftFront);
-				pts.push_back(botRightFront);
-				pts.push_back(botLeftBack);
-				pts.push_back(botRightBacl);
+			pts.push_back(botLeftFront);
+			pts.push_back(botRightFront);
+			pts.push_back(botLeftBack);
+			pts.push_back(botRightBacl);
 
-				pts.push_back(topLeftFront);
-				pts.push_back(topRightFront);
-				pts.push_back(topLeftBack);
-				pts.push_back(topRightBacl);
+			pts.push_back(topLeftFront);
+			pts.push_back(topRightFront);
+			pts.push_back(topLeftBack);
+			pts.push_back(topRightBacl);
 
-				RE::get()->getColBxPts()->addParticles(pts);
-			}
+			RE::get()->getColBxPts()->addParticles(pts);
 		}
 	}
 }

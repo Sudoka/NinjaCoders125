@@ -10,12 +10,14 @@
 //Objects we can build
 #include "TestSObj.h"
 #include "WallSObj.h"
+#include "BulletSObj.h"
 #include "MonsterSObj.h"
 #include "PhysicsEngine.h"
 #include "WorldSObj.h"
 #include "MonsterSObj.h"
 #include "TentacleSObj.h"
 #include "ConfigurationManager.h"
+#include "ArenaWallSObj.h"
 
 /*
  * buildRoom()
@@ -29,11 +31,13 @@ void buildRoom() {
 
 	ServerObjectManager *som = SOM::get();
 
-	WallSObj *floor, *ceiling,
+	WallSObj //*floor,
+			 *ceiling,
 			 *north, *south,
 			 *east, *west;
-
-	floor   = new WallSObj(som->genId(), MDL_FLOOR, Point_t(), DOWN);
+	ArenaWallSObj *floor;
+	floor = new ArenaWallSObj(som->genId(), "../floor_hmap.bmp", MDL_FLOOR, Point_t());
+	//floor   = new WallSObj(som->genId(), MDL_FLOOR, Point_t(), DOWN);
 	ceiling = new WallSObj(som->genId(), MDL_CEILING, Point_t(0.f, (float)height, 0.f), UP);
 	north   = new WallSObj(som->genId(), MDL_NORTH_WALL, Point_t(0.f, (float)height/2.f, (float)-depth/2.f), NORTH);
 	south   = new WallSObj(som->genId(), MDL_SOUTH_WALL, Point_t(0.f, (float)height/2.f, (float)depth/2.f), SOUTH);
@@ -62,5 +66,11 @@ void gameInit() {
 	//MonsterSObj* monster = new MonsterSObj(som->genId(), 2);
 	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
 	som->add(monster);
+/*
+	Point_t pos = Point_t(0, 10, 15);
+	Vec3f force = Vec3f(0, 0, 0);
+	BulletSObj * bul = new BulletSObj(som->genId(), MDL_TEST_BOX, pos, force, 1);
+	som->add(bul);
+*/
 }
 

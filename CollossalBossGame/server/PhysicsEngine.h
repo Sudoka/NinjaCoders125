@@ -34,9 +34,10 @@ private:
 
 	static PhysicsEngine *pe;
 
-	void flatCollision(ServerObject * theObj, Frame * flat);
-
-	bool aabbCollision(const Box &bx1, const Box &bx2);
+	//Collision-specific handlers
+	void handleCollision(ServerObject *obj1, ServerObject *obj2, AabbElement *el);
+	void handleCollision(ServerObject *obj1, ServerObject *obj2, HMapElement *el);
+	void handleCollision(ServerObject *obj1, ServerObject *obj2, const Vec3f &shift, DIRECTION dir);	//Actually move the objects
 
 	// Configuration options
 	float gravMag;

@@ -1,10 +1,20 @@
+#include <stdlib.h>
+#include <windows.h>
 #include "HMap.h"
 #include "defs.h"
 #include "DebugConsole.h"
 #include <fstream>
+#include <cfloat>
 using namespace std;
 
-HMap::HMap(char * filename, float scale) {
+/*
+ * Constructs a heightmap from the specified grayscale bitmap.
+ *   filename   - The name of the bitmap file.
+ *   unitLength - The length of one unit (how much world-length one bmp pixel 
+ *				  represents)
+ *   scale      - Factor for scaling heights; from 0 -> 255 to 0 -> 255 * scale
+ */
+HMap::HMap(const char * filename, int unitLength, float scale) {
 	//Input stream for reading in the bitmap
 	ifstream fin;
 
@@ -23,12 +33,15 @@ HMap::HMap(char * filename, float scale) {
 		// read in the file info 
 		fin.read((char *)(&header), sizeof(BITMAPFILEHEADER));
 		fin.read((char *)(&info), sizeof(BITMAPINFOHEADER));
+		_w = info.biWidth;
+		_l = info.biHeight;
+		_ul = unitLength;
 
 		// create an array that can take the pixel data
 		pixelData = new BYTE[info.biSizeImage];
 
 		//We want to store the actual heights
-		_hdata = new float[info.biWidth * info.biHeight];
+		_hdata = new float[_w * _l];
 
 		// read the pixels
 		fin.read((char *)(pixelData), info.biSizeImage);
@@ -41,15 +54,26 @@ HMap::HMap(char * filename, float scale) {
 		float * dst(_hdata);
 
 		//Pixel rows are padded to a full set of words
-		int paddingSize = info.biWidth % 4;
+		int paddingSize = _w % 4;
+		BYTE maxByte = 0,
+			 minByte = 0xff,
+			 curByte = 0;
 
 		//Convert 24-bit rgb pixels to floating-point heights
-		for(int index(0); index <  info.biWidth * info.biHeight; index++) {
+		for(int index(0); index <  _w * _l; index++) {
 			// Convert the average rgb value from 0-255 to an arbitrary floating-point scale
-			*(dst) = scale * ((*(src + 2)) + (*(src + 1)) + (*(src + 0))) / 3.0f;
+			curByte = ((*(src + 2)) + (*(src + 1)) + (*(src + 0))) / 3.0f;
+			*(dst) = scale * curByte;
+
+			if(curByte > maxByte) {
+				maxByte = curByte;
+			}
+			if(curByte < minByte) {
+				minByte = curByte;
+			}
 
 			//Skip padding bytes
-			if((index) % info.biWidth == info.biWidth - 1) {
+			if((index) % _w == _w - 1) {
 				src += paddingSize;
 			}
 
@@ -57,6 +81,9 @@ HMap::HMap(char * filename, float scale) {
 			src += 3;
 			dst++;
 		}
+
+		_max = scale * maxByte;
+		_min = scale * minByte;
 
 		delete [] pixelData;
 	} else {
@@ -76,3 +103,4 @@ HMap::~HMap(void) {
 float HMap::getHeightAt(int i, int j) {
 	return _hdata[i + j * _w];
 }
+

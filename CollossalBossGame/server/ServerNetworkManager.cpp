@@ -2,8 +2,10 @@
 #include "Action.h"
 #include "ServerObjectManager.h"
 #include "PlayerSObj.h"
+#include "CyborgSObj.h"
+#include "ShooterSObj.h"
 #include "ConfigurationManager.h"
-#include "WorldManager.h"
+#include "GameServer.h"
 #include <iostream>
 
 unsigned int ServerNetworkManager::client_id;
@@ -145,7 +147,7 @@ void ServerNetworkManager::update() {
 				// Ok, since we should only have one object on both sides, the id's will match
 				// but how do we get them matching later? maybe the server should send
 				// the client the id back or something?
-				o = new PlayerSObj(som->genId(), client_id);
+				o = new ShooterSObj(som->genId(), client_id);
 				som->add(o);
 				sessionsobjid.insert( pair<unsigned int, unsigned int>(temp_c_id, o->getId()) );
 			} else {
@@ -159,7 +161,7 @@ void ServerNetworkManager::update() {
 			if(temp_c_id == client_id) {
 				client_id++;
 			}
-			WorldManager::get()->event_connection(o->getId());
+			GameServer::get()->event_connection(o->getId());
 		}
 	} while (sessions.empty());
 	// Collect data from clients
@@ -201,15 +203,20 @@ void ServerNetworkManager::receiveFromClients() {
                 case INIT_CONNECTION:
                     if(debugFlag) DC::get()->print("server received init packet from client %d\n", iter->first);
                     break;
-                case ACTION_EVENT:
+                case OBJECT_MANAGER:
 					if(debugFlag) DC::get()->print("server received action event packet from client %d (player id %d)\n", iter->first, packet.object_id);
 					destObject = SOM::get()->find(packet.object_id);
 
 					if (destObject != NULL) {
 						destObject->deserialize(packet.packet_data);
 					}
-
                     break;
+				case GAMESTATE_MANAGER:
+					// GameServer::get()->recieveInput(packet.packet_data);
+					break;
+				case CLIENT_READY:
+					// GameServer::get()->state.clientready(packet.object_id);
+					break;
                 default:
                     DC::get()->print("error in packet types\n");
                     break;
@@ -308,6 +315,7 @@ int ServerNetworkManager::sendToClient(SOCKET sock_id, unsigned int packet_type,
 	return sendToClient(sock_id, iteration, packet_type, object_id, command_type, data_size);
 }
 int ServerNetworkManager::sendToClient(SOCKET sock_id, unsigned int iteration, unsigned int packet_type, unsigned int object_id, CommandTypes command_type, unsigned int data_size) {
+	assert(data_size <= PACKET_SIZE && "Increase the PACKETSIZE in NetworkData.h");
 	initPacketBuffer(iteration, packet_type, object_id, command_type, data_size);
 
     SOCKET client_socket = sock_id;
@@ -358,6 +366,7 @@ void ServerNetworkManager::sendToAll(unsigned int iteration, unsigned int packet
 
     for (iter = sessions.begin(); iter != sessions.end(); iter++) {
         currentSocket = iter->second;
+
 		iSendResult = sendToClient(currentSocket, iteration, packet_type, object_id, command_type, data_size);
     }
 }

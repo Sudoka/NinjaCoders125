@@ -10,7 +10,7 @@ public:
 	static GameServer * get() { return gs; }
 
 	void run();
-/*	TODO: Merge World Manager and GameServer into GameServer
+/*	TODO: Merge World Manager and GameServer into GameServer */
 	void event_player_death(int playerid);
 	void event_monster_death();
 	void event_reset(int playerid);
@@ -20,15 +20,15 @@ public:
 	void event_disconnect(int playerid);
 
 	GameState state;
-*/
+
 private:
 	static GameServer * gs;
     GameServer(void);
     ~GameServer(void);
-/*
+
 	void sendGameState();
 	void recieveInput(char * buf);
-*/
+
 	void gameLoop();
 	void initializeSubModules();
 	void cleanSubModules();

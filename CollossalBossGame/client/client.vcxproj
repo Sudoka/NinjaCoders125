@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BulletCObj.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ChargeEffect.cpp" />
     <ClCompile Include="ClientEngine.cpp" />
@@ -88,6 +89,7 @@
     <ClCompile Include="ClientObject.cpp" />
     <ClCompile Include="ClientObjectManager.cpp" />
     <ClCompile Include="CollisionBoxPoints.cpp" />
+    <ClCompile Include="CyborgCObj.cpp" />
     <ClCompile Include="HeadsUpDisplay.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MonsterCObj.cpp" />
@@ -95,6 +97,7 @@
     <ClCompile Include="PlayerCObj.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="RenderModel.cpp" />
+    <ClCompile Include="ShooterCObj.cpp" />
     <ClCompile Include="ShootingEffect.cpp" />
     <ClCompile Include="Snow.cpp" />
     <ClCompile Include="TentacleCObj.cpp" />
@@ -102,6 +105,7 @@
     <ClCompile Include="XboxController.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BulletCObj.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ChargeEffect.h" />
     <ClInclude Include="ClientEngine.h" />
@@ -109,6 +113,7 @@
     <ClInclude Include="ClientObject.h" />
     <ClInclude Include="ClientObjectManager.h" />
     <ClInclude Include="CollisionBoxPoints.h" />
+    <ClInclude Include="CyborgCObj.h" />
     <ClInclude Include="HeadsUpDisplay.h" />
     <ClInclude Include="MonsterCObj.h" />
     <ClInclude Include="ParticleSystem.h" />
@@ -116,6 +121,7 @@
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="RenderModel.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ShooterCObj.h" />
     <ClInclude Include="ShootingEffect.h" />
     <ClInclude Include="Snow.h" />
     <ClInclude Include="TentacleCObj.h" />

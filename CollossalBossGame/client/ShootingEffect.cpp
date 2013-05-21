@@ -6,13 +6,14 @@ ShootingEffect::ShootingEffect(void)
 	vbSize = 2046;
 	vbOffset = 0;
 	vbBatchSize = 512;
-	pointSize = 5.5f;
+	pointSize = 15.5f;
 	addParticle();
 }
 
 
 ShootingEffect::~ShootingEffect(void)
 {
+	particles.clear();
 }
 
 void ShootingEffect::resetParticle(ParticleAttributes* a)
@@ -27,8 +28,8 @@ void ShootingEffect::resetParticle(ParticleAttributes* a)
 	a->vel *= 7;  
 	*/
 	a->color = D3DXCOLOR(0.0f,1.0f,0.25f,1.0f);
-	a->age = 0;
-	a->lifetime = 5;
+	//a->age = 0;
+	//a->lifetime = 2;
 }
 
 void ShootingEffect::update(float timeDelta)
@@ -36,10 +37,11 @@ void ShootingEffect::update(float timeDelta)
 	list<ParticleAttributes>::iterator i;
 	for(i = particles.begin(); i != particles.end(); i++)
 	{
-		i->age+=timeDelta;
-		if(i->age > i->lifetime) resetParticle(&(*i));
-			
-		//i->pos += D3DXVECTOR3(0,0,0);
+	//	i->age+=timeDelta;
+	//	if(i->age > i->lifetime) resetParticle(&(*i));
+		resetParticle(&(*i));
+	//		
+	//	//i->pos += D3DXVECTOR3(0,0,0);
 	}
 }
 

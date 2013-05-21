@@ -324,6 +324,12 @@ typedef enum DIRECTION {
 	DOWN  = 0x20	//-y
 };
 
+inline DIRECTION flip(DIRECTION dir) {
+	return (DIRECTION)((dir < 0x7) ? (dir << 3) : (dir >> 3));
+}
+Vec3f dirVec(DIRECTION dir);	//Gets a vector in the direction specified
+Vec3f dirAxis(DIRECTION dir);		//Gets the (positive) axis for the specified direction
+
 
 typedef enum ACTION {
 	ACT_MOVE_X,

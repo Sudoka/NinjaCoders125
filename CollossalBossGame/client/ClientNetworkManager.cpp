@@ -190,7 +190,7 @@ bool ClientNetworkManager::update()
 				connected = true;
 				ret = false;
 				break;
-            case ACTION_EVENT:
+            case OBJECT_MANAGER:
                 //DC::get()->print("client received action event packet from server\n");
 					
 				//memcpy(&(((TestObject*)COM::get()->find(0))->istat), &packet.packet_data, sizeof(inputstatus));
@@ -198,6 +198,13 @@ bool ClientNetworkManager::update()
 				if(debugFlag) DC::get()->print(CONSOLE | LOGFILE, "%s %d: Action event received\n", __FILE__, __LINE__);
 				COM::get()->serverUpdate(packet.object_id, packet.command_type, packet.packet_data);
                 break;
+			case GAMESTATE_MANAGER:
+				// ClientEngine::get()->serverUpdate(packet.packet_data);
+				break;
+			case RESET:
+				// RESET LOGIC. Like destroying everything and resetting.
+				// ClientEngine::get()->reset();
+				break;
 			case COMPLETE:
 				if(debugFlag) DC::get()->print(CONSOLE | LOGFILE, "%s %d: Complete packet received\n", __FILE__, __LINE__);
 				ret = false;
@@ -213,14 +220,14 @@ bool ClientNetworkManager::update()
 	return ret; 
 }
 
-void ClientNetworkManager::sendData(char * data, int datalen, int objectID) {
+void ClientNetworkManager::sendData(PacketTypes messagetype, char * data, int datalen, int objectID) {
 	// std::cout << data << std::endl;
 	
     char packet_data[sizeof(Packet)];
 
 	Packet packet;
 	packet.iteration = this->iteration_count;
-	packet.packet_type = ACTION_EVENT;
+	packet.packet_type = messagetype;
 	packet.object_id = objectID;
 	packet.command_type = CMD_ACTION;
 	packet.data_size = datalen;

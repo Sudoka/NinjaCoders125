@@ -15,8 +15,13 @@ public:
 	int serialize(char * buf);
 	void deserialize(char * buf);
 
-	int getplayerlocation(int playerid);
+	int getplayerindex(int playerid);
+
 	void playerconnect(int playerid);
+	void playerdeath(int playerid);
+	void monsterspawn();
+	void monsterdeath();
+
 	void playerready(int playerid);
 	void clientready(int playerid);
 
