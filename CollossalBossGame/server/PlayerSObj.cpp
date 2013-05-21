@@ -217,7 +217,11 @@ void PlayerSObj::calcUpVector(Quat_t *upRot) {
 	PE *pe = PE::get();
 	if(lastGravDir != pe->getGravDir()) {
 		lastGravDir = pe->getGravDir();
-		//pm->ref->rotate(pe->getCurGravRot());
+		
+		//Update the collision box
+		
+
+		//Calculate the new initial and final up vectors
 		slerp(&initUpRot, initUpRot, finalUpRot, t);	//We may not have finished rotating
 		finalUpRot = pe->getCurGravRot();
 		t = 0;
@@ -260,7 +264,7 @@ void PlayerSObj::controlCamera(const Quat_t &upRot) {
 }
 
 float PlayerSObj::controlAngles(float des, float cur) {
-	//Determine
+	//Determine the camera angle cost
 	float err1 = des - cur, err2, errDiff;
 	if(des < 0) err2 = (des + M_TAU) - cur;
 	else err2 = (des - M_TAU) - cur;
