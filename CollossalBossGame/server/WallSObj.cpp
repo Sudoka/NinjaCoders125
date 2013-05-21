@@ -15,7 +15,13 @@ WallSObj::WallSObj(uint id, Model modelNum, Point_t pos, DIRECTION dir) : Server
 	switch(dir) {
 	case NORTH:
 		DC::get()->print("(north)\n");
-		bxVols.push_back(CM::get()->find_config_as_box("BOX_PLATFORM_LOW"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_1"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_4"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_5"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PLATFORM_LO"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PLATFORM_HI"));
 		bxVols.push_back(Box((-WALL_WIDTH / 2), -WALL_WIDTH / 2, -WALL_THICKNESS + 5,
 			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS));
 		collDir = NORTH;
