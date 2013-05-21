@@ -49,6 +49,11 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 		scale = CM::get()->find_config_as_point("MODEL_TENTACLE5_SCALE");
 		initRot = CM::get()->find_config_as_point("MODEL_TENTACLE5_ROTATION");
 		break;
+	case MDL_HEAD_1:
+		filename = CM::get()->find_config("MODEL_HEAD1");
+		scale = CM::get()->find_config_as_point("MODEL_HEAD1_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_HEAD1_ROTATION");
+		break;
 	case MDL_FLOOR:
 		filename = CM::get()->find_config("MODEL_FLOOR");
 		scale = CM::get()->find_config_as_point("MODEL_FLOOR_SCALE");

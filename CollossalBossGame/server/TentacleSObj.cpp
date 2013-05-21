@@ -10,15 +10,11 @@
 #include <time.h>
 #include <random>
 
-TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj* master) : ServerObject(id)
+TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj* master) : 
+													MonsterPartSObj(id, modelNum, pos, rot, master)
 {
-	if(SOM::get()->debugFlag) DC::get()->print("Created new TentacleObj %d\n", id);
-	overlord = master;
-	overlord->addTentacle(this);
+	if(SOM::get()->debugFlag) DC::get()->print("Created new TentacleSObj %d\n", id);
 	Box bxVol = CM::get()->find_config_as_box("BOX_MONSTER");
-	this->modelNum = modelNum;
-	this->health = CM::get()->find_config_as_int("INIT_HEALTH");
-	pm = new PhysicsModel(pos, rot, 50*CM::get()->find_config_as_float("PLAYER_MASS"));
 
 	/////////////// Collision Boxes /////////////////
 	idleBoxes[0] = CM::get()->find_config_as_box("BOX_TENT_BASE"); 
@@ -35,14 +31,11 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 		assert(pm->addBox(idleBoxes[i]) == i && "Your physics model is out of sync with the rest of the world...");
 	}
 
-	this->setFlag(IS_STATIC, 1);
 	modelAnimationState = T_IDLE; // the boxes will be rotated appropriately within the idle part of update()
 	
 	std::default_random_engine generator;
 	std::uniform_int_distribution<int> distribution(1,50);
 	//attackCounter = distribution(generator);
-	
-	isFogging = false; 
 
 	//idleCounter = 0;
 	stateCounter = 0;
@@ -58,7 +51,6 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 
 TentacleSObj::~TentacleSObj(void)
 {
-	delete pm;
 }
 
 bool TentacleSObj::update() {
@@ -81,7 +73,7 @@ bool TentacleSObj::update() {
 
 			// If my previous state was death, I already did my fancy animation
 			if (actionState == DEATH_ACTION_T) {
-				overlord->removeTentacle(this);
+				overlord->removePart(this);
 				return true; // I died!
 				//health = 0;
 				// fancy animation 
@@ -607,30 +599,30 @@ void TentacleSObj::rage() {
 	currStateDone = stateCounter >= RageSObj::lifetime;
 }
 
-int TentacleSObj::serialize(char * buf) {
-	TentacleState *state = (TentacleState*)buf;
-	state->modelNum = this->modelNum;
-	state->animationState = this->modelAnimationState;
-	state->fog = this->isFogging;
-	state->animationFrame = -1;
-
-	if (SOM::get()->collisionMode)
-	{
-		CollisionState *collState = (CollisionState*)(buf + sizeof(TentacleState));
-		vector<Box> objBoxes = pm->colBoxes;
-		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
-		
-		for (int i=0; i<collState->totalBoxes; i++)
-		{
-			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
-		}
-		return pm->ref->serialize(buf + sizeof(TentacleState) + sizeof(CollisionState)) + sizeof(TentacleState) + sizeof(CollisionState);
-	}
-	else
-	{
-		return pm->ref->serialize(buf + sizeof(TentacleState)) + sizeof(TentacleState);
-	}
-}
+//int TentacleSObj::serialize(char * buf) {
+//	TentacleState *state = (TentacleState*)buf;
+//	state->modelNum = this->modelNum;
+//	state->animationState = this->modelAnimationState;
+//	state->fog = this->isFogging;
+//	state->animationFrame = -1;
+//
+//	if (SOM::get()->collisionMode)
+//	{
+//		CollisionState *collState = (CollisionState*)(buf + sizeof(TentacleState));
+//		vector<Box> objBoxes = pm->colBoxes;
+//		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
+//		
+//		for (int i=0; i<collState->totalBoxes; i++)
+//		{
+//			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
+//		}
+//		return pm->ref->serialize(buf + sizeof(TentacleState) + sizeof(CollisionState)) + sizeof(TentacleState) + sizeof(CollisionState);
+//	}
+//	else
+//	{
+//		return pm->ref->serialize(buf + sizeof(TentacleState)) + sizeof(TentacleState);
+//	}
+//}
 
 /**
  * Checks if there's a player we can smash, if so

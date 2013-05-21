@@ -7,6 +7,10 @@
 #include <time.h>
 #include <algorithm>
 
+#include "MonsterPartSObj.h"
+#include "TentacleSObj.h"
+#include "HeadSObj.h"
+
 MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new MonsterObj %d\n", id);
@@ -34,9 +38,9 @@ MonsterSObj::~MonsterSObj(void)
 	delete pm;
 }
 
-void MonsterSObj::removeTentacle(TentacleSObj* t)
+void MonsterSObj::removePart(MonsterPartSObj* t)
 { 
-	tentacles.erase(t); 
+	parts.erase(t); 
 	Frame* fr = t->getPhysicsModel()->ref; 
 	//availablePlacements[fr->getPos()] = fr->getRot(); 
 	availablePlacements.push_back(*fr);
@@ -76,11 +80,11 @@ Frame MonsterSObj::updatePosition(Frame oldPos) {
  * Author: Bryan, Haro, Suman
  */
 bool MonsterSObj::update() {
-	int numTentacles = tentacles.size();
+	int numTentacles = parts.size();
 	health = 0;
 	if(numTentacles > 0) {
-		for (set<TentacleSObj*>::iterator it = tentacles.begin();
-			it != tentacles.end();
+		for (set<MonsterPartSObj*>::iterator it = parts.begin();
+			it != parts.end();
 			++it)
 			health += (*it)->getHealth();
 		health /= numParts;
@@ -102,15 +106,15 @@ bool MonsterSObj::update() {
 			Frame currPlace = availablePlacements.back();
 			availablePlacements.pop_back();
 
-			TentacleSObj * newTentacle;
+			MonsterPartSObj * newPart;
 			switch (phase)
 			{
 			case 0:
-				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
+				newPart = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			case 1:
-				// todo heads
-				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
+				// todo heads different models
+				newPart = new HeadSObj(SOM::get()->genId(), MDL_HEAD_1, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			default: // you beat all the phases!
 				GameServer::get()->event_monster_death();
@@ -119,8 +123,8 @@ bool MonsterSObj::update() {
 				// DONT YOU DARE
 			}
 
-			this->addTentacle(newTentacle);
-			SOM::get()->add(newTentacle);
+			this->addPart(newPart);
+			SOM::get()->add(newPart);
 		}
 	}
 
@@ -128,8 +132,8 @@ bool MonsterSObj::update() {
 	const int fogProb = 1; // todo config maybe
 	int x = rand() % 1000;
 	bool fogging = x < fogProb;
-	for (set<TentacleSObj*>::iterator it = tentacles.begin();
-			it != tentacles.end();
+	for (set<MonsterPartSObj*>::iterator it = parts.begin();
+			it != parts.end();
 			++it) {
 				(*it)->setFogging(fogging);
 	}

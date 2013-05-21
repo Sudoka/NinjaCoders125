@@ -1,5 +1,5 @@
 #pragma once
-#include "ServerObject.h"
+#include "MonsterPartSObj.h"
 #include "MonsterSObj.h"
 
 // Different things heads can do
@@ -14,43 +14,32 @@ enum HeadAction {
 	NUM_HEAD_ACTIONS
 };
 
-class HeadSObj : ServerObject
+class HeadSObj : public MonsterPartSObj
 {
 public:
 	HeadSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj* master);
 	virtual ~HeadSObj(void);
 
-	//virtual bool update();
-	virtual PhysicsModel *getPhysicsModel() { return pm; }
+	virtual bool update();
 	//virtual int serialize(char * buf);
 	virtual ObjectType getType() { return OBJ_TENTACLE; }
-	//virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal);
+	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal);
 	void setAnimationState(HeadAnimationState state) { modelAnimationState = state; }
 	void setAction(HeadAction action) { actionState = action; }
-	void setFogging(bool fog) { isFogging = fog; }
 
 	// Actions
 	void idle();
-	void slam();
-	void slamCombo();
 	void spike();
 	void rage();
 	void move();
 	void death();
-
-	int getHealth() { return health; }
 
 	float angleToNearestPlayer();
 
 	char serialbuffer[100];
 
 private:
-	PhysicsModel *pm;
-	Model modelNum;
-	MonsterSObj* overlord;
-	int health;
-	HeadAnimationState modelAnimationState;
+	//HeadAnimationState modelAnimationState;
 	HeadAction actionState;
-	bool isFogging;
 };
 

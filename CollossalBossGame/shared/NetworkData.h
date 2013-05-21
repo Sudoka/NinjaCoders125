@@ -60,6 +60,7 @@ enum Model {
     MDL_TENTACLE_3,
     MDL_TENTACLE_4,
     MDL_TENTACLE_5,
+	MDL_HEAD_1,
     MDL_FLOOR,
     MDL_CEILING,
 	MDL_EAST_WALL,
@@ -172,9 +173,9 @@ struct MonsterState {
 };
 
 /*
- * State information for the tentacle not encoded by the position
+ * State information for the monster parts (heads/tentacles) not encoded by the position
  */
-struct TentacleState {
+struct MonsterPartState {
 	Model modelNum;
 	int animationState;
 	int animationFrame;

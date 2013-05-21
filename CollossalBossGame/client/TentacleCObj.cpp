@@ -5,7 +5,7 @@
 TentacleCObj::TentacleCObj(uint id, char *data) : ClientObject(id, OBJ_TENTACLE)
 {
 	if (COM::get()->debugFlag) DC::get()->print("Created new TentacleCObj %d\n", id);
-	TentacleState *state = (TentacleState*)data;
+	MonsterPartState *state = (MonsterPartState*)data;
 	rm = new RenderModel(Point_t(), Quat_t(), state->modelNum);
 	smoking = new SmokeEffect();
 	RE::get()->addParticleEffect(smoking);
@@ -70,7 +70,7 @@ bool TentacleCObj::update() {
 }
 
 void TentacleCObj::deserialize(char* newState) {
-	TentacleState *state = (TentacleState*)newState;
+	MonsterPartState *state = (MonsterPartState*)newState;
 	this->getRenderModel()->setModelState(state->animationState);
 	//Collision sensing: Client side. Just set the animation frame equal to the sent animation frame
 	if (state->animationFrame >= 0)
@@ -78,7 +78,7 @@ void TentacleCObj::deserialize(char* newState) {
 	this->fogging = state->fog;
 	if (COM::get()->collisionMode)
 	{
-		CollisionState *collState = (CollisionState*)(newState + sizeof(TentacleState));
+		CollisionState *collState = (CollisionState*)(newState + sizeof(MonsterPartState));
 
 		rm->colBoxes.clear();
 		for (int i=0; i<collState->totalBoxes; i++)
@@ -86,10 +86,10 @@ void TentacleCObj::deserialize(char* newState) {
 			rm->colBoxes.push_back(collState->boxes[i]);
 		}
 
-		rm->getFrameOfRef()->deserialize(newState + sizeof(TentacleState) + sizeof(CollisionState));
+		rm->getFrameOfRef()->deserialize(newState + sizeof(MonsterPartState) + sizeof(CollisionState));
 	}
 	else
 	{
-		rm->getFrameOfRef()->deserialize(newState + sizeof(TentacleState));
+		rm->getFrameOfRef()->deserialize(newState + sizeof(MonsterPartState));
 	}
 }
