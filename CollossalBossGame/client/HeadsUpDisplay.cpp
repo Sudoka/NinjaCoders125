@@ -58,7 +58,7 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateTextureFromFile(direct3dDevice, "res/youarep4.png", &youarep4txt);
 	D3DXCreateTextureFromFile(direct3dDevice, "res/pressstart.png", &pressstarttxt);
 	D3DXCreateTextureFromFile(direct3dDevice, "res/playerready.png", &playerreadytxt);
-	D3DXCreateTextureFromFile(direct3dDevice, "res/blackbackground.png", &blackbackgroundtxt);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/startMenu.png", &blackbackgroundtxt);
 	D3DXCreateTextureFromFile(direct3dDevice, "res/youwin.png", &youwintxt);
 	
 	//D3DXCreateTextureFromFile(direct3dDevice, "res/particle.bmp", &p);
@@ -206,20 +206,6 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 }
 
 void HeadsUpDisplay::displayMonsterHealth(int monsterHealth) {
-	//The background for the monster
-	D3DXVECTOR2 blines[] = {D3DXVECTOR2(40.0f, 60.0f), D3DXVECTOR2(351.0f, 60.0f)};
-	backgroundLine->SetWidth(30.0f);
-	backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
-
-	//The actual health for the monster
-	//we want it to map so 100% health = 200 pixels in width, and the initial health is determined by the config file
-	float max_health = (float) CM::get()->find_config_as_int("INIT_HEALTH");
-	float percentage = ((float)monsterHealth)/max_health;
-	float inverse = 1.f-((float)monsterHealth)/max_health;
-	D3DXVECTOR2 mlines[] = {D3DXVECTOR2(40.0f, 60.0f), D3DXVECTOR2(percentage*311.f + 40.f , 60.0f)};
-	monsterLine->SetWidth(30.0f);
-	monsterLine->Draw(mlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * inverse), (int)(255.0 * percentage), 0));
-
 	D3DXVECTOR3 test1;
 	
 	test1.x= -50; //CM::get()->find_config_as_float("TEST1_X");
@@ -229,6 +215,21 @@ void HeadsUpDisplay::displayMonsterHealth(int monsterHealth) {
 	monsterHealthSprite->Begin(D3DXSPRITE_ALPHABLEND);
 	monsterHealthSprite->Draw(monsterHealth_texture,NULL,NULL,&test1,0xFFFFFFFF);
 	monsterHealthSprite->End();
+
+	//The background for the monster
+	float monsterHeight = 33.f;
+	D3DXVECTOR2 blines[] = {D3DXVECTOR2(40.0f, monsterHeight), D3DXVECTOR2(351.0f, monsterHeight)};
+	backgroundLine->SetWidth(15.0f);
+	backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
+
+	//The actual health for the monster
+	//we want it to map so 100% health = 200 pixels in width, and the initial health is determined by the config file
+	float max_health = (float) CM::get()->find_config_as_int("INIT_HEALTH");
+	float percentage = ((float)monsterHealth)/max_health;
+	float inverse = 1.f-((float)monsterHealth)/max_health;
+	D3DXVECTOR2 mlines[] = {D3DXVECTOR2(40.0f, monsterHeight), D3DXVECTOR2(percentage*311.f + 40.f , monsterHeight)};
+	monsterLine->SetWidth(15.0f);
+	monsterLine->Draw(mlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * inverse), (int)(255.0 * percentage), 0));
 }
 
 #pragma region Display Methods
@@ -306,37 +307,48 @@ void HeadsUpDisplay::displayStart()
 				ready[playercount] = pc->ready;
 			}
 		}
-		if(playercount >= 1) {
-			D3DXVECTOR3 p1c(0,0,0.25);
+		
+		if(playercount >= 1) { //60, 60, 0.25
+			D3DXVECTOR3 p1c(60,60,0.25);
 			D3DXVECTOR3 p1r(0,0,0);
 			if (ready[1]) { displaytexture(&playerready, &p1r, &playerreadytxt); }
 			(playernumber == 1) ? displaytexture(&youarep1, &p1c, &youarep1txt) : displaytexture(&p1connect, &p1c, &p1connecttxt);
 		}
-		if(playercount >= 2) {
-			D3DXVECTOR3 p2c(300,0,0.25);
+		if(playercount >= 2) { //700, 60, 0.25
+			D3DXVECTOR3 p2c(700, 60, 0.25);
 			D3DXVECTOR3 p2r(300,0,0);
 			if (ready[2]) { displaytexture(&playerready, &p2r, &playerreadytxt); }
 			(playernumber == 2) ? displaytexture(&youarep2, &p2c, &youarep2txt) : displaytexture(&p2connect, &p2c, &p2connecttxt);
 		}
 		if(playercount >= 3) {
-			D3DXVECTOR3 p3c(0,300,0.25);
+			D3DXVECTOR3 p3c(60,430,0.25);
 			D3DXVECTOR3 p3r(0,300,0);
 			if (ready[3]) { displaytexture(&playerready, &p3r, &playerreadytxt); }
 			(playernumber == 3) ? displaytexture(&youarep3, &p3c, &youarep3txt) : displaytexture(&p3connect, &p3c, &p3connecttxt);
 		}
 		if(playercount >= 4) {
-			D3DXVECTOR3 p4c(300,300,0.25);
+			D3DXVECTOR3 p4c(700,430,0.25);
 			D3DXVECTOR3 p4r(300,300,0);
 			if (ready[4]) { displaytexture(&playerready, &p4r, &playerreadytxt); }
 			(playernumber == 4) ? displaytexture(&youarep4, &p4c, &youarep4txt) : displaytexture(&p4connect, &p4c, &p4connecttxt);
 		}
+		/*
 		if(!ready[playernumber]) {
 			D3DXVECTOR3 rdy(300,200,0);
 			displaytexture(&pressstart, &rdy, &pressstarttxt);
-		}
+		}*/
 		D3DXVECTOR3 blk(0,0,0.5);
-		displaytexture(&blackbackground, &blk, &blackbackgroundtxt);
+		D3DXVECTOR2 spriteCentre=D3DXVECTOR2(1920.0f/2, 1920.0f/2);
+		D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);
+		D3DXVECTOR2 scaling(1.f,0.75f);
+		D3DXMATRIX mat;
+		D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,&spriteCentre,0.f,&trans);
 
+		blackbackground->SetTransform(&mat);
+		blackbackground->Begin(D3DXSPRITE_ALPHABLEND);
+		blackbackground->Draw(blackbackgroundtxt,NULL,NULL,&blk,0xFFFFFFFF);
+		blackbackground->End();
+		
 		bool allready = true;
 		for(int j = 1; j < playercount+1; j++) {
 			if(ready[j] != 1) {
