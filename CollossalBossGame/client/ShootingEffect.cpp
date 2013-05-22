@@ -47,6 +47,6 @@ void ShootingEffect::update(float timeDelta)
 
 void ShootingEffect::setPosition(Vec3f pos, int size)
 {
-	this->pointSize = size;
+	this->pointSize = (float)size;
 	this->pos = D3DXVECTOR3(pos.x, pos.y, pos.z);
 }

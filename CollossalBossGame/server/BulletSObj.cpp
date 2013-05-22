@@ -4,14 +4,16 @@
 #include "defs.h"
 #include <math.h>
 
+int BulletSObj::TotalBullets = 0;
+
 BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int dmg, int diameter) : ServerObject(id)
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new Bullet %d ", id);
 	Box bxVol;
 	Quat_t rot = Quat_t();
-	int negathing = -(diameter/2);
+	float negathing = -((float)diameter/2);
 
-	bxVol = Box(negathing, negathing, negathing, diameter, diameter, diameter);
+	bxVol = Box(negathing, negathing, negathing, (float)diameter, (float)diameter, (float)diameter);
 	DC::get()->print(LOGFILE | TIMESTAMP, "Bullet diameter = %d\n", diameter);
 	rot = Quat_t();
 
@@ -21,19 +23,21 @@ BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce,
 	
 	this->lastdirection = initialForce;
 	this->lastdirection.normalize();
-	this->basevelocity = CM::get()->find_config_as_int("BULLET_VELOCITY");
+	this->basevelocity = (float)CM::get()->find_config_as_int("BULLET_VELOCITY");
 	this->lifetime = CM::get()->find_config_as_int("BULLET_LIFETIME");
-	this->modelNum = modelNum;
-	t = 0;
 	health = CM::get()->find_config_as_int("BULLET_LIFETIME");
+	this->modelNum = modelNum;
 	this->damage = dmg;
 	this->diameter = diameter;
+
+	TotalBullets++;
 }
 
 
 BulletSObj::~BulletSObj(void)
 {
 	delete pm;
+	TotalBullets--;
 }
 
 bool BulletSObj::update() {

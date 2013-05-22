@@ -32,7 +32,7 @@ StunGunSObj::~StunGunSObj(void)
 	delete pm;
 }
 
-void gracefullyfail(ServerObject * creator, ServerObject * target) {
+void StunGunSObj::gracefullyfail(ServerObject * creator, ServerObject * target) {
 	// TODO: Implement
 	// assert(false && "WTF");
 	return;
@@ -107,6 +107,7 @@ int StunGunSObj::serialize(char * buf) {
 }
 
 void StunGunSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
+	/*
 	if(obj->getId() == creatorid && this->state == HS_HARPOON) {
 		this->state = SGS_DEAD;
 		((PlayerSObj *)SOM::get()->find(this->creatorid))->clearAccessory();
@@ -130,4 +131,5 @@ void StunGunSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 			this->dist2target = obj->getPhysicsModel()->ref->getPos() - this->getPhysicsModel()->ref->getPos();
 		}
 	}
+	*/
 }

@@ -33,7 +33,7 @@ HarpoonSObj::~HarpoonSObj(void)
 	delete pm;
 }
 
-void gracefullyfail(ServerObject * creator, ServerObject * target) {
+void HarpoonSObj::gracefullyfail(ServerObject * creator, ServerObject * target) {
 	// TODO: Implement
 	// assert(false && "WTF");
 	return;

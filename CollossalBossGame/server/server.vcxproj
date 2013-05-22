@@ -86,6 +86,7 @@
     <ClCompile Include="ServerObject.cpp" />
     <ClCompile Include="ServerObjectManager.cpp" />
     <ClCompile Include="ShooterSObj.cpp" />
+    <ClCompile Include="StunGunSObj.cpp" />
     <ClCompile Include="TentacleSObj.cpp" />
     <ClCompile Include="TestSObj.cpp" />
     <ClCompile Include="WallSObj.cpp" />
@@ -109,6 +110,7 @@
     <ClInclude Include="ServerObject.h" />
     <ClInclude Include="ServerObjectManager.h" />
     <ClInclude Include="ShooterSObj.h" />
+    <ClInclude Include="StunGunSObj.h" />
     <ClInclude Include="TentacleSObj.h" />
     <ClInclude Include="TestSObj.h" />
     <ClInclude Include="WallSObj.h" />

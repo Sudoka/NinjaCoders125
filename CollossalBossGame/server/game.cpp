@@ -59,7 +59,7 @@ void gameInit() {
 
 	buildRoom();
 								
-	//This object manages the world state
+	//This object manages the world state 
 	WorldSObj *wobj = new WorldSObj(som->genId());
 	som->add(wobj);
 

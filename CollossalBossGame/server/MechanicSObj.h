@@ -16,5 +16,7 @@ public:
 protected:
 	virtual void actionCharge(bool buttondown);
 	virtual void actionAttack();
+	int delay, delaycounter;
+	bool delaytrigger;
 };
 

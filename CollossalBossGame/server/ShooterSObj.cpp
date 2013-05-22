@@ -18,7 +18,6 @@ ShooterSObj::~ShooterSObj(void)
 
 void ShooterSObj::initialize() {
 	// Configuration options
-	hso = NULL;
 }
 
 void ShooterSObj::actionAttack() {
@@ -26,20 +25,28 @@ void ShooterSObj::actionAttack() {
 }
 
 void ShooterSObj::actionCharge(bool buttondown) {
-	Vec3f position;
-	position.x = this->pm->ref->getPos().x;
-	position.y = 10 + this->pm->ref->getPos().y;
-	position.z = this->pm->ref->getPos().z;
-	float anglepi = camPitch;
-	float upforce = -sin(anglepi);
-	float forwardforce = cos(anglepi);
-	float bulletforce = 50; //chargeForce * charge;
-	// TODO: force should be fetched from config file
-	Vec3f force = rotate(Vec3f(0, upforce * bulletforce, forwardforce * bulletforce), pm->ref->getRot());
-	BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1/*MDL_TEST_BOX*/, position, force, 1, 10*(charge/3));
-	SOM::get()->add(bso);
+	if(buttondown && BulletSObj::TotalBullets < 5) {
+		charging = true;
+		charge += chargeUpdate;
+	} else {
+		if(charging) {
+			Vec3f mechpos = this->pm->ref->getPos();
+			float anglepi = camPitch;
+			float upforce = -sin(anglepi);
+			float forwardforce = cos(anglepi);
+			float diameter = 10*(charge/3);
+			Vec3f offset = rotate(Vec3f(0, upforce * diameter * sqrt(2.0f), forwardforce * diameter * sqrt(2.0f)), pm->ref->getRot());
+			Vec3f position = Vec3f(mechpos.x, mechpos.y + 15, mechpos.z) + offset;
+
+			BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1, position, offset, damage, (int)diameter);
+			SOM::get()->add(bso);
+
+			charging = false;
+			charge = 0;
+		}
+	}
 }
 
 void ShooterSObj::clearAccessory() {
-
+	// Nothing Happens... There's no accessory.
 }

@@ -21,6 +21,7 @@ public:
 	virtual int serialize(char * buf);
 	virtual ObjectType getType() { return OBJ_HARPOON; }
 	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal);
+	void gracefullyfail(ServerObject * creator, ServerObject * target);
 	char serialbuffer[100];
 
 	HarpoonState state;

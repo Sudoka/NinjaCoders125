@@ -24,6 +24,9 @@ public:
 
 	virtual void clearAccessory() { }
 
+	void acquireTarget();
+	int targetlockon;
+
 	bool attacking, newAttack;
 	uint jumpCounter, attackCounter;
 	int health;
@@ -41,7 +44,7 @@ protected:
 	float charge;
 	// Configuration options
 	float jumpDist;
-	float chargeForce, chargeUpdate;
+	float chargeForce, chargeUpdate, chargeCap;
 	int movDamp;
 
 	//Rotational tracking

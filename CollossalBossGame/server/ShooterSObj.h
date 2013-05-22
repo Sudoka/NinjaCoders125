@@ -11,7 +11,6 @@ public:
 
 	virtual void initialize();
 	virtual void clearAccessory();
-	HarpoonSObj * hso;
 
 protected:
 	virtual void actionCharge(bool buttondown);

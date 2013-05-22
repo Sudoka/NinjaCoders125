@@ -30,7 +30,7 @@ BulletCObj::~BulletCObj(void)
 
 bool BulletCObj::update() {
 	pewPew->setPosition(rm->getFrameOfRef()->getPos(), this->diameter);
-	pewPew->update(.33);
+	pewPew->update(.33f);
 	return false;
 }
 

@@ -16,13 +16,14 @@ public:
 	Vec3f getNormal() { return normal; }
 	char serialbuffer[100];
 
+	static int TotalBullets;
+
 	int health;
 	int damage;
 	int diameter;
 private:
 	PhysicsModel *pm;
 	Model modelNum;
-	int t;
 	Vec3f normal;
 	Vec3f lastdirection;
 	float basevelocity;
