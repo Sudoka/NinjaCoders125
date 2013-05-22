@@ -6,7 +6,7 @@
 
 ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Point_t pos) : ServerObject(id) {
 	Quat_t rot = Quat_t();
-	pm = new PhysicsModel(pos, rot, 500, 0);
+	pm = new PhysicsModel(pos, rot, 500);
 	
 	const float fxo = -CM::get()->find_config_as_float("ROOM_WIDTH") / 2,
 				fyo = 0,//CM::get()->find_config_as_float("ROOM_HEIGHT") / 2,

@@ -1,6 +1,14 @@
 #pragma once
-#include "PhysicsModel.h"
-#include "ServerObject.h"
+
+//Includes
+#include "defs.h"
+
+//Forward declarations
+struct PhysicsModel;
+class ServerObject;
+class CollisionElement;
+class AabbElement;
+class HMapElement;
 
 class PhysicsEngine
 {
@@ -27,6 +35,8 @@ public:
 	inline DIRECTION getGravDir() { return gravDir; }
 	inline const Vec3f &getGravVec() { return gravVec; }
 	inline const Quat_t &getCurGravRot() { return curGravRot; }
+	inline float getGroundFrict() { return frictGround; }
+	inline float getAirFrict() { return frictAir; }
 
 private:
 	PhysicsEngine(void);
@@ -44,6 +54,9 @@ private:
 	Vec3f gravVec;
 	DIRECTION gravDir;
 	Quat_t curGravRot;
+
+	float frictGround,
+		  frictAir;
 
 	//Position caps
 	float xPos, yPos, zPos,

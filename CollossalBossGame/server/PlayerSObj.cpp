@@ -35,7 +35,7 @@ void PlayerSObj::initialize() {
 	if(SOM::get()->debugFlag) DC::get()->print("Initialized new PlayerSObj %d\n", this->getId());
 
 	Point_t pos = Point_t(0, 5, 10);
-	Box bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-10, 0, -10, 20, 20, 20);
+	Box bxVol = CM::get()->find_config_as_box("BOX_PLAYER");//Box(-10, 0, -10, 20, 20, 20);
 
 	if(pm != NULL)
 		delete pm;
@@ -258,16 +258,16 @@ void PlayerSObj::controlCamera(const Quat_t &upRot) {
 		}
 
 		//Correct the camera angle so it is between +/-pi
-		if(camYaw < -M_PI) camYaw += M_TAU;
-		else if(camYaw > M_PI) camYaw -= M_TAU;
+		if(camYaw < -M_PI) camYaw += (float)M_TAU;
+		else if(camYaw > M_PI) camYaw -= (float)M_TAU;
 		camRot = upRot * Quat_t(Vec3f(0,1,0), camYaw);
 }
 
 float PlayerSObj::controlAngles(float des, float cur) {
 	//Determine the camera angle cost
 	float err1 = des - cur, err2, errDiff;
-	if(des < 0) err2 = (des + M_TAU) - cur;
-	else err2 = (des - M_TAU) - cur;
+	if(des < 0) err2 = (des + (float)M_TAU) - cur;
+	else err2 = (des - (float)M_TAU) - cur;
 
 	errDiff = fabs(fabs(err1) - fabs(err2));
 	//DC::get()->print("Error differences: %f-%f = %f\n", err1, err2, );
@@ -298,7 +298,7 @@ int PlayerSObj::serialize(char * buf) {
 	}
 	state->health = health;
 	state->ready = ready;
-	state->charge = charge;
+	state->charge = (int)charge;
 	if (SOM::get()->debugFlag) DC::get()->print("CURRENT MODEL STATE %d\n",this->modelAnimationState);
 	state->animationstate = this->modelAnimationState;
 	state->camRot = this->camRot;
