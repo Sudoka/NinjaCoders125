@@ -14,7 +14,7 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 													MonsterPartSObj(id, modelNum, pos, rot, master)
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new TentacleSObj %d\n", id);
-	Box bxVol = CM::get()->find_config_as_box("BOX_MONSTER");
+	//Box bxVol = CM::get()->find_config_as_box("BOX_MONSTER");
 
 	/////////////// Collision Boxes /////////////////
 	idleBoxes[0] = CM::get()->find_config_as_box("BOX_TENT_BASE"); 
@@ -31,21 +31,16 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 		assert(pm->addBox(idleBoxes[i]) == i && "Your physics model is out of sync with the rest of the world...");
 	}
 
-	modelAnimationState = T_IDLE; // the boxes will be rotated appropriately within the idle part of update()
+	// modelAnimationState = M_IDLE; // the boxes will be rotated appropriately within the idle part of update()
 	
-	std::default_random_engine generator;
-	std::uniform_int_distribution<int> distribution(1,50);
+	//std::default_random_engine generator;
+	//std::uniform_int_distribution<int> distribution(1,50);
 	//attackCounter = distribution(generator);
-
 	//idleCounter = 0;
-	stateCounter = 0;
-	attacked = false; // haven't been attacked yet
-	currStateDone = true; // no states have started yet
-
 	// Configuration options
-	attackBuffer = CM::get()->find_config_as_int("TENTACLE_ATTACK_BUF");
-	attackFrames = CM::get()->find_config_as_int("TENTACLE_ATTACK_FRAMES");
-	pushForce = CM::get()->find_config_as_int("TENTACLE_PUSH_FORCE");
+	//attackBuffer = CM::get()->find_config_as_int("TENTACLE_ATTACK_BUF");
+	//attackFrames = CM::get()->find_config_as_int("TENTACLE_ATTACK_FRAMES");
+	//pushForce = CM::get()->find_config_as_int("TENTACLE_PUSH_FORCE");
 }
 
 
@@ -53,208 +48,9 @@ TentacleSObj::~TentacleSObj(void)
 {
 }
 
-bool TentacleSObj::update() {
-	stateCounter++;
-
-	////////////////// State transitions /////////////////////
-	// These should maybe be moved to the monster...
-	// Only change states when our current state has gone through a whole cycle
-	// This should be set by the individual state methods when their cycle is over
-	// i.e. idle(), slam(), spike(), etc...
-	if (currStateDone)
-	{
-		// we're about to start a new state =)
-		stateCounter = 0;
-		currStateDone = false; 
-
-		// If you're dead, you're dead xD
-		if (health <= 0) {
-			health = 0;
-
-			// If my previous state was death, I already did my fancy animation
-			if (actionState == DEATH_ACTION_T) {
-				overlord->removePart(this);
-				return true; // I died!
-				//health = 0;
-				// fancy animation 
-				// just dont attack
-				//attackBuffer = 0;
-				//attackFrames = 0;
-			}
-			// Otherwise, do my fancy animation before actually dying
-			else
-			{
-				actionState = DEATH_ACTION_T;
-			}
-		}
-		else
-		{
-			int angryProb = attacked ? 85 : 60;
-		
-			// we're angry!
-			if ((rand() % 100) < angryProb) 
-			{
-				// fight or flight?
-				int moveProb = 15;
-
-				// Flight!
-				if ((rand() % 100) < moveProb)
-				{
-					this->setFlag(IS_HARMFUL, 0);
-					actionState = MOVE_ACTION_T;
-				}
-				// Fight!!
-				else
-				{
-					this->setFlag(IS_HARMFUL, 1);
-
-					playerAngle = this->angleToNearestPlayer();
-					bool playerNear = playerAngle != -1.f;
-
-					int targetAttackProb = playerNear ? 90 : 25;
-
-					// targetted attack
-					if ((rand() % 100) < targetAttackProb)
-					{
-						// if we got here without a real target, just set a default
-						// for now anyway
-						if (playerAngle == -1.f) playerAngle = 0.f;
-
-						// randomly pick between shoot and slam
-						// maybe this will depend on if you're a tentacle or a head
-						if (rand() % 2) { actionState = SLAM_ACTION_T; }
-						else { actionState = SHOOT_ACTION_T; }
-					}
-					// non-targetted attack
-					else
-					{
-						// randomly pick between slam combo, spike, and defense rage
-						switch(rand() % 3)
-						{
-						case 0:		actionState = COMBO_ACTION_T; break;
-						case 1:		actionState = SPIKE_ACTION_T; break;
-						default:	actionState = RAGE_ACTION_T; break;
-						}
-					}
-				}
-			}
-			// we're not attacking!
-			else
-			{
-				this->setFlag(IS_HARMFUL, 0);
-
-				// randomly pick between idle and probing
-				if (rand() % 2) { actionState = IDLE_ACTION_T; }
-				else { actionState = PROBE_ACTION_T; }
-			}
-		}
-	}
-
-	//	if (attackCounter > attackBuffer && !( (attackCounter - attackBuffer) % CYCLE)){
-	//		if (this->getFlag(IS_HARMFUL))
-	//		{
-	//			this->setFlag(IS_HARMFUL, 0);
-	//			attackBuffer = rand() % 40;
-	//			attackFrames = - rand() % 15;
-
-	//			// this is horrendous.....and really should have real logic...
-	//			if (rand() % 2)
-	//			{
-	//				modelAnimationState = T_IDLE;
-	//			}
-	//			else
-	//			{
-	//				modelAnimationState = T_SPIKE; // for testing
-	//			}
-
-	//			this->getPhysicsModel()->ref->setRot(lastRotation);
-	//		} else {
-	//			float angle = this->angleToNearestPlayer();
-	//			if (angle != -1.f)
-	//			{
-	//				Vec3f axis = Vec3f(0,0,1);
-	//				Vec4f qAngle = Vec4f(axis,angle);
-	//				lastRotation = this->getPhysicsModel()->ref->getRot();
-	//				this->getPhysicsModel()->ref->rotate(qAngle);
-	//				this->setFlag(IS_HARMFUL, 1);
-	//				modelAnimationState = T_SLAM;
-	//			}
-	//		}
-	//	}
-	//}
-
-	///////////////////// State logic ///////////////////////
-
-	// actionState = MOVE_ACTION;
-
-	switch(actionState)
-	{
-	case IDLE_ACTION_T:
-		idle();
-		break;
-	case PROBE_ACTION_T:
-		idle(); // todo probe
-		break;
-	case SLAM_ACTION_T:
-		slam();
-		break;
-	case COMBO_ACTION_T:
-		slamCombo();
-		break;
-	case SHOOT_ACTION_T:
-		slam(); // todo shoot (maybe wait until we have a head model?)
-		break;
-	case SPIKE_ACTION_T:
-		spike();
-		break;
-	case RAGE_ACTION_T:
-		rage();
-		break;
-	case MOVE_ACTION_T:
-		move();
-		break;
-	case DEATH_ACTION_T:
-		death();
-		break;
-	default:
-		if(actionState > NUM_TENTACLE_ACTIONS) DC::get()->print("ERROR: Tentacle state %d not known\n", modelAnimationState);
-		break;
-	}
-
-	// Reset attack every update loop, onCollision re-sets it
-	attacked = false;
-
-	return false;
-}
-
-void TentacleSObj::move() {
-	// move in 16
-	// move out 18
-
-	// Wriggle out
-	if (stateCounter < 16)
-	{
-		modelAnimationState = T_EXIT;
-	}
-	// Switch positions
-	else if (stateCounter == 16)
-	{
-		Frame* currFrame = this->getPhysicsModel()->ref;
-		Frame newFrame = this->overlord->updatePosition(*currFrame);
-		currFrame->setPos(newFrame.getPos());
-		currFrame->setRot(newFrame.getRot());
-	}
-	// Wriggle back in
-	else
-	{
-		modelAnimationState = T_ENTER;
-	}
-
-	currStateDone = (stateCounter == 33);
-}
 
 void TentacleSObj::idle() {
-	modelAnimationState = T_IDLE;
+	modelAnimationState = M_IDLE;
 
 	/* Cycle logic:
 	 * CYCLE*1/2 = The tentacle is extended
@@ -319,7 +115,15 @@ void TentacleSObj::idle() {
 	pm->colBoxes[2] = *(tip.fix());
 }
 
-void TentacleSObj::slam() {
+// TODO PROBE!!!
+void TentacleSObj::probe() {
+	idle();
+}
+
+/*
+ * Attack means slam for the tentacle
+ */
+void TentacleSObj::attack() {
 	// First, rotate ourselves to the player
 	if (stateCounter == 0) {
 		Vec3f rotationAxis = Vec3f(0,0,1);
@@ -344,7 +148,11 @@ void TentacleSObj::slam() {
 
 #define NUM_SLAMS 16
 #define SLAM_ANGLE 2*M_PI/NUM_SLAMS
-void TentacleSObj::slamCombo() {
+
+/**
+ * Slam Combo!
+ */
+void TentacleSObj::combo() {
 	// First, save our initial rotation and reset our angle
 	if (stateCounter == 0) {
 		lastRotation = this->getPhysicsModel()->ref->getRot();
@@ -372,7 +180,7 @@ void TentacleSObj::slamCombo() {
 }
 
 void TentacleSObj::slamMotion() {
-	modelAnimationState = T_SLAM;
+	modelAnimationState = M_ATTACK;
 
 	// Keep the base and middle, make the tip grow and move back
 	Box base = this->getPhysicsModel()->colBoxes.at(0);
@@ -438,14 +246,14 @@ void TentacleSObj::slamMotion() {
 //	}
 //	/*
 //		* What I want when I start slamming:
-//		* BOX_TENT_BASE = -12, -20, 0, 28, 28, 75
-//		* BOX_TENT_MID = -12, -50, -95, 28, 90, 90
-//		* BOX_TENT_TIP = -12, 30, -165, 28, 30, 40
+//		* BOX_TENM_BASE = -12, -20, 0, 28, 28, 75
+//		* BOX_TENM_MID = -12, -50, -95, 28, 90, 90
+//		* BOX_TENM_TIP = -12, 30, -165, 28, 30, 40
 //		*
 //		* When I'm in the middle of slamming:
-//		* BOX_TENT_BASE = -12, -20, 28, 28, 28, 35
-//		* BOX_TENT_MID = -12, -20, -28, 28, 70, 50
-//		* BOX_TENT_TIP = -12, 8, 28, 28, 105, 35
+//		* BOX_TENM_BASE = -12, -20, 28, 28, 28, 35
+//		* BOX_TENM_MID = -12, -20, -28, 28, 70, 50
+//		* BOX_TENM_TIP = -12, 8, 28, 28, 105, 35
 //		*
 //		* Base z: 0 -> 28 (-28, or -2 * 2 per 5 + a remainder)
 //		* Base d: 75 -> 35 (-40, or -4 * 2 per 5)
@@ -528,7 +336,7 @@ void TentacleSObj::slamMotion() {
 }
 
 void TentacleSObj::spike() {
-	modelAnimationState = T_SPIKE;
+	modelAnimationState = M_SPIKE;
 
 	//get the actual axis
 	Vec4f axis = this->getPhysicsModel()->ref->getRot();
@@ -549,22 +357,8 @@ void TentacleSObj::spike() {
 	currStateDone = (stateCounter == 50);
 }
 
-void TentacleSObj::death() {
-	modelAnimationState = T_DEATH;
-
-	// No collision boxes in death
-	if (stateCounter == 0)
-	{
-		pm->colBoxes[0] = Box();
-		pm->colBoxes[1] = Box();
-		pm->colBoxes[2] = Box();
-	}
-
-	currStateDone = (stateCounter == 20);
-}
-
 void TentacleSObj::rage() {
-	modelAnimationState = T_RAGE;
+	modelAnimationState = M_RAGE;
 
 	// First, we create the wave object
 	if (stateCounter == 0) {
@@ -597,95 +391,4 @@ void TentacleSObj::rage() {
 
 	// when the object dies we're done raging
 	currStateDone = stateCounter >= RageSObj::lifetime;
-}
-
-//int TentacleSObj::serialize(char * buf) {
-//	TentacleState *state = (TentacleState*)buf;
-//	state->modelNum = this->modelNum;
-//	state->animationState = this->modelAnimationState;
-//	state->fog = this->isFogging;
-//	state->animationFrame = -1;
-//
-//	if (SOM::get()->collisionMode)
-//	{
-//		CollisionState *collState = (CollisionState*)(buf + sizeof(TentacleState));
-//		vector<Box> objBoxes = pm->colBoxes;
-//		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
-//		
-//		for (int i=0; i<collState->totalBoxes; i++)
-//		{
-//			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
-//		}
-//		return pm->ref->serialize(buf + sizeof(TentacleState) + sizeof(CollisionState)) + sizeof(TentacleState) + sizeof(CollisionState);
-//	}
-//	else
-//	{
-//		return pm->ref->serialize(buf + sizeof(TentacleState)) + sizeof(TentacleState);
-//	}
-//}
-
-/**
- * Checks if there's a player we can smash, if so
- * returns the angle we need to roll before we attack.
- * If no player is within range, we return -1.
- * Author: Haro
- */
-float TentacleSObj::angleToNearestPlayer()
-{
-	float angle = -1.f;
-
-	// Find player with minimum distance to me
-	vector<ServerObject *> players;
-	SOM::get()->findObjects(OBJ_PLAYER, &players);
-
-	#define TENTACLE_LENGTH 300
-
-	float minDist = TENTACLE_LENGTH;
-	float currDist;
-	Vec3f difference;
-
-	for(vector<ServerObject *>::iterator it = players.begin(); it != players.end(); ++it) {
-		difference = (*it)->getPhysicsModel()->ref->getPos() - this->getPhysicsModel()->ref->getPos();
-		currDist = magnitude(difference);
-		if (currDist < minDist) {
-			minDist = currDist;
-		}
-	}
-
-	if (minDist < TENTACLE_LENGTH)
-	{
-		// ignoring z... this is with respect to the y axis (since the tentacle smashes DOWN)
-		angle = atan2(difference.x, -1*difference.y);
-	}
-	return angle;
-}
-
-void TentacleSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
-	// if the monster is attacking, it pushes everything off it on the last attack frame
-//	if (attackCounter == (attackBuffer + attackFrames))
-	if (actionState == RAGE_ACTION_T)
-	{
-		Vec3f up = (PE::get()->getGravVec() * -1);
-		obj->getPhysicsModel()->applyForce((up + collisionNormal)*(float)pushForce);
-	}
-
-	// if I collided against the player, AND they're attacking me, loose health
-	if(obj->getType() == OBJ_PLAYER)
-	{	
-		PlayerSObj* player = reinterpret_cast<PlayerSObj*>(obj);
-		health-= player->damage;
-		
-		if(this->health < 0) health = 0;
-		if(this->health > 100) health = 100; // would this ever be true? o_O
-
-		// I have been attacked! You'll regret it in the next udpate loop player! >_>
-		attacked = player->damage > 0;
-	}
-
-	if(obj->getType() == OBJ_BULLET) {
-		BulletSObj* bullet = reinterpret_cast<BulletSObj*>(obj);
-		health -= bullet->damage;
-		if(this->health < 0) health = 0;
-		if(this->health > 100) health = 100;
-	}
 }

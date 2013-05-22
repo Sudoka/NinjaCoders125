@@ -1,4 +1,6 @@
 #include "MonsterPartSObj.h"
+#include "PlayerSObj.h"
+#include "BulletSObj.h"
 #include "ConfigurationManager.h"
 #include "ServerObjectManager.h"
 
@@ -15,12 +17,207 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 	this->setFlag(IS_STATIC, 1);
 
 	isFogging = false; 
+
+	stateCounter = 0;
+	attacked = false; // haven't been attacked yet
+	currStateDone = true; // no states have started yet
 }
 
 
 MonsterPartSObj::~MonsterPartSObj(void)
 {
 	delete pm;
+}
+
+bool MonsterPartSObj::update() {
+	stateCounter++;
+
+	////////////////// State transitions /////////////////////
+	// These should maybe be moved to the monster...
+	// Only change states when our current state has gone through a whole cycle
+	// This should be set by the individual state methods when their cycle is over
+	// i.e. idle(), slam(), spike(), etc...
+	if (currStateDone)
+	{
+		// we're about to start a new state =)
+		stateCounter = 0;
+		currStateDone = false; 
+
+		// If you're dead, you're dead xD
+		if (health <= 0) {
+			health = 0;
+
+			// If my previous state was death, I already did my fancy animation
+			if (actionState == DEATH_ACTION) {
+				overlord->removePart(this);
+				return true; // I died!
+			}
+			// Otherwise, do my fancy animation before actually dying
+			else
+			{
+				actionState = DEATH_ACTION;
+			}
+		}
+		else
+		{
+			int angryProb = attacked ? 85 : 60;
+		
+			// we're angry!
+			if ((rand() % 100) < angryProb) 
+			{
+				// fight or flight?
+				int moveProb = 15;
+
+				// Flight!
+				if ((rand() % 100) < moveProb)
+				{
+					this->setFlag(IS_HARMFUL, 0);
+					actionState = MOVE_ACTION;
+				}
+				// Fight!!
+				else
+				{
+					this->setFlag(IS_HARMFUL, 1);
+
+					playerAngle = this->angleToNearestPlayer();
+					bool playerNear = playerAngle != -1.f;
+
+					int targetAttackProb = playerNear ? 90 : 25;
+
+					// targetted attack
+					if ((rand() % 100) < targetAttackProb)
+					{
+						// if we got here without a real target, just set a default
+						// for now anyway
+						if (playerAngle == -1.f) playerAngle = 0.f;
+						actionState = ATTACK_ACTION;
+					}
+					// non-targetted attack
+					else
+					{
+						// randomly pick between slam combo, spike, and defense rage
+						switch(rand() % 3)
+						{
+						case 0:		actionState = COMBO_ACTION; break;
+						case 1:		actionState = SPIKE_ACTION; break;
+						default:	actionState = RAGE_ACTION; break;
+						}
+					}
+				}
+			}
+			// we're not attacking!
+			else
+			{
+				this->setFlag(IS_HARMFUL, 0);
+
+				// randomly pick between idle and probing
+				if (rand() % 2) { actionState = IDLE_ACTION; }
+				else { actionState = PROBE_ACTION; }
+			}
+		}
+	}
+
+	///////////////////// State logic ///////////////////////
+
+	// actionState = MOVE_ACTION;
+
+	switch(actionState)
+	{
+	case IDLE_ACTION:
+		idle();
+		break;
+	case PROBE_ACTION:
+		probe();
+		break;
+	case ATTACK_ACTION:
+		attack();
+		break;
+	case COMBO_ACTION:
+		combo();
+		break;
+	case SPIKE_ACTION:
+		spike();
+		break;
+	case RAGE_ACTION:
+		rage();
+		break;
+	case MOVE_ACTION:
+		move();
+		break;
+	case DEATH_ACTION:
+		death();
+		break;
+	default:
+		if(actionState > NUM_MONSTER_ACTIONS) DC::get()->print("ERROR: Monster state %d not known\n", actionState);
+		break;
+	}
+
+	// Reset attack every update loop, onCollision re-sets it
+	attacked = false;
+
+	return false;
+}
+
+void MonsterPartSObj::move() {
+	// move in 16
+	// move out 18
+
+	// Wriggle out
+	if (stateCounter < 16)
+	{
+		modelAnimationState = M_EXIT;
+	}
+	// Switch positions
+	else if (stateCounter == 16)
+	{
+		Frame* currFrame = this->getPhysicsModel()->ref;
+		Frame newFrame = this->overlord->updatePosition(*currFrame);
+		currFrame->setPos(newFrame.getPos());
+		currFrame->setRot(newFrame.getRot());
+	}
+	// Wriggle back in
+	else
+	{
+		modelAnimationState = M_ENTER;
+	}
+
+	currStateDone = (stateCounter == 33);
+}
+
+void MonsterPartSObj::death() {
+	modelAnimationState = M_DEATH;
+
+	// No collision boxes in death
+	if (stateCounter == 0)
+	{
+		pm->colBoxes[0] = Box();
+		pm->colBoxes[1] = Box();
+		pm->colBoxes[2] = Box();
+	}
+
+	currStateDone = (stateCounter == 20);
+}
+
+void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
+	// if I collided against the player, AND they're attacking me, loose health
+	if(obj->getType() == OBJ_PLAYER)
+	{	
+		PlayerSObj* player = reinterpret_cast<PlayerSObj*>(obj);
+		health-= player->damage;
+		
+		if(this->health < 0) health = 0;
+		if(this->health > 100) health = 100; // would this ever be true? o_O
+
+		// I have been attacked! You'll regret it in the next udpate loop player! >_>
+		attacked = player->damage > 0;
+	}
+
+	if(obj->getType() == OBJ_BULLET) {
+		BulletSObj* bullet = reinterpret_cast<BulletSObj*>(obj);
+		health -= bullet->damage;
+		if(this->health < 0) health = 0;
+		if(this->health > 100) health = 100;
+	}
 }
 
 int MonsterPartSObj::serialize(char * buf) {
@@ -46,4 +243,40 @@ int MonsterPartSObj::serialize(char * buf) {
 	{
 		return pm->ref->serialize(buf + sizeof(MonsterPartState)) + sizeof(MonsterPartState);
 	}
+}
+
+/**
+ * Checks if there's a player we can smash, if so
+ * returns the angle we need to roll before we attack.
+ * If no player is within range, we return -1.
+ * Author: Haro
+ */
+float MonsterPartSObj::angleToNearestPlayer()
+{
+	float angle = -1.f;
+
+	// Find player with minimum distance to me
+	vector<ServerObject *> players;
+	SOM::get()->findObjects(OBJ_PLAYER, &players);
+
+	#define TENTACLE_LENGTH 300
+
+	float minDist = TENTACLE_LENGTH;
+	float currDist;
+	Vec3f difference;
+
+	for(vector<ServerObject *>::iterator it = players.begin(); it != players.end(); ++it) {
+		difference = (*it)->getPhysicsModel()->ref->getPos() - this->getPhysicsModel()->ref->getPos();
+		currDist = magnitude(difference);
+		if (currDist < minDist) {
+			minDist = currDist;
+		}
+	}
+
+	if (minDist < TENTACLE_LENGTH)
+	{
+		// ignoring z... this is with respect to the y axis (since the tentacle smashes DOWN)
+		angle = atan2(difference.x, -1*difference.y);
+	}
+	return angle;
 }

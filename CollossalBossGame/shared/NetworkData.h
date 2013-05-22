@@ -186,29 +186,16 @@ struct MonsterPartState {
 #define SLAM_CYCLE_SIZE = 20
 #define DEFENSE_CYCLE_SIZE = 30
 
-enum TentacleActionState {
-	T_IDLE,
-	T_SLAM,
-	T_SPIKE,
-	T_RAGE,
-	T_DEATH,
-	T_EXIT,
-	T_ENTER,
-	T_PROBE,
-	T_SHOOT,
-	NUM_T
-};
-
-enum HeadAnimationState {
-	H_IDLE,
-	H_SPIKE,
-	H_RAGE,
-	H_DEATH,
-	H_EXIT,
-	H_ENTER,
-	H_PROBE,
-	H_SHOOT,
-	NUM_H
+enum MonsterAnimationState {
+	M_IDLE,
+	M_ATTACK, // SLAM or SHOOT
+	M_SPIKE,
+	M_RAGE,
+	M_DEATH,
+	M_EXIT,
+	M_ENTER,
+	M_PROBE,
+	NUM_M
 };
 
 /*

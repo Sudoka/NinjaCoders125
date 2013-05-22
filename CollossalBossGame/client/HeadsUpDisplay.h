@@ -33,7 +33,6 @@ private:
 	IDirect3DTexture9 *g_texture;
 	IDirect3DTexture9 *test1_texture;
 	IDirect3DTexture9 *p;
-	IDirect3DTexture9 *portal;
 	IDirect3DTexture9 *monsterHealth_texture;
 	IDirect3DTexture9 *playerHealth_texture;
 
