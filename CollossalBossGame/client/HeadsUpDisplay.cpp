@@ -20,9 +20,6 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateTextureFromFile(direct3dDevice,   //Direct3D Device
                             "res/gameover.png",       //File Name
                             &test1_texture);    //Texture handle
-	D3DXCreateTextureFromFile(direct3dDevice,   //Direct3D Device
-                            "res/portal.jpg",       //File Name
-                            &portal);    //Texture handle
 
 	D3DXCreateTextureFromFile(direct3dDevice,
 							"res/tentacleMenu.png",
@@ -117,7 +114,6 @@ HeadsUpDisplay::~HeadsUpDisplay(void)
 	blackbackgroundtxt->Release();
 	youwintxt->Release();
 	//p->Release();
-	portal->Release();
 }
 
 void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
@@ -143,9 +139,6 @@ void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
                            0xFFFFFFFF);//0xFF000000); //Color
 
 	sprite1->End();
-
-
-
 }
 
 void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, float charge)

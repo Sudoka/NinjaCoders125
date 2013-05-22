@@ -60,6 +60,7 @@ enum Model {
     MDL_TENTACLE_3,
     MDL_TENTACLE_4,
     MDL_TENTACLE_5,
+	MDL_HEAD_1,
     MDL_FLOOR,
     MDL_CEILING,
 	MDL_EAST_WALL,
@@ -172,9 +173,9 @@ struct MonsterState {
 };
 
 /*
- * State information for the tentacle not encoded by the position
+ * State information for the monster parts (heads/tentacles) not encoded by the position
  */
-struct TentacleState {
+struct MonsterPartState {
 	Model modelNum;
 	int animationState;
 	int animationFrame;
@@ -185,17 +186,16 @@ struct TentacleState {
 #define SLAM_CYCLE_SIZE = 20
 #define DEFENSE_CYCLE_SIZE = 30
 
-enum TentacleActionState {
-	T_IDLE,
-	T_SLAM,
-	T_SPIKE,
-	T_RAGE,
-	T_DEATH,
-	T_EXIT,
-	T_ENTER,
-	T_PROBE,
-	T_SHOOT,
-	NUM_T
+enum MonsterAnimationState {
+	M_IDLE,
+	M_ATTACK, // SLAM or SHOOT
+	M_SPIKE,
+	M_RAGE,
+	M_DEATH,
+	M_EXIT,
+	M_ENTER,
+	M_PROBE,
+	NUM_M
 };
 
 /*

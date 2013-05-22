@@ -37,7 +37,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>\\acsnfs4.ucsd.edu\CifsHomes\032\hmonciva\CSE125\NinjaCoders125\CollossalBossGame\shared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <SourcePath>$(SourcePath)</SourcePath>
@@ -74,7 +74,9 @@
     <ClCompile Include="CollisionModel.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="GameServer.cpp" />
+    <ClCompile Include="HeadSObj.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MonsterPartSObj.cpp" />
     <ClCompile Include="MonsterSObj.cpp" />
     <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="PlayerSObj.cpp" />
@@ -94,6 +96,8 @@
     <ClInclude Include="CollisionModel.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="GameServer.h" />
+    <ClInclude Include="HeadSObj.h" />
+    <ClInclude Include="MonsterPartSObj.h" />
     <ClInclude Include="MonsterSObj.h" />
     <ClInclude Include="PhysicsEngine.h" />
     <ClInclude Include="PhysicsModel.h" />

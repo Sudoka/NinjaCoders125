@@ -1,6 +1,6 @@
 #pragma once
 #include "ServerObject.h"
-#include "TentacleSObj.h"
+//#include "TentacleSObj.h"
 #include <random>
 //#include <list>
 //#include <map>
@@ -12,7 +12,8 @@
  * Author: Bryan
  */
 // fwd decl
-class TentacleSObj;
+//class TentacleSObj;
+class MonsterPartSObj;
 
 class MonsterSObj : public ServerObject
 {
@@ -26,8 +27,8 @@ public:
 	virtual ObjectType getType() { return OBJ_MONSTER; }
 	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal);
 
-	void addTentacle(TentacleSObj* t) { tentacles.insert(t); }
-	void removeTentacle(TentacleSObj* t);
+	void addPart(MonsterPartSObj* t) { parts.insert(t); }
+	void removePart(MonsterPartSObj* t);
 
 	Frame updatePosition(Frame oldPos);
 
@@ -38,7 +39,7 @@ private:
 	int health;
 	int phase; // what phase of the monster you're in
 
-	set<TentacleSObj*> tentacles;
+	set<MonsterPartSObj*> parts;
 	vector<Frame> availablePlacements;
 	//vector<Point_t> placements;
 	uint numParts;
