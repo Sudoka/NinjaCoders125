@@ -16,6 +16,8 @@ public:
 
 	virtual void deserialize(char* newState);
 
+	int creatorid;
+
 private:
 	RenderModel *rm;
 	HarpoonEffect* pewPew;

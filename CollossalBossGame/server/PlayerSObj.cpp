@@ -101,7 +101,10 @@ bool PlayerSObj::update() {
 	if (istat.quit) {
 		return true; // delete me!
 	}
-	
+	Point_t myPos = pm->ref->getPos();
+	CollisionModel *cm = getCollisionModel();
+	DC::get()->print(LOGFILE | TIMESTAMP, "Player pos: (%f,%f,%f), collSize = %d\n", myPos.x, myPos.y, myPos.z, cm->getEnd() - cm->getStart());
+
 	
 	Quat_t upRot;
 	calcUpVector(&upRot);
@@ -333,6 +336,9 @@ void PlayerSObj::deserialize(char* newInput)
 }
 
 void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
+	if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_HARPOON) {
+		return;
+	}
 	if(obj->getFlag(IS_HARMFUL) && !(attacking))
 		this->health-=3;
 	if(obj->getFlag(IS_HEALTHY))

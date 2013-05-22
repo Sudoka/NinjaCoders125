@@ -68,7 +68,7 @@ protected:
 	void  controlCamera(const Quat_t &upRot);
 	float controlAngles(float des, float cur);
 
-	virtual void releaseCharge() = 0;
+	virtual void actionCharge(bool buttondown) = 0;
 	virtual void actionAttack() = 0;
 };
 

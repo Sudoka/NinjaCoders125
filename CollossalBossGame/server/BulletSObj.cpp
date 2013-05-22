@@ -1,5 +1,6 @@
 #include "BulletSObj.h"
 #include "ServerObjectManager.h"
+#include "ConfigurationManager.h"
 #include "defs.h"
 #include <math.h>
 
@@ -11,15 +12,20 @@ BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce,
 	int negathing = -(diameter/2);
 
 	bxVol = Box(negathing, negathing, negathing, diameter, diameter, diameter);
+	DC::get()->print(LOGFILE | TIMESTAMP, "Bullet diameter = %d\n", diameter);
 	rot = Quat_t();
 
-	pm = new PhysicsModel(pos, rot, 50);
+	pm = new PhysicsModel(pos, rot, 5);
 	getCollisionModel()->add(new AabbElement(bxVol));
 	pm->applyForce(initialForce);
-
+	
+	this->lastdirection = initialForce;
+	this->lastdirection.normalize();
+	this->basevelocity = CM::get()->find_config_as_int("BULLET_VELOCITY");
+	this->lifetime = CM::get()->find_config_as_int("BULLET_LIFETIME");
 	this->modelNum = modelNum;
 	t = 0;
-	health = 5;
+	health = CM::get()->find_config_as_int("BULLET_LIFETIME");
 	this->damage = dmg;
 	this->diameter = diameter;
 }
@@ -34,14 +40,20 @@ bool BulletSObj::update() {
 	// Apply Force of Gravity on every time step - or not, since we wanted an arc-ing shot
 	// return true when it collides with something?
 	// That'll wait for onCollision, I suppose.
+
+	this->health--;
+
 	this->setFlag(IS_FALLING, 0); // YAY IT'S A LASER PEWPEW
 	Vec3f velocity = this->getPhysicsModel()->vel;
 	float velocitymagnitude = magnitude(velocity);
 	Vec3f magvec = this->getPhysicsModel()->vel;
 	Vec3f magacc = this->getPhysicsModel()->accel;
 	if(fabs(magvec.x) < 0.1 && fabs(magvec.y) < 0.1 && fabs(magvec.z) < 0.1 && fabs(magacc.x) < 0.1 && fabs(magacc.y) < 0.1 && fabs(magacc.z) < 0.1) {
-		return true;
+		//return true;
 	}
+
+	this->getPhysicsModel()->vel = this->lastdirection * this->basevelocity;
+
 	if(this->health > 0) {
 		return false;
 	} else {
@@ -81,18 +93,15 @@ int BulletSObj::serialize(char * buf) {
 }
 
 void BulletSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
-	
-	if(obj->getType() == OBJ_GENERAL) {
-		this->health = 0;
-	} else {
- 		if(obj->getType() == OBJ_TENTACLE) {
-			this->health = 0;
-		}
+	if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_HARPOON) {
+		return;
 	}
-	/*
-	Vec3f velocity = this->getPhysicsModel()->vel;
-	float velocitymagnitude = magnitude(velocity);
-	this->getPhysicsModel()->applyForce(Vec3f()-(this->getPhysicsModel()->vel));
-	this->getPhysicsModel()->vel = Vec3f();
-	*/
+
+	Vec3f olddir = this->lastdirection;
+	float oldvel = this->basevelocity;
+
+	Vec3f coll = Vec3f(collNorm.x, collNorm.y, collNorm.z);
+	coll.normalize();
+	this->lastdirection = this->lastdirection + coll + coll;
+	this->basevelocity = this->basevelocity;
 }

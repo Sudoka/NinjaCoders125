@@ -17,8 +17,6 @@ ScientistSObj::~ScientistSObj(void)
 }
 
 void ScientistSObj::initialize() {
-	// Configuration options
-	PlayerSObj::initialize();
 	hso = NULL;
 }
 
@@ -48,7 +46,7 @@ void ScientistSObj::actionAttack() {
 	}
 }
 
-void ScientistSObj::releaseCharge() {
+void ScientistSObj::actionCharge(bool buttondown) {
 	Vec3f position;
 	position.x = this->pm->ref->getPos().x;
 	position.y = 10 + this->pm->ref->getPos().y;

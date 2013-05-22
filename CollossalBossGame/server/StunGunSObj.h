@@ -3,27 +3,26 @@
 #include "ServerObject.h"
 #include "PlayerSObj.h"
 
-enum HarpoonState {
-	HS_FLYING = 0,
-	HS_GRAPPLE = 1,
-	HS_HARPOON = 2,
-	HS_DEAD = 3
+enum StunGunState {
+	SGS_FLYING = 0,
+	SGS_STUNNING = 1,
+	SGS_DEAD = 2
 };
 
-class HarpoonSObj : public ServerObject
+class StunGunSObj : public ServerObject
 {
 public:
-	HarpoonSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int diameter, PlayerSObj * pso);
-	virtual ~HarpoonSObj(void);
+	StunGunSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int diameter, PlayerSObj * pso);
+	virtual ~StunGunSObj(void);
 
 	virtual bool update();
 	virtual PhysicsModel *getPhysicsModel() { return pm; }
 	virtual int serialize(char * buf);
-	virtual ObjectType getType() { return OBJ_HARPOON; }
+	virtual ObjectType getType() { return OBJ_STUNGUN; }
 	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal);
 	char serialbuffer[100];
 
-	HarpoonState state;
+	StunGunState state;
 	int diameter;
 	int creatorid;
 	int targetid;

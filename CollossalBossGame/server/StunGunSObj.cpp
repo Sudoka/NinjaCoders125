@@ -1,11 +1,11 @@
-#include "HarpoonSObj.h"
+#include "StunGunSObj.h"
 #include "ShooterSObj.h"
 #include "PhysicsEngine.h"
 #include "ServerObjectManager.h"
 #include "defs.h"
 #include <math.h>
 
-HarpoonSObj::HarpoonSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int diameter, PlayerSObj * pso) : ServerObject(id)
+StunGunSObj::StunGunSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int diameter, PlayerSObj * pso) : ServerObject(id)
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new Harpoon %d ", id);
 	
@@ -13,12 +13,11 @@ HarpoonSObj::HarpoonSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForc
 	Box bxVol = Box(-(diameter/2), -(diameter/2), -(diameter/2), diameter, diameter, diameter);
 
 	pm = new PhysicsModel(pos, rot, 50);
-	//pm->addBox(bxVol);
 	getCollisionModel()->add(new AabbElement(bxVol));
 	pm->applyForce(initialForce);
 
 	this->modelNum = modelNum;
-	state = HS_FLYING;
+	state = SGS_FLYING;
 	this->diameter = diameter;
 	this->creatorid = pso->getId();
 	this->targetid = -1;
@@ -28,7 +27,7 @@ HarpoonSObj::HarpoonSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForc
 }
 
 
-HarpoonSObj::~HarpoonSObj(void)
+StunGunSObj::~StunGunSObj(void)
 {
 	delete pm;
 }
@@ -39,18 +38,21 @@ void gracefullyfail(ServerObject * creator, ServerObject * target) {
 	return;
 }
 
-bool HarpoonSObj::update() {
-	if(this->state == HS_FLYING) {
+bool StunGunSObj::update() {
+	if(this->state == SGS_FLYING) {
 		return false;
-	}  else if(this->state == HS_DEAD) {
+	}  else if(this->state == SGS_DEAD) {
 		return true;
-	} else if(this->state == HS_HARPOON) {
+	} else if(this->state == SGS_STUNNING) {
+		// Ensure that the target being stunned still exists
 		ServerObject * creator = SOM::get()->find(creatorid);
 		ServerObject * target = SOM::get()->find(targetid);
 		if(creator == NULL || target == NULL) {
 			gracefullyfail(creator, target);
 			return true;
 		}
+		// 
+
 		Vec3f v2creator = creator->getPhysicsModel()->ref->getPos() - this->getPhysicsModel()->ref->getPos();
 		v2creator.normalize();
 		Vec3f diffvector = this->pm->ref->getPos() - creator->getPhysicsModel()->ref->getPos();
@@ -66,30 +68,13 @@ bool HarpoonSObj::update() {
 		target->getPhysicsModel()->ref->setPos(followpos);
 
 		return false;
-	} else if(this->state == HS_GRAPPLE) {
-		ServerObject * creator = SOM::get()->find(creatorid);
-		ServerObject * target = SOM::get()->find(targetid);
-		if(creator == NULL || target == NULL) {
-			gracefullyfail(creator, target);
-			return true;
-		}
-		Vec3f diffvector = this->pm->ref->getPos() - creator->getPhysicsModel()->ref->getPos();
-		if(magnitude(diffvector) < 30/*magnitude(this->getPhysicsModel()->vel)*/) {
-			creator->getPhysicsModel()->accel = Vec3f();
-			creator->getPhysicsModel()->vel = Vec3f();
-		} else {
-			diffvector.normalize();
-			creator->getPhysicsModel()->accel = (diffvector/2);
-			creator->setFlag(IS_FLOATING, 1);
-		}
-		return false;
 	} else {
 		assert(false && "Dunno how you got here =[");
 		return false;
 	}
 }
 
-int HarpoonSObj::serialize(char * buf) {
+int StunGunSObj::serialize(char * buf) {
 	// All this ObjectState stuff is extra. TODO: Remove extra. 
 	*(int *)buf = diameter;
 	buf = buf + 4;
@@ -121,9 +106,9 @@ int HarpoonSObj::serialize(char * buf) {
 	}
 }
 
-void HarpoonSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
+void StunGunSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 	if(obj->getId() == creatorid && this->state == HS_HARPOON) {
-		this->state = HS_DEAD;
+		this->state = SGS_DEAD;
 		((PlayerSObj *)SOM::get()->find(this->creatorid))->clearAccessory();
 		ServerObject * target = SOM::get()->find(targetid);
 		if(target == NULL) {

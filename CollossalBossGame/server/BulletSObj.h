@@ -24,4 +24,7 @@ private:
 	Model modelNum;
 	int t;
 	Vec3f normal;
+	Vec3f lastdirection;
+	float basevelocity;
+	int lifetime;
 };

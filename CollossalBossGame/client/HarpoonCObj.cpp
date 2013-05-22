@@ -37,6 +37,9 @@ bool HarpoonCObj::update() {
 void HarpoonCObj::deserialize(char* newState) {
 	diameter = *(int *)newState;
 	newState = (newState + 4);
+	creatorid = *(int *)newState;
+	newState = (newState + 4);
+
 	ObjectState *state = (ObjectState*)newState;
 
 	if (COM::get()->collisionMode)
