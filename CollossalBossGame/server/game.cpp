@@ -64,7 +64,7 @@ void gameInit() {
 	som->add(wobj);
 
 	//MonsterSObj* monster = new MonsterSObj(som->genId(), 2);
-	MonsterSObj* monster = new MonsterSObj(som->genId(), 4); // 4
+	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
 	som->add(monster);
 
 	TestSObj * box = new TestSObj(som->genId(), MDL_TEST_BOX, Vec3f(), Quat_t());

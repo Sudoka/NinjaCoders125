@@ -272,6 +272,12 @@ typedef struct Box {
 		return this;
 	}
 
+	Box* rotate(Vec4f axis) {
+		this->setPos(axis.rotateToThisAxis(this->getPos()));
+		this->setSize(axis.rotateToThisAxis(this->getSize()));
+		return this->fix();
+	}
+
 	void setPos(const Vec3f &pos) {
 		x = pos.x; y = pos.y; z = pos.z;
 	}
