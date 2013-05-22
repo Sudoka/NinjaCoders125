@@ -17,7 +17,7 @@ ShooterSObj::~ShooterSObj(void)
 
 void ShooterSObj::initialize() {
 	// Configuration options
-	PlayerSObj::initialize();
+	//PlayerSObj::initialize();
 }
 
 void ShooterSObj::releaseCharge() {

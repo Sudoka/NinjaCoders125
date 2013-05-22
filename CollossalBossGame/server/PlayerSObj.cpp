@@ -35,13 +35,13 @@ void PlayerSObj::initialize() {
 	if(SOM::get()->debugFlag) DC::get()->print("Initialized new PlayerSObj %d\n", this->getId());
 
 	Point_t pos = Point_t(0, 5, 10);
-	Box bxVol = CM::get()->find_config_as_box("BOX_PLAYER");//Box(-10, 0, -10, 20, 20, 20);
+	bxStaticVol = CM::get()->find_config_as_box("BOX_PLAYER");//Box(-10, 0, -10, 20, 20, 20);
 
 	if(pm != NULL)
 		delete pm;
 
 	pm = new PhysicsModel(pos, Quat_t(), CM::get()->find_config_as_float("PLAYER_MASS"));
-	getCollisionModel()->add(new AabbElement(bxVol));
+	getCollisionModel()->add(new AabbElement(bxStaticVol));
 
 	lastCollision = pos;
 
@@ -217,14 +217,20 @@ void PlayerSObj::calcUpVector(Quat_t *upRot) {
 	PE *pe = PE::get();
 	if(lastGravDir != pe->getGravDir()) {
 		lastGravDir = pe->getGravDir();
-		
-		//Update the collision box
-		
 
 		//Calculate the new initial and final up vectors
 		slerp(&initUpRot, initUpRot, finalUpRot, t);	//We may not have finished rotating
 		finalUpRot = pe->getCurGravRot();
 		t = 0;
+		
+		//Update the collision box
+		AabbElement *e = dynamic_cast<AabbElement*>(getCollisionModel()->get(0));
+		if(e != NULL) {
+			e->bx = bxStaticVol;
+			e->bx.rotate(finalUpRot);
+		} else {
+			DC::get()->print(__FILE__" %d: ERROR- Player collision AABB 0 not found!\n", __LINE__);
+		}
 	}
 
 	//Rotate by amount specified by player (does not affect up direction)

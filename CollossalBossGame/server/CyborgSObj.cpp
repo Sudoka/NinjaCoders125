@@ -16,7 +16,7 @@ CyborgSObj::~CyborgSObj(void)
 
 void CyborgSObj::initialize() {
 	// Configuration options
-	PlayerSObj::initialize();
+	//PlayerSObj::initialize();
 	
 
 }
