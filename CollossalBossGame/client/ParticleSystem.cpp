@@ -33,7 +33,7 @@ void ParticleSystem::init(LPDIRECT3DDEVICE9 pDevice)
 								&vb,
 								0);
 	D3DXCreateTextureFromFile(pDevice,   //Direct3D Device
-                             "res/particle.bmp",       //File Name
+                             "res/spiky.jpg",       //File Name
 	                          &texture);    //Texture handle
 					
 }

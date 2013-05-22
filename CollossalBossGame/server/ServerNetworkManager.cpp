@@ -4,6 +4,8 @@
 #include "PlayerSObj.h"
 #include "CyborgSObj.h"
 #include "ShooterSObj.h"
+#include "ScientistSObj.h"
+#include "MechanicSObj.h"
 #include "ConfigurationManager.h"
 #include "GameServer.h"
 #include <iostream>
@@ -147,7 +149,20 @@ void ServerNetworkManager::update() {
 				// Ok, since we should only have one object on both sides, the id's will match
 				// but how do we get them matching later? maybe the server should send
 				// the client the id back or something?
-				o = new ShooterSObj(som->genId(), client_id);
+				switch(/*client_id*/3) {
+					case 0:
+						o = new CyborgSObj(som->genId(), client_id);
+						break;
+					case 3:
+						o = new ShooterSObj(som->genId(), client_id);
+						break;
+					case 1:
+						o = new MechanicSObj(som->genId(), client_id);
+						break;
+					case 2:
+						o = new ScientistSObj(som->genId(), client_id);
+						break;
+				}
 				som->add(o);
 				sessionsobjid.insert( pair<unsigned int, unsigned int>(temp_c_id, o->getId()) );
 			} else {

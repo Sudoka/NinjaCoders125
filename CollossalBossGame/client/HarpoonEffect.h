@@ -1,15 +1,16 @@
 #pragma once
 #include "ParticleSystem.h"
-class ShootingEffect :
+class HarpoonEffect :
 	public ParticleSystem
 {
 public:
-	ShootingEffect(void);
-	virtual ~ShootingEffect(void);
+	HarpoonEffect(void);
+	virtual ~HarpoonEffect(void);
 	virtual void resetParticle(ParticleAttributes* a);
 	virtual void update(float timeDelta);
-	virtual void setPosition(Vec3f pos, int size = 5);
+	virtual void setPosition(Vec3f pos, int size);
 
 	D3DXVECTOR3 pos;
+	D3DXVECTOR3 prevPos;
 };
 
