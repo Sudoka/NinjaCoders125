@@ -9,6 +9,9 @@ HeadSObj::HeadSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new HeadSObj %d\n", id);
 
+	// Head config items
+	this->targettingDist = CM::get()->find_config_as_int("FIREBALL_MIN_DIST");
+
 	/////////////// Collision Boxes /////////////////
 	idleBoxes[0] = CM::get()->find_config_as_box("BOX_HEAD_BASE"); 
 	idleBoxes[1] = CM::get()->find_config_as_box("BOX_HEAD_MID");
@@ -36,40 +39,29 @@ void HeadSObj::probe() {
 
 }
 
+// todo config probably
+#define BULLET_FORCE 5
+#define BULLET_DIAMETER 45
+#define BULLET_DAMAGE 10
+#define HEAD_BOX_SIZE 35
 void HeadSObj::attack() {
 	// First, create our bullet
 	if (stateCounter == 0)
 	{
-		Vec3f mpos = this->getPhysicsModel()->ref->getPos();
-		mpos.z += 200;
-		float distance = 10000.f; // MAX DISTANCE FOR TARGETING
-		int playerid = -1;
-		vector<ServerObject *> vso;
-		Vec3f minPos;
-		SOM::get()->findObjects(OBJ_PLAYER, &vso);
-		for (int i = 0; i < vso.size(); i++) {
-			Vec3f ppos = vso[i]->getPhysicsModel()->ref->getPos();
-			float tdist = fabs(magnitude(ppos-mpos));
-			if(tdist < distance) {
-				distance = tdist;
-				playerid = vso[i]->getId();
-				minPos = ppos;
-			}
-		}
-		if(playerid > -1) {
-			// normalize
-			Vec3f motion = minPos - mpos;
-			motion.normalize();
-			Vec3f offset = motion * 35*1.5;
+		// Find our head position
+		Box headBox = ((AabbElement*)getCollisionModel()->get(2))->bx;
+		Vec3f headPos = headBox.getPos() + this->getPhysicsModel()->ref->getPos();
 
+		// Determine our bullet path
+		Vec3f bulletPath = this->playerPos - headPos;
+		bulletPath.normalize();
 
-			float diameter = 45; // todo define? config?
-			int damage = 10; // todo config
-			//Vec3f offset = rotate(Vec3f(0, upforce * diameter * sqrt(2.0f), forwardforce * diameter * sqrt(2.0f)), pm->ref->getRot());
-			Vec3f position = mpos + offset;
-			FireBallSObj * fbso = new FireBallSObj(SOM::get()->genId(), (Model)-1, position, motion, damage, (int)diameter);
-			SOM::get()->add(fbso);
-		}
+		// move the bullet a little bit along our path, just enough so it clears the head
+		Vec3f offset = bulletPath * HEAD_BOX_SIZE * 1.5; // 1.5 is sqrt(2), ask franklin for the math behind it
+		Vec3f bulletPos = headPos + offset;
+
+		FireBallSObj * fbso = new FireBallSObj(SOM::get()->genId(), (Model)-1, bulletPos, bulletPath * BULLET_FORCE, BULLET_DAMAGE, BULLET_DIAMETER);
+		SOM::get()->add(fbso);
 	}
 
 	// this is random, for now

@@ -16,6 +16,10 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 													MonsterPartSObj(id, modelNum, pos, rot, master)
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new TentacleSObj %d\n", id);
+
+	// Tentacle config items
+	this->targettingDist = CM::get()->find_config_as_int("SLAM_MIN_DIST");
+
 	//Box bxVol = CM::get()->find_config_as_box("BOX_MONSTER");
 
 	/////////////// Collision Boxes /////////////////

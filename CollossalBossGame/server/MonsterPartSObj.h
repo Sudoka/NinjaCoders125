@@ -38,7 +38,8 @@ public:
 
 	char serialbuffer[100];
 
-	float angleToNearestPlayer();
+	// Player targetting
+	void findPlayer();
 
 	//////////////////// ACTIONS /////////////////////
 
@@ -65,7 +66,12 @@ protected:
 	MonsterSObj* overlord;
 	int stateCounter; // keeps track of our frames within each state
 	bool currStateDone; // whether or not our current state has gone through it's full cycle
+
+	// player targetting
+	int targettingDist;
+	bool playerFound;
 	float playerAngle;
+	Vec3f playerPos;
 
 	// Collision Boxes in common
 	Box idleBoxes[3]; // stores initial idle collision boxes
