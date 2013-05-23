@@ -36,14 +36,58 @@ HeadSObj::~HeadSObj(void)
 }
 
 void HeadSObj::idle() {
+	// Keep initial idle boxes
+	Box origBase = idleBoxes[0];
+	Box origMiddle = idleBoxes[1];
+	Box origTip = idleBoxes[2];
 
+	//get the actual axis
+	Vec4f axis = this->getPhysicsModel()->ref->getRot();
+	origBase.rotate(axis);
+	origMiddle.rotate(axis);
+	origTip.rotate(axis);
+
+	CollisionModel *cm = getCollisionModel();
+	((AabbElement*)cm->get(0))->bx = origBase;
+	((AabbElement*)cm->get(1))->bx = origMiddle;
+	((AabbElement*)cm->get(2))->bx = origTip;
 }
 
 void HeadSObj::probe() {
+	// Keep initial idle boxes
+	Box origBase = idleBoxes[0];
+	Box origMiddle = idleBoxes[1];
+	Box origTip = idleBoxes[2];
 
+	//get the actual axis
+	Vec4f axis = this->getPhysicsModel()->ref->getRot();
+	origBase.rotate(axis);
+	origMiddle.rotate(axis);
+	origTip.rotate(axis);
+
+	CollisionModel *cm = getCollisionModel();
+	((AabbElement*)cm->get(0))->bx = origBase;
+	((AabbElement*)cm->get(1))->bx = origMiddle;
+	((AabbElement*)cm->get(2))->bx = origTip;
 }
 
 void HeadSObj::shootFireball() {
+	// For now, keep initial idle boxes
+	Box origBase = idleBoxes[0];
+	Box origMiddle = idleBoxes[1];
+	Box origTip = idleBoxes[2];
+
+	//get the actual axis
+	Vec4f axis = this->getPhysicsModel()->ref->getRot();
+	origBase.rotate(axis);
+	origMiddle.rotate(axis);
+	origTip.rotate(axis);
+
+	CollisionModel *cm = getCollisionModel();
+	((AabbElement*)cm->get(0))->bx = origBase;
+	((AabbElement*)cm->get(1))->bx = origMiddle;
+	((AabbElement*)cm->get(2))->bx = origTip;
+
 	// Find our head position
 	Box headBox = ((AabbElement*)getCollisionModel()->get(2))->bx;
 	Vec3f headPos = headBox.getPos() + this->getPhysicsModel()->ref->getPos();
@@ -89,7 +133,21 @@ void HeadSObj::combo() {
 }
 
 void HeadSObj::spike() {
+	// Keep initial idle boxes
+	Box origBase = idleBoxes[0];
+	Box origMiddle = idleBoxes[1];
+	Box origTip = idleBoxes[2];
 
+	//get the actual axis
+	Vec4f axis = this->getPhysicsModel()->ref->getRot();
+	origBase.rotate(axis);
+	origMiddle.rotate(axis);
+	origTip.rotate(axis);
+
+	CollisionModel *cm = getCollisionModel();
+	((AabbElement*)cm->get(0))->bx = origBase;
+	((AabbElement*)cm->get(1))->bx = origMiddle;
+	((AabbElement*)cm->get(2))->bx = origTip;
 }
 
 // FOR NOW this is the same as in the tentacle
