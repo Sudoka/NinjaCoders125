@@ -51,6 +51,8 @@ void HeadSObj::idle() {
 	((AabbElement*)cm->get(0))->bx = origBase;
 	((AabbElement*)cm->get(1))->bx = origMiddle;
 	((AabbElement*)cm->get(2))->bx = origTip;
+
+	currStateDone = true;
 }
 
 void HeadSObj::probe() {
@@ -69,6 +71,8 @@ void HeadSObj::probe() {
 	((AabbElement*)cm->get(0))->bx = origBase;
 	((AabbElement*)cm->get(1))->bx = origMiddle;
 	((AabbElement*)cm->get(2))->bx = origTip;
+
+	currStateDone = true;
 }
 
 void HeadSObj::shootFireball() {
@@ -148,6 +152,8 @@ void HeadSObj::spike() {
 	((AabbElement*)cm->get(0))->bx = origBase;
 	((AabbElement*)cm->get(1))->bx = origMiddle;
 	((AabbElement*)cm->get(2))->bx = origTip;
+
+	currStateDone = true;
 }
 
 // FOR NOW this is the same as in the tentacle
