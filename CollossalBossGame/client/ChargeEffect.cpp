@@ -7,10 +7,11 @@ ChargeEffect::ChargeEffect(int numParticles)
 	vbSize = 128;
 	vbOffset = 0;
 	vbBatchSize = 32;
-	pointSize = 5.0f;
+	pointSize = 2.0f;
 	this->numParticles = numParticles;
 	charge = 0; // todo horrendous
 	killCounter = 2;
+	filename = "res/smokey.png";
 }
 
 

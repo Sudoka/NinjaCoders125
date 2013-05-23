@@ -96,8 +96,8 @@ void RenderEngine::renderInitalization()
 		D3DDEVTYPE_HAL,
 		windowHandle,
 //		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-//		D3DCREATE_MIXED_VERTEXPROCESSING,
-		D3DCREATE_HARDWARE_VERTEXPROCESSING,
+		D3DCREATE_MIXED_VERTEXPROCESSING,
+//		D3DCREATE_HARDWARE_VERTEXPROCESSING,
 		&deviceInfo,
 		&direct3dDevice);
 
@@ -151,6 +151,42 @@ void RenderEngine::renderInitalization()
 	direct3dDevice->LightEnable( 1, TRUE ); 
 
 	direct3dDevice->SetRenderState( D3DRS_LIGHTING, TRUE );	
+	direct3dDevice->SetRenderState(D3DRS_FOGENABLE, false);
+
+	//------------------FOG-------------------------
+	//direct3dDevice->SetRenderState(D3DRS_FOGENABLE, TRUE);
+	//direct3dDevice->SetRenderState(D3DRS_FOGCOLOR, D3DXCOLOR(1.0f,.80f,1.0f,1.0f));
+	//direct3dDevice->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR );
+	//float Start   = 20.0f;
+ //   float End     = 500.0f;
+	//direct3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)(&Start));
+ //   direct3dDevice->SetRenderState(D3DRS_FOGEND,   *(DWORD *)(&End));
+	//float density = .0000000000001f;
+	//direct3dDevice->SetRenderState(D3DRS_FOGDENSITY, *(DWORD *)(&density));
+	////direct3dDevice->SetRenderState(D3DRS_RANGEFOGENABLE, TRUE);
+}
+
+void RenderEngine::startFog(float density)
+{
+	fogging = true;
+	direct3dDevice->SetRenderState(D3DRS_FOGENABLE, TRUE);
+	direct3dDevice->SetRenderState(D3DRS_FOGCOLOR, D3DXCOLOR(0.0f,0.0f,0.0f,1.0f));
+	direct3dDevice->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_EXP2 );
+	direct3dDevice->SetRenderState(D3DRS_FOGDENSITY, *(DWORD *)(&density));
+	direct3dDevice->SetRenderState(D3DRS_RANGEFOGENABLE, TRUE);
+}
+
+void RenderEngine::stopFog(float density)
+{
+	if(density <= 0) 
+	{
+		direct3dDevice->SetRenderState(D3DRS_FOGENABLE, false);
+		fogging = false;
+	}
+	else
+	{
+		startFog(density);
+	}	
 }
 
 /**
@@ -183,6 +219,7 @@ RenderEngine::RenderEngine() {
 	monsterHUDText = "DEFAULT";
 
 	this->gamestarted = false;
+	this->fogging = false;
 }
 
 
@@ -215,14 +252,11 @@ void RenderEngine::drawHUD() {
 * Bryan
 */
 void RenderEngine::sceneDrawing() {
-	//Telling the world to advance any animations we have
 	for(list<ClientObject *>::iterator it = lsObjs.begin();
 			it != lsObjs.end();
 			++it) {
 		if ((*it)->getRenderModel() != NULL)
 			(*it)->getRenderModel()->render();
-		/*if ((*it)->getBox() != NULL)
-			(*it)->getBox()->render();*/
 	}
 	lsObjs.clear();
 }
@@ -237,15 +271,14 @@ void RenderEngine::renderThis(ClientObject *obj) {
 * Bryan
 */
 void RenderEngine::render() {
-	//Update the view matrix
-	direct3dDevice->SetTransform(D3DTS_VIEW, cam->getViewMatrix());
-	// clear the window to a deep blue
+	this->colBxPts->update(.33);
+	direct3dDevice->SetTransform(D3DTS_VIEW, cam->getViewMatrix()); // Update view
 	direct3dDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_COLORVALUE(0.0f, 0.0f, 0.0, 0.0f), 1.0f, 0);
 
 	direct3dDevice->BeginScene(); // begins the 3D scene
 
 	gamestartdisplaylogic();
-	hud->displayBackground();
+	if(!fogging) hud->displayBackground();
 	sceneDrawing();
 	for(list<ParticleSystem *>::iterator it = particleSystems.begin();
 			it != particleSystems.end();
@@ -253,7 +286,7 @@ void RenderEngine::render() {
 		(*it)->render(direct3dDevice);
 	}
 	drawHUD();
-	//ps->render(direct3dDevice);
+
 	direct3dDevice->EndScene(); // ends the 3D scene
 
 	direct3dDevice->Present(0, 0, 0, 0); // displays the created frame
@@ -265,7 +298,6 @@ void RenderEngine::render() {
 // todo take time
 #define TIME_SINCE_LAST_UPDATE 33 // 4
 void RenderEngine::animate(int id, const D3DXMATRIX &pos) {
-	//RenderEngine::direct3dDevice->SetTransform(D3DTS_VIEW, &pos);
 	RenderEngine::xAnimator->Render(id,pos,TIME_SINCE_LAST_UPDATE);
 }
 
@@ -288,7 +320,6 @@ LRESULT CALLBACK WindowProc(HWND windowHandle, UINT message, WPARAM wParam, LPAR
 			return 0;
 		} break;
 		default:
-			//printf("Unknown message 0x%x\n", message);
 			break;
 	}
 

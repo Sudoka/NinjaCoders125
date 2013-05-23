@@ -232,8 +232,8 @@ Vec4f ConfigurationManager::parseAsVec4f(string value) {
 	return Vec4f(fx, fy, fz, fw);
 }
 
-map<Point_t, Quat_t> ConfigurationManager::find_config_as_places(string key) {
-	map<Point_t, Quat_t> result;
+vector<Frame> ConfigurationManager::find_config_as_places(string key) {
+	vector<Frame> result;
 	//result.push_back(pair<Vec3f, Vec3f>(Vec3f(-20, 100, 300), Vec3f()));
 	//result.push_back(make_pair(Point_t(-20, 100, -300), Rot_t((float)M_PI,0,0)));
 	//return result;
@@ -261,7 +261,8 @@ map<Point_t, Quat_t> ConfigurationManager::find_config_as_places(string key) {
 		Vec4f v = parseAsVec4f(currPair[1]);
 		Vec3f axis = Vec3f(v.x, v.y, v.z);
 		Quat_t rot = Quat_t(axis, v.w);
-		result[pos] = rot;
+		result.push_back(Frame(pos, rot));
+		//result[pos] = rot;
 
 		index++;
 	}

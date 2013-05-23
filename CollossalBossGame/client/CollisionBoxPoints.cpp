@@ -37,3 +37,4 @@ void CollisionBoxPoints::addParticles(vector<Vec3f> pts)
 		particles.push_back(a);
 	}
 }
+

@@ -11,13 +11,22 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateSprite(direct3dDevice,&sprite);
 	D3DXCreateSprite(direct3dDevice,&sprite1);
 	D3DXCreateSprite(direct3dDevice,&sprite2);
+	D3DXCreateSprite(direct3dDevice,&monsterHealthSprite);
+	D3DXCreateSprite(direct3dDevice,&playerHealthSprite);
 	
 	D3DXCreateTextureFromFile(direct3dDevice,   //Direct3D Device
-                             "res/nebula.jpg",       //File Name
+                             "res/nebula1.jpg",       //File Name
                              &g_texture);    //Texture handle
 	D3DXCreateTextureFromFile(direct3dDevice,   //Direct3D Device
                             "res/gameover.png",       //File Name
                             &test1_texture);    //Texture handle
+
+	D3DXCreateTextureFromFile(direct3dDevice,
+							"res/tentacleMenu.png",
+							&monsterHealth_texture);
+	D3DXCreateTextureFromFile(direct3dDevice,
+							"res/playerMenu.png",
+							&playerHealth_texture);
 
 	D3DXCreateFont(	direct3dDevice,     //D3D Device
 				    22,                       //Font height
@@ -46,7 +55,7 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateTextureFromFile(direct3dDevice, "res/youarep4.png", &youarep4txt);
 	D3DXCreateTextureFromFile(direct3dDevice, "res/pressstart.png", &pressstarttxt);
 	D3DXCreateTextureFromFile(direct3dDevice, "res/playerready.png", &playerreadytxt);
-	D3DXCreateTextureFromFile(direct3dDevice, "res/blackbackground.png", &blackbackgroundtxt);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/startMenu.png", &blackbackgroundtxt);
 	D3DXCreateTextureFromFile(direct3dDevice, "res/youwin.png", &youwintxt);
 	
 	//D3DXCreateTextureFromFile(direct3dDevice, "res/particle.bmp", &p);
@@ -73,6 +82,8 @@ HeadsUpDisplay::~HeadsUpDisplay(void)
 	g_texture->Release();
 	sprite1->Release();
 	sprite2->Release();
+	monsterHealthSprite->Release();
+	playerHealthSprite->Release();
     direct3dText->Release(); // close and release the Text
 	healthLine->Release();
 	backgroundLine->Release();
@@ -107,92 +118,75 @@ HeadsUpDisplay::~HeadsUpDisplay(void)
 
 void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
 {
-	RECT font_rect;
-	RECT monstr_rect;
 	RECT charge_rect;
 
 	//#define SCREEN_WIDTH 1024
     //#define SCREEN_HEIGHT 768 
 
-	SetRect(&font_rect,
-			hudTopX,
-			hudTopY,
-			1024,
-			768);
-
-	SetRect(&monstr_rect,
-			hudTopX,
-			hudTopY + 50,
-			1024,
-			768);
-
 	SetRect(&charge_rect,
-			hudTopX,
-			hudTopY + 100,
+			hudTopX + 800 ,
+			hudTopY + 130 ,
 			1024,
 			768);
 
 	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
-    direct3dText->DrawText(sprite1,        //pSprite
-						   hudText.c_str(),	 //pString
-                           -1,          //Count
-                           &font_rect,  //pRect
-                           DT_LEFT|DT_NOCLIP,//Format,
-                           0xFFFFFFFF);//0xFF000000); //Color
-
-    direct3dText->DrawText(sprite1,        //pSprite
-						   monsterHUDText.c_str(),	 //pString
-                           -1,          //Count
-                           &monstr_rect,  //pRect
-                           DT_LEFT|DT_NOCLIP,//Format,
-                           0xFFFFFFFF);//0xFF000000); //Color
 
 	direct3dText->DrawText(sprite1,        //pSprite
-						  "Charge",	 //pString
+						  "LT: Camera Track\nRT: Power\nA: Jump\nLS: Move\nRS: Camera",	 //pString
                            -1,          //Count
                            &charge_rect,  //pRect
                            DT_LEFT|DT_NOCLIP,//Format,
                            0xFFFFFFFF);//0xFF000000); //Color
 
 	sprite1->End();
-
-
-
 }
 
 void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, float charge)
 {
-
-	D3DXVECTOR2 blines[] = {D3DXVECTOR2(10.0f, 40.0f), D3DXVECTOR2(110.0f, 40.0f)};
-	backgroundLine->SetWidth(15.0f);
-	backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
-
-	D3DXVECTOR2 hlines[] = {D3DXVECTOR2(10.0f, 40.0f), D3DXVECTOR2(playerHealth + 10.f , 40.0f)};
-	healthLine->SetWidth(15.0f);
-	healthLine->Draw(hlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100.0 - playerHealth) / 100.0), (int)(255.0 * playerHealth / 100.0), 0));
-
-    blines[0] = D3DXVECTOR2(10.0f, 90.0f); blines[1] = D3DXVECTOR2(110.0f, 90.0f);
-	backgroundLine->SetWidth(15.0f);
-	backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
-
-	D3DXVECTOR2 mlines[] = {D3DXVECTOR2(10.0f, 90.0f), D3DXVECTOR2(monsterHealth + 10.f , 90.0f)};
-	monsterLine->SetWidth(15.0f);
-	monsterLine->Draw(mlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100.0 - monsterHealth) / 100.0), (int)(255.0 * monsterHealth / 100.0), 0));
-
-	blines[0] = D3DXVECTOR2(10.0f, 140.0f); blines[1] = D3DXVECTOR2(110.0f, 140.0f);
-	backgroundLine->SetWidth(10.0f);
-	backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
-
-	charge = charge * 8;
-	if (charge > 100) charge = 100;
-
-	D3DXVECTOR2 clines[] = {D3DXVECTOR2(10.0f, 140.0f), D3DXVECTOR2(charge + 10.f , 140.0f)};
-	chargeLine->SetWidth(10.0f);
-	chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100.0 - charge) / 100.0), (int)(255.0 * charge / 100.0), (int)(charge * 2)));
-
-
 	if(playerHealth == 0) displayGameOver();
 	else if(monsterHealth == 0) displayVictory(); // todo Franklin fix so that we only Victory on last phase
+	else {
+		//display GUI
+		HeadsUpDisplay::displayMonsterHealth(monsterHealth);
+
+		D3DXVECTOR3 test1;
+	
+		test1.x= 750; //CM::get()->find_config_as_float("TEST1_X");
+		test1.y= 0; //CM::get()->find_config_as_float("TEST1_Y");
+		test1.z= 0; //CM::get()->find_config_as_float("TEST1_Z");
+
+		playerHealthSprite->Begin(D3DXSPRITE_ALPHABLEND);
+		playerHealthSprite->Draw(playerHealth_texture,NULL,NULL,&test1,0xFFFFFFFF);
+		playerHealthSprite->End();
+
+		float healthBarPos[] = {test1.x+100.f, test1.y+25.f};
+		//player health background
+		D3DXVECTOR2 blines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(healthBarPos[0]+100.f, healthBarPos[1])};
+		backgroundLine->SetWidth(15.0f);
+		backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
+
+		//player health
+		float max_health = (float) CM::get()->find_config_as_int("INIT_HEALTH");
+		float percentage = ((float)playerHealth)/max_health;
+		float inverse = 1.f - ((float)playerHealth)/max_health;
+		D3DXVECTOR2 hlines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(percentage*100.f + healthBarPos[0], healthBarPos[1])};
+		healthLine->SetWidth(15.0f);
+		healthLine->Draw(hlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * inverse), (int)(255.0 * percentage), 0));
+
+		//background for the charge
+		blines[0] = D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40); blines[1] = D3DXVECTOR2(healthBarPos[0]+100.f, healthBarPos[1]+40);
+		backgroundLine->SetWidth(15.0f);
+		backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
+
+		charge = charge * 8;
+		if (charge > 100) charge = 100;
+
+		//charge bar
+		D3DXVECTOR2 clines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40), D3DXVECTOR2(healthBarPos[0]+charge , healthBarPos[1]+40)};
+		chargeLine->SetWidth(15.0f);
+		chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100.0 - charge) / 100.0), (int)(255.0 * charge / 100.0), (int)(charge * 2)));
+
+	}
 
 	//D3DXVECTOR3 pos;
 	//pos.x=0.0f;
@@ -202,6 +196,33 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 	//sprite->Begin(D3DXSPRITE_ALPHABLEND);
 	//sprite->Draw(p,NULL,NULL,&pos,0xFFFFFFFF);
 	//sprite->End();
+}
+
+void HeadsUpDisplay::displayMonsterHealth(int monsterHealth) {
+	D3DXVECTOR3 test1;
+	
+	test1.x= -50; //CM::get()->find_config_as_float("TEST1_X");
+	test1.y= 0; //CM::get()->find_config_as_float("TEST1_Y");
+	test1.z= 0; //CM::get()->find_config_as_float("TEST1_Z");
+
+	monsterHealthSprite->Begin(D3DXSPRITE_ALPHABLEND);
+	monsterHealthSprite->Draw(monsterHealth_texture,NULL,NULL,&test1,0xFFFFFFFF);
+	monsterHealthSprite->End();
+
+	//The background for the monster
+	float monsterHeight = 33.f;
+	D3DXVECTOR2 blines[] = {D3DXVECTOR2(40.0f, monsterHeight), D3DXVECTOR2(351.0f, monsterHeight)};
+	backgroundLine->SetWidth(15.0f);
+	backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
+
+	//The actual health for the monster
+	//we want it to map so 100% health = 200 pixels in width, and the initial health is determined by the config file
+	float max_health = (float) CM::get()->find_config_as_int("INIT_HEALTH");
+	float percentage = ((float)monsterHealth)/max_health;
+	float inverse = 1.f-((float)monsterHealth)/max_health;
+	D3DXVECTOR2 mlines[] = {D3DXVECTOR2(40.0f, monsterHeight), D3DXVECTOR2(percentage*311.f + 40.f , monsterHeight)};
+	monsterLine->SetWidth(15.0f);
+	monsterLine->Draw(mlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * inverse), (int)(255.0 * percentage), 0));
 }
 
 #pragma region Display Methods
@@ -279,37 +300,48 @@ void HeadsUpDisplay::displayStart()
 				ready[playercount] = pc->ready;
 			}
 		}
-		if(playercount >= 1) {
-			D3DXVECTOR3 p1c(0,0,0.25);
+		
+		if(playercount >= 1) { //60, 60, 0.25
+			D3DXVECTOR3 p1c(60,60,0.25);
 			D3DXVECTOR3 p1r(0,0,0);
 			if (ready[1]) { displaytexture(&playerready, &p1r, &playerreadytxt); }
 			(playernumber == 1) ? displaytexture(&youarep1, &p1c, &youarep1txt) : displaytexture(&p1connect, &p1c, &p1connecttxt);
 		}
-		if(playercount >= 2) {
-			D3DXVECTOR3 p2c(300,0,0.25);
+		if(playercount >= 2) { //700, 60, 0.25
+			D3DXVECTOR3 p2c(700, 60, 0.25);
 			D3DXVECTOR3 p2r(300,0,0);
 			if (ready[2]) { displaytexture(&playerready, &p2r, &playerreadytxt); }
 			(playernumber == 2) ? displaytexture(&youarep2, &p2c, &youarep2txt) : displaytexture(&p2connect, &p2c, &p2connecttxt);
 		}
 		if(playercount >= 3) {
-			D3DXVECTOR3 p3c(0,300,0.25);
+			D3DXVECTOR3 p3c(60,430,0.25);
 			D3DXVECTOR3 p3r(0,300,0);
 			if (ready[3]) { displaytexture(&playerready, &p3r, &playerreadytxt); }
 			(playernumber == 3) ? displaytexture(&youarep3, &p3c, &youarep3txt) : displaytexture(&p3connect, &p3c, &p3connecttxt);
 		}
 		if(playercount >= 4) {
-			D3DXVECTOR3 p4c(300,300,0.25);
+			D3DXVECTOR3 p4c(700,430,0.25);
 			D3DXVECTOR3 p4r(300,300,0);
 			if (ready[4]) { displaytexture(&playerready, &p4r, &playerreadytxt); }
 			(playernumber == 4) ? displaytexture(&youarep4, &p4c, &youarep4txt) : displaytexture(&p4connect, &p4c, &p4connecttxt);
 		}
+		/*
 		if(!ready[playernumber]) {
 			D3DXVECTOR3 rdy(300,200,0);
 			displaytexture(&pressstart, &rdy, &pressstarttxt);
-		}
+		}*/
 		D3DXVECTOR3 blk(0,0,0.5);
-		displaytexture(&blackbackground, &blk, &blackbackgroundtxt);
+		D3DXVECTOR2 spriteCentre=D3DXVECTOR2(1920.0f/2, 1920.0f/2);
+		D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);
+		D3DXVECTOR2 scaling(1.f,0.75f);
+		D3DXMATRIX mat;
+		D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,&spriteCentre,0.f,&trans);
 
+		blackbackground->SetTransform(&mat);
+		blackbackground->Begin(D3DXSPRITE_ALPHABLEND);
+		blackbackground->Draw(blackbackgroundtxt,NULL,NULL,&blk,0xFFFFFFFF);
+		blackbackground->End();
+		
 		bool allready = true;
 		for(int j = 1; j < playercount+1; j++) {
 			if(ready[j] != 1) {

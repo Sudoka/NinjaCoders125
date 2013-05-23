@@ -5,6 +5,11 @@
 #include "PlayerSObj.h"
 #include "GameServer.h"
 #include <time.h>
+#include <algorithm>
+
+#include "MonsterPartSObj.h"
+#include "TentacleSObj.h"
+#include "HeadSObj.h"
 
 MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 {
@@ -16,9 +21,9 @@ MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 	
 	this->availablePlacements = CM::get()->find_config_as_places("TENTACLE_POSITIONS");
 
-	for(map<Point_t,Quat_t>::iterator it = availablePlacements.begin(); it != availablePlacements.end(); ++it) {
+	/*for(map<Point_t,Quat_t>::iterator it = availablePlacements.begin(); it != availablePlacements.end(); ++it) {
 	  placements.push_back(it->first);
-	}
+	}*/
 
 	this->numParts = numParts;
 	phase = -1;
@@ -32,11 +37,35 @@ MonsterSObj::~MonsterSObj(void)
 {
 }
 
-void MonsterSObj::removeTentacle(TentacleSObj* t)
+void MonsterSObj::removePart(MonsterPartSObj* t)
 { 
-	tentacles.erase(t); 
+	parts.erase(t); 
 	Frame* fr = t->getPhysicsModel()->ref; 
-	availablePlacements[fr->getPos()] = fr->getRot(); 
+	availablePlacements.push_back(*fr);
+}
+
+/**
+ * This is what tentacles call when they want to change their position
+ */
+Frame MonsterSObj::updatePosition(Frame oldPos) {
+	// Make sure we actually have positions
+	assert(availablePlacements.size() > 0 && "You ran out of positions for your tentacles!");
+
+	// Now pick one at random
+	int index = rand() % availablePlacements.size();
+	Frame result = availablePlacements[index];
+	availablePlacements[index] = oldPos;
+
+	return result;
+	//vector<Point_t> possiblePlacements(placements);
+
+	//map<Point_t, Quat_t>::iterator it;
+	//do {
+	//	Point_t randPoint = possiblePlacements[rand() % possiblePlacements.size()];
+	//	it = availablePlacements.find(randPoint);
+	//} while (it == availablePlacements.end());
+	//pair<Point_t, Quat_t> currPlace = *it;
+	//availablePlacements.erase(it);
 }
 
 /* update()
@@ -49,11 +78,11 @@ void MonsterSObj::removeTentacle(TentacleSObj* t)
  * Author: Bryan, Haro, Suman
  */
 bool MonsterSObj::update() {
-	int numTentacles = tentacles.size();
+	int numTentacles = parts.size();
 	health = 0;
 	if(numTentacles > 0) {
-		for (set<TentacleSObj*>::iterator it = tentacles.begin();
-			it != tentacles.end();
+		for (set<MonsterPartSObj*>::iterator it = parts.begin();
+			it != parts.end();
 			++it)
 			health += (*it)->getHealth();
 		health /= numParts;
@@ -62,27 +91,30 @@ bool MonsterSObj::update() {
 	if (numTentacles == 0) {
 		phase++;
 
+		// Make sure we've got enough positions
+		assert(availablePlacements.size() >= numParts && "You ran out of positions for your tentacles!");
+
+		// shuffle your positions
+		std::random_shuffle(availablePlacements.begin(), availablePlacements.end());
+
 		// Initialize your parts (tentacles, or hydras, or mixed, or whatever)
 		for (uint i=0; i<numParts; i++)
 		{
 			// pick the random position
-			map<Point_t, Quat_t>::iterator it;
-			do {
-				Point_t randPoint = placements[rand() % placements.size()];
-				it = availablePlacements.find(randPoint);
-			} while (it == availablePlacements.end());
-			pair<Point_t, Quat_t> currPlace = *it;
-			availablePlacements.erase(it);
+			Frame currPlace = availablePlacements.back();
+			availablePlacements.pop_back();
 
-			TentacleSObj * newTentacle;
+			MonsterPartSObj * newPart;
 			switch (phase)
 			{
 			case 0:
-				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.first, currPlace.second, this);
+				newPart = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			case 1:
-				// todo heads
-				newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.first, currPlace.second, this);
+				// todo heads different models 
+				// todo animated head model...not-animated breaks the world xD
+				// newPart = new HeadSObj(SOM::get()->genId(), MDL_HEAD_1, currPlace.getPos(), currPlace.getRot(), this);
+				newPart = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			default: // you beat all the phases!
 				GameServer::get()->event_monster_death();
@@ -91,9 +123,19 @@ bool MonsterSObj::update() {
 				// DONT YOU DARE
 			}
 
-			this->addTentacle(newTentacle);
-			SOM::get()->add(newTentacle);
+			this->addPart(newPart);
+			SOM::get()->add(newPart);
 		}
+	}
+
+	// Decide if we want our tentacles to fog
+	const int fogProb = 1; // todo config maybe
+	int x = rand() % 1000;
+	bool fogging = x < fogProb;
+	for (set<MonsterPartSObj*>::iterator it = parts.begin();
+			it != parts.end();
+			++it) {
+				(*it)->setFogging(fogging);
 	}
 
 	// UNSURE for now!

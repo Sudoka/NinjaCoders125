@@ -33,6 +33,8 @@ private:
 	IDirect3DTexture9 *g_texture;
 	IDirect3DTexture9 *test1_texture;
 	IDirect3DTexture9 *p;
+	IDirect3DTexture9 *monsterHealth_texture;
+	IDirect3DTexture9 *playerHealth_texture;
 
 	int hudTopX, hudTopY;
 
@@ -44,6 +46,8 @@ private:
 	LPD3DXSPRITE sprite;
 	LPD3DXSPRITE sprite1;
 	LPD3DXSPRITE sprite2;
+	LPD3DXSPRITE monsterHealthSprite;
+	LPD3DXSPRITE playerHealthSprite;
 
 	LPD3DXSPRITE p1connect;
 	LPD3DXSPRITE p2connect;
@@ -71,5 +75,6 @@ private:
 	IDirect3DTexture9 *youwintxt;
 
 	clock_t initTime;
+	void displayMonsterHealth(int monsterHealth);
 };
 

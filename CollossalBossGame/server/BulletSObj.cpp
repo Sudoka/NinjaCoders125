@@ -76,7 +76,7 @@ int BulletSObj::serialize(char * buf) {
 
 	if (SOM::get()->collisionMode)
 	{
-		CollisionState *collState = (CollisionState*)(buf + sizeof(TentacleState));
+		CollisionState *collState = (CollisionState*)(buf + sizeof(ObjectState));
 
 		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
 			end = getCollisionModel()->getEnd();

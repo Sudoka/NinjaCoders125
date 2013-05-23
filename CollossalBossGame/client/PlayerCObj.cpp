@@ -58,7 +58,7 @@ PlayerCObj::~PlayerCObj(void)
 void PlayerCObj::showStatus()
 {
 	std::stringstream status;
-	status << "Player " << getId() << "\n";
+	status << "Health" << "\n";
 	RE::get()->setHUDText(status.str(), health, charge);
 }
 

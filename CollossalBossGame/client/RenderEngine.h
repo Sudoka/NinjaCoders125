@@ -58,8 +58,11 @@ public:
 
 	void setHUDText(string newText, int health, float charge) { hudText = newText; healthPts = health; this->charge = charge;}
 	void setMonsterHUDText(string newText, int health) { monsterHUDText = newText; monsterHealthPts = health; }
+	void startFog(float density);
+	void stopFog(float density);
 	void addParticleEffect(ParticleSystem* ps) { ps->init(this->direct3dDevice); this->particleSystems.push_back(ps); }
 	void removeParticleEffect(ParticleSystem* ps) { this->particleSystems.remove(ps); delete ps; }
+
 	//Models
 	void animate(int id, const D3DXMATRIX &pos);
 
@@ -68,7 +71,7 @@ public:
 	bool debugFlag;
 	//Debug
 	IXAnimator *getAnim() { return xAnimator; }
-
+	HeadsUpDisplay* getHUD() { return hud; }
 	bool gamestarted; // begins as false, when everyone's pressed start, then set this to true.
 
 private:
@@ -101,6 +104,7 @@ private:
 	CollisionBoxPoints* colBxPts;
 	//Configuration fields
 	float cameraDist;
+	bool fogging;
 };
 typedef RenderEngine RE;
 
