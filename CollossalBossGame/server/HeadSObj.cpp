@@ -2,6 +2,7 @@
 #include "ServerObjectManager.h"
 #include "ConfigurationManager.h"
 #include "RageSObj.h"
+#include "FireBallSObj.h"
 
 HeadSObj::HeadSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj* master) :
 											MonsterPartSObj(id, modelNum, pos, rot, master)
@@ -36,6 +37,43 @@ void HeadSObj::probe() {
 }
 
 void HeadSObj::attack() {
+	// First, create our bullet
+	if (stateCounter == 0)
+	{
+		Vec3f mpos = this->getPhysicsModel()->ref->getPos();
+		mpos.z += 200;
+		float distance = 10000.f; // MAX DISTANCE FOR TARGETING
+		int playerid = -1;
+		vector<ServerObject *> vso;
+		Vec3f minPos;
+		SOM::get()->findObjects(OBJ_PLAYER, &vso);
+		for (int i = 0; i < vso.size(); i++) {
+			Vec3f ppos = vso[i]->getPhysicsModel()->ref->getPos();
+			float tdist = fabs(magnitude(ppos-mpos));
+			if(tdist < distance) {
+				distance = tdist;
+				playerid = vso[i]->getId();
+				minPos = ppos;
+			}
+		}
+		if(playerid > -1) {
+			// normalize
+			Vec3f motion = minPos - mpos;
+			motion.normalize();
+			Vec3f offset = motion * 35*1.5;
+
+
+			float diameter = 45; // todo define? config?
+			int damage = 10; // todo config
+			//Vec3f offset = rotate(Vec3f(0, upforce * diameter * sqrt(2.0f), forwardforce * diameter * sqrt(2.0f)), pm->ref->getRot());
+			Vec3f position = mpos + offset;
+			FireBallSObj * fbso = new FireBallSObj(SOM::get()->genId(), (Model)-1, position, motion, damage, (int)diameter);
+			SOM::get()->add(fbso);
+		}
+	}
+
+	// this is random, for now
+	currStateDone = (stateCounter == 30);
 
 }
 

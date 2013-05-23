@@ -119,7 +119,7 @@ bool MonsterPartSObj::update() {
 
 	///////////////////// State logic ///////////////////////
 
-	// actionState = MOVE_ACTION;
+	actionState = ATTACK_ACTION;
 
 	switch(actionState)
 	{

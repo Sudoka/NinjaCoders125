@@ -211,3 +211,10 @@ enum PlayerAnimationState {
 	DEAD = 4
 };
 
+enum BulletColor {
+	BLUE,
+	RED,
+	GREEN,
+	PURPLE,
+	GREY
+};

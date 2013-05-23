@@ -20,5 +20,6 @@ private:
 	RenderModel *rm;
 	ShootingEffect* pewPew;
 	int diameter;
+	Vec3f color;
 };
 

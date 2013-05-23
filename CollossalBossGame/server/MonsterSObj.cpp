@@ -108,7 +108,8 @@ bool MonsterSObj::update() {
 			switch (phase)
 			{
 			case 0:
-				newPart = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
+				newPart = new HeadSObj(SOM::get()->genId(), MDL_HEAD_1, currPlace.getPos(), currPlace.getRot(), this);
+				//newPart = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			case 1:
 				// todo heads different models 
