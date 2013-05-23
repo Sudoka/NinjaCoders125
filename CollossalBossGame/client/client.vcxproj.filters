@@ -91,6 +91,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PortalEffect.cpp">
+		<Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HarpoonCObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScientistCObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MechanicCObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HarpoonEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -174,6 +186,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PortalEffect.h">
+		<Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HarpoonCObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScientistCObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MechanicCObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HarpoonEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

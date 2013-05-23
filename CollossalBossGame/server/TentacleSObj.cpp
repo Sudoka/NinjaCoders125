@@ -4,6 +4,7 @@
 #include "defs.h"
 #include "PlayerSObj.h"
 #include "BulletSObj.h"
+#include "HarpoonSObj.h"
 #include "ConfigurationManager.h"
 #include "CollisionModel.h"
 #include "PhysicsEngine.h"
@@ -401,3 +402,4 @@ void TentacleSObj::rage() {
 	// when the object dies we're done raging
 	currStateDone = stateCounter >= RageSObj::lifetime;
 }
+

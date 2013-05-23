@@ -70,8 +70,20 @@
     </ClCompile>
     <ClCompile Include="MonsterPartSObj.cpp">
 		<Filter>Source Files</Filter>
+	</ClCompile>
+    <ClCompile Include="HarpoonSObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScientistSObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MechanicSObj.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ArenaWallSObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StunGunSObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -132,8 +144,20 @@
     </ClInclude>
     <ClInclude Include="MonsterPartSObj.h">
 		<Filter>Header Files</Filter>
+	</ClInclude>
+    <ClInclude Include="HarpoonSObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScientistSObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MechanicSObj.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArenaWallSObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StunGunSObj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

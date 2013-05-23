@@ -200,25 +200,32 @@ void MonsterPartSObj::death() {
 }
 
 void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
+	int damage = 0;
+
 	// if I collided against the player, AND they're attacking me, loose health
 	if(obj->getType() == OBJ_PLAYER)
 	{	
 		PlayerSObj* player = reinterpret_cast<PlayerSObj*>(obj);
-		health-= player->damage;
-		
-		if(this->health < 0) health = 0;
-		if(this->health > 100) health = 100; // would this ever be true? o_O
-
-		// I have been attacked! You'll regret it in the next udpate loop player! >_>
-		attacked = player->damage > 0;
+		damage = player->damage;
 	}
 
 	if(obj->getType() == OBJ_BULLET) {
 		BulletSObj* bullet = reinterpret_cast<BulletSObj*>(obj);
-		health -= bullet->damage;
-		if(this->health < 0) health = 0;
-		if(this->health > 100) health = 100;
+		damage = bullet->damage;
 	}
+
+	if(obj->getType() == OBJ_HARPOON) {
+		// HarpoonSObj* bullet = reinterpret_cast<HarpoonSObj*>(obj);
+		// damage = bullet->damage;
+	}
+
+	health -= damage;
+
+	if(this->health < 0) health = 0;
+	if(this->health > 100) health = 100; // would this ever be true? o_O
+
+	// I have been attacked! You'll regret it in the next udpate loop player! >_>
+	attacked = damage > 0;
 }
 
 int MonsterPartSObj::serialize(char * buf) {

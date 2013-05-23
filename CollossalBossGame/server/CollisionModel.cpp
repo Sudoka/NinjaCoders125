@@ -143,6 +143,7 @@ bool areColliding(Vec3f *shift, DIRECTION *collDir, const Box &bx, const Point_t
 		hmapPos = hmapCenter;
 		break;
 	}
+	
 	if(pointOnHMapCollision(&hdiff, objPos, hmapPos, hmap)) {
 		switch(hmap.dir) {
 		case NORTH:

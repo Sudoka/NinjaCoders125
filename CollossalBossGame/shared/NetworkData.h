@@ -91,6 +91,8 @@ enum ObjectType {
 	OBJ_TENTACLE,
 	OBJ_RAGE,
 	OBJ_BULLET,
+	OBJ_HARPOON,
+	OBJ_STUNGUN,
 	NUM_OBJS
 };
 
