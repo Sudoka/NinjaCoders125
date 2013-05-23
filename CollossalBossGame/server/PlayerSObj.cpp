@@ -106,6 +106,8 @@ bool PlayerSObj::update() {
 	Quat_t upRot;
 	calcUpVector(&upRot);
 	controlCamera(upRot);
+	Point_t ppos = pm->ref->getPos();
+	DC::get()->print(LOGFILE, "Player pos (%f,%f,%f)\n", ppos.x, ppos.y, ppos.z);
 
 	if(this->health > 0)
 	{
@@ -199,6 +201,9 @@ bool PlayerSObj::update() {
 			this->setAnimationState(WALK);
 		}
 	} else {
+		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
+		pm->ref->setRot(qRot);
+
 		damage = 0; // you can't kill things if you're dead xD
 
 		// TODO Franklin: THE PLAYER IS DEAD. WHAT DO?
@@ -335,8 +340,11 @@ void PlayerSObj::deserialize(char* newInput)
 {
 	inputstatus* newStatus = reinterpret_cast<inputstatus*>(newInput);
 	istat = *newStatus;
-	if (istat.start) {
+	if (istat.start && this->health > 0) {
 		GameServer::get()->event_reset(this->getId());
+	} else if(istat.start) {
+		this->health = CM::get()->find_config_as_int("INIT_HEALTH");
+		this->pm->ref->setPos(Point_t());
 	}
 }
 

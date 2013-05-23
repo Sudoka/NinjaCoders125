@@ -70,6 +70,8 @@ private:
 	bool bCreatedHMap;
 };
 
+void getClosestPoints(Point_t *pt1, Point_t *pt2, float *t, const Point_t &ipt1, const Point_t &fpt1, const Point_t &ipt2, const Point_t &fpt2);
+
 bool areColliding(const Box &bx1, const Box &bx2);
 //bool areColliding(float *hdiff, const Box &bx, const Point_t &hmapCenter, const HMapElement &hmap);
 bool areColliding(Vec3f *shift, DIRECTION *collDir, const Box &bx, const Point_t &hmapCenter, const HMapElement &hmap);

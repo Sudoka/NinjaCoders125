@@ -50,7 +50,7 @@ private:
 	void handleCollision(ServerObject *obj1, ServerObject *obj2, const Vec3f &shift, DIRECTION dir);	//Actually move the objects
 
 	// Configuration options
-	float gravMag;
+	float gravMag, constGravMag;
 	Vec3f gravVec;
 	DIRECTION gravDir;
 	Quat_t curGravRot;

@@ -36,6 +36,7 @@ struct PhysicsModel
 	Frame *ref;	//Frame of Reference/skeleton; also root position and collision info
 	Vec3f vel;			//Current velocity
 	Vec3f accel;		//Current acceleration
+	Vec3f lastPos;		//last position
 	float mass;			//Mass of this object
 	float frictCoeff;	//Friction coefficient
 	//Vec3f frictNorm;	//Normal on which the friction will be applied

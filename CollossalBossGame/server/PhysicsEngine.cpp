@@ -14,7 +14,7 @@ PhysicsEngine *PhysicsEngine::pe;
 PhysicsEngine::PhysicsEngine(void)
 {
 	// Configuration options
-	gravMag = CM::get()->find_config_as_float("GRAVITY_FORCE");
+	gravMag = constGravMag = CM::get()->find_config_as_float("GRAVITY_FORCE");
 
 	xPos = yPos = zPos = 500;
 	xNeg = yNeg = zNeg = 0;
@@ -58,6 +58,7 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	float dx = 0.5f * mdl->accel.x * dt * dt + mdl->vel.x * dt,
 		  dy = 0.5f * mdl->accel.y * dt * dt + mdl->vel.y * dt,
 		  dz = 0.5f * mdl->accel.z * dt * dt + mdl->vel.z * dt;
+	mdl->lastPos = mdl->ref->getPos();
 	mdl->ref->translate(Point_t(dx, dy, dz));
 
 
@@ -127,7 +128,8 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, Aabb
 	vector<CollisionElement*>::iterator cur, end = cmdl2->getEnd();
 
 	
-	Box bx1 = el->bx + obj1->getPhysicsModel()->ref->getPos(), bx2;
+	Box bx1 = el->bx + obj1->getPhysicsModel()->ref->getPos(),
+		bx2;
 	Point_t pos;
 
 	//AABBs can collide with anything
@@ -135,6 +137,7 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, Aabb
 		switch((*cur)->getType()) {
 		case CMDL_AABB:
 			bx2 = ((AabbElement*)(*cur))->bx + obj2->getPhysicsModel()->ref->getPos();
+
 			if(areColliding(bx1, bx2)) {
 				getCollisionInfo(&shift, &dir, bx1, bx2);
 				handleCollision(obj1, obj2, shift, dir);
@@ -232,8 +235,6 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 }
 
 void PhysicsEngine::setGravDir(DIRECTION dir) {
-	gravDir = dir;
-
 	Vec3f newVec, crossVec;
 	switch(dir) {
 	case NORTH:
@@ -260,7 +261,12 @@ void PhysicsEngine::setGravDir(DIRECTION dir) {
 		newVec = Vec3f(0,-1,0);
 		curGravRot = Quat_t();
 		break;
+	default:
+		gravMag = 0.0f;
+		return;	//We don't want to set gravVec or gravDir, just gravMag
 	}
 
 	gravVec = newVec;
+	gravDir = dir;
+	gravMag = constGravMag;	//Make sure this is nonzero
 }

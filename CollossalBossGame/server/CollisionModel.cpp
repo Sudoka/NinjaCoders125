@@ -1,4 +1,5 @@
 #include "CollisionModel.h"
+#include "defs.h"
 #include <math.h>
 
 /*
@@ -207,4 +208,42 @@ void getCollisionInfo(Vec3f *shift, DIRECTION *collDir, const Box &bx1, const Bo
 		shift->z = fZShift;
 		*collDir = ((fZShift < 0) || ((fZShift == 0) && (bx1.z < bx2.z))) ? SOUTH : NORTH;
 	}
+}
+
+void getClosestPoints(Point_t *pt1, Point_t *pt2, float *time,
+		const Point_t &ipt1, const Point_t &fpt1,
+		const Point_t &ipt2, const Point_t &fpt2) {
+	//Calculate all of the vectors and dot products we will need
+	Vec3f dir1 = fpt1 - ipt1,
+		  dir2 = fpt2 - ipt2,
+		  diff = ipt1 - ipt2;
+
+	/*
+	 * Equation of a line: dir*t + ipt, where t is a scalar parameter.
+	 * The minimum distance between two lines in 3D space is found by
+	 * finding the minimum of the distance between two points on the
+	 * line for any two points.  Since t directly corresponds to time,
+	 * we can use the same parameter for both distance equations, and
+	 * thus greatly simplify the problem.
+	 */
+	float dir1DOTdir1 = dir1 ^ dir1,	//magnitude of dir1, squared
+		  dir1DOTdir2 = dir1 ^ dir2,
+		  dir2DOTdir2 = dir2 ^ dir2,	//magnitude of dir2, squared
+		  dir2DOTdiff = dir2 ^ diff,
+		  dir1DOTdiff = dir1 ^ diff;
+	float t, num, den;
+	den = dir1DOTdir1 - 2 * dir1DOTdir2 + dir2DOTdir2;
+	if(den != 0) {
+		num = dir2DOTdiff - dir1DOTdiff;
+		t = num / den;
+
+		//Limit calculated t value
+		if(t < 0.5f || t > 1.0f) t = 1.0f;
+	} else {
+		t = 1.0f;
+	}
+
+	*pt1 = ipt1 + dir1 * t;
+	*pt2 = ipt2 + dir2 * t;
+	*time = t;
 }
