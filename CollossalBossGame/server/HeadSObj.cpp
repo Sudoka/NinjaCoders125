@@ -13,8 +13,10 @@ HeadSObj::HeadSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj
 	idleBoxes[1] = CM::get()->find_config_as_box("BOX_HEAD_MID");
 	idleBoxes[2] = CM::get()->find_config_as_box("BOX_HEAD_TIP");
 
+	CollisionModel *cm = getCollisionModel();
+
 	for (int i=0; i<3; i++) {
-		assert(pm->addBox(idleBoxes[i]) == i && "Your physics model is out of sync with the rest of the world...");
+		assert((cm->add(new AabbElement(idleBoxes[i])) == i) && "Your physics model is out of sync with the rest of the world...");
 	}
 
 	modelAnimationState = M_IDLE;
@@ -74,9 +76,10 @@ void HeadSObj::rage() {
 	origTip.setPos(axis.rotateToThisAxis(origTip.getPos()));
 	origTip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 
-	pm->colBoxes[0] = *(origBase.fix());
-	pm->colBoxes[1] = *(origMiddle.fix());
-	pm->colBoxes[2] = *(origTip.fix());
+	CollisionModel *cm = getCollisionModel();
+	((AabbElement*)cm->get(0))->bx = *(origBase.fix());
+	((AabbElement*)cm->get(1))->bx = *(origMiddle.fix());
+	((AabbElement*)cm->get(2))->bx = *(origTip.fix());
 
 	// when the object dies we're done raging
 	currStateDone = stateCounter >= RageSObj::lifetime;

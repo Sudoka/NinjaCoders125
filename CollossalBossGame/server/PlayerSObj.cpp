@@ -41,7 +41,8 @@ void PlayerSObj::initialize() {
 		delete pm;
 
 	pm = new PhysicsModel(pos, Quat_t(), CM::get()->find_config_as_float("PLAYER_MASS"));
-	pm->addBox(bxVol);
+	getCollisionModel()->add(new AabbElement(bxVol));
+
 	lastCollision = pos;
 
 	// Initialize input status
@@ -302,13 +303,14 @@ int PlayerSObj::serialize(char * buf) {
 	{
 		CollisionState *collState = (CollisionState*)(buf + sizeof(PlayerState));
 
-		vector<Box> objBoxes = pm->colBoxes;
+		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
+			end = getCollisionModel()->getEnd();
 
-		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
+		collState->totalBoxes = min(end - cur, maxBoxes);
 
-		for (int i=0; i<collState->totalBoxes; i++)
-		{
-			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
+		for(int i=0; i < collState->totalBoxes; i++, cur++) {
+			//The collision box is relative to the object's frame-of-ref.  Get the non-relative collision box
+			collState->boxes[i] = ((AabbElement*)(*cur))->bx + pm->ref->getPos();
 		}
 
 		return pm->ref->serialize(buf + sizeof(PlayerState) + sizeof(CollisionState)) + sizeof(PlayerState) + sizeof(CollisionState);

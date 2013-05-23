@@ -5,6 +5,7 @@
 #include "PlayerSObj.h"
 #include "BulletSObj.h"
 #include "ConfigurationManager.h"
+#include "CollisionModel.h"
 #include "PhysicsEngine.h"
 #include "RageSObj.h"
 #include <time.h>
@@ -21,14 +22,17 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 	idleBoxes[1] = CM::get()->find_config_as_box("BOX_TENT_MID");
 	idleBoxes[2] = CM::get()->find_config_as_box("BOX_TENT_TIP");
 
+
 	slamBoxes[0] = CM::get()->find_config_as_box("BOX_TENT_BASE_SLAM"); 
 	slamBoxes[1] = CM::get()->find_config_as_box("BOX_TENT_MID_SLAM");
 	slamBoxes[2] = CM::get()->find_config_as_box("BOX_TENT_TIP_SLAM");
 
 	spikeBox = CM::get()->find_config_as_box("BOX_TENT_SPIKE");
 
+	CollisionModel *cm = getCollisionModel();
+
 	for (int i=0; i<3; i++) {
-		assert(pm->addBox(idleBoxes[i]) == i && "Your physics model is out of sync with the rest of the world...");
+		assert((cm->add(new AabbElement(idleBoxes[i])) == i) && "Your physics model is out of sync with the rest of the world...");
 	}
 
 	// modelAnimationState = M_IDLE; // the boxes will be rotated appropriately within the idle part of update()
@@ -56,9 +60,11 @@ void TentacleSObj::idle() {
 	 * CYCLE*1/2 = The tentacle is extended
 	 * CYCLE = when the tentacle is back at the default position
 	 */
-	Box base = this->getPhysicsModel()->colBoxes.at(0);
-	Box middle = this->getPhysicsModel()->colBoxes.at(1);
-	Box tip = this->getPhysicsModel()->colBoxes.at(2);
+
+	CollisionModel *cm = getCollisionModel();
+	Box base =	 ((AabbElement*)cm->get(0))->bx; //this->getPhysicsModel()->colBoxes.at(0);
+	Box middle = ((AabbElement*)cm->get(1))->bx; //this->getPhysicsModel()->colBoxes.at(1);
+	Box tip =	 ((AabbElement*)cm->get(2))->bx; //this->getPhysicsModel()->colBoxes.at(2);
 
 	Vec3f changePosT = Vec3f(), changeProportionT = Vec3f();
 	Vec3f changePosM = Vec3f(), changeProportionM = Vec3f();
@@ -110,9 +116,9 @@ void TentacleSObj::idle() {
 	middle.setRelSize(changeProportionM);
 	
 	// Set new collision boxes
-	pm->colBoxes[0] = *(base.fix());
-	pm->colBoxes[1] = *(middle.fix());
-	pm->colBoxes[2] = *(tip.fix());
+	((AabbElement*)cm->get(0))->bx = *(base.fix());		//pm->colBoxes[0] = *(base.fix());
+	((AabbElement*)cm->get(1))->bx = *(middle.fix());	//pm->colBoxes[1] = *(middle.fix());
+	((AabbElement*)cm->get(2))->bx = *(tip.fix());		//pm->colBoxes[2] = *(tip.fix());
 }
 
 // TODO PROBE!!!
@@ -183,9 +189,10 @@ void TentacleSObj::slamMotion() {
 	modelAnimationState = M_ATTACK;
 
 	// Keep the base and middle, make the tip grow and move back
-	Box base = this->getPhysicsModel()->colBoxes.at(0);
-	Box middle = this->getPhysicsModel()->colBoxes.at(1);
-	Box tip = this->getPhysicsModel()->colBoxes.at(2);
+	CollisionModel *cm = getCollisionModel();
+	Box base = ((AabbElement*)cm->get(0))->bx; // this->getPhysicsModel()->colBoxes.at(0);
+	Box middle = ((AabbElement*)cm->get(1))->bx;// this->getPhysicsModel()->colBoxes.at(1);
+	Box tip = ((AabbElement*)cm->get(2))->bx; // this->getPhysicsModel()->colBoxes.at(2);
 	Vec3f changePosT = Vec3f();
 
 	//get the actual axis
@@ -212,9 +219,9 @@ void TentacleSObj::slamMotion() {
 	tip.setRelPos(axis.rotateToThisAxis(changePosT));
 	
 	// Set new collision boxes
-	pm->colBoxes[0] = *(base.fix());
-	pm->colBoxes[1] = *(middle.fix());
-	pm->colBoxes[2] = *(tip.fix());
+	((AabbElement*)cm->get(0))->bx = *(base.fix());
+	((AabbElement*)cm->get(0))->bx = *(middle.fix());
+	((AabbElement*)cm->get(0))->bx = *(tip.fix());
 
 //	/* Cycle logic:
 //	 * CYCLE*1/2 = The tentacle is extended
@@ -349,9 +356,10 @@ void TentacleSObj::spike() {
 	// Spike is one big collision box
 	// middle and tip are dimmension-less
 	// Set new collision boxes
-	pm->colBoxes[0] = *(spike.fix());
-	pm->colBoxes[1] = Box();
-	pm->colBoxes[2] = Box();
+	CollisionModel *cm = getCollisionModel();	
+	((AabbElement*)cm->get(0))->bx = *(spike.fix());
+	((AabbElement*)cm->get(0))->bx = Box();
+	((AabbElement*)cm->get(0))->bx = Box();
 
 	// I'm randomly making spike last 51 cycles, feel free to change this xD
 	currStateDone = (stateCounter == 50);
@@ -385,9 +393,10 @@ void TentacleSObj::rage() {
 	origTip.setPos(axis.rotateToThisAxis(origTip.getPos()));
 	origTip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 
-	pm->colBoxes[0] = *(origBase.fix());
-	pm->colBoxes[1] = *(origMiddle.fix());
-	pm->colBoxes[2] = *(origTip.fix());
+	CollisionModel *cm = getCollisionModel();
+	((AabbElement*)cm->get(0))->bx = *(origBase.fix());
+	((AabbElement*)cm->get(1))->bx = *(origMiddle.fix());
+	((AabbElement*)cm->get(2))->bx = *(origTip.fix());
 
 	// when the object dies we're done raging
 	currStateDone = stateCounter >= RageSObj::lifetime;

@@ -272,6 +272,12 @@ typedef struct Box {
 		return this;
 	}
 
+	Box* rotate(Vec4f axis) {
+		this->setPos(axis.rotateToThisAxis(this->getPos()));
+		this->setSize(axis.rotateToThisAxis(this->getSize()));
+		return this->fix();
+	}
+
 	void setPos(const Vec3f &pos) {
 		x = pos.x; y = pos.y; z = pos.z;
 	}
@@ -327,7 +333,8 @@ typedef enum DIRECTION {
 inline DIRECTION flip(DIRECTION dir) {
 	return (DIRECTION)((dir < 0x7) ? (dir << 3) : (dir >> 3));
 }
-Vec3f dirVec(DIRECTION dir);
+Vec3f dirVec(DIRECTION dir);	//Gets a vector in the direction specified
+Vec3f dirAxis(DIRECTION dir);		//Gets the (positive) axis for the specified direction
 
 
 typedef enum ACTION {

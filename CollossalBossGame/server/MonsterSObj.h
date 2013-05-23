@@ -22,7 +22,7 @@ public:
 	virtual ~MonsterSObj(void);
 
 	virtual bool update();
-	virtual PhysicsModel *getPhysicsModel() { return pm; }
+	virtual PhysicsModel *getPhysicsModel() { return NULL; }
 	virtual int serialize(char * buf);
 	virtual ObjectType getType() { return OBJ_MONSTER; }
 	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal);

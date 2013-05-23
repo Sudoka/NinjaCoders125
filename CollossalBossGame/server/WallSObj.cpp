@@ -1,5 +1,6 @@
 #include "WallSObj.h"
 #include "ServerObjectManager.h"
+#include "ConfigurationManager.h"
 #include "defs.h"
 #include <math.h>
 
@@ -8,51 +9,91 @@
 
 WallSObj::WallSObj(uint id, Model modelNum, Point_t pos, DIRECTION dir) : ServerObject(id) {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new WallSObj %d ", id);
-	Box bxVol;
+	vector<Box> bxVols;
 	Quat_t rot = Quat_t();
 	uint collDir = dir;
+	Quat_t rotAxis = Quat_t();
+
+	// Determine collision normal, add plane collision box
 	switch(dir) {
 	case NORTH:
 		DC::get()->print("(north)\n");
-		bxVol = Box((-WALL_WIDTH / 2), -WALL_WIDTH / 2, -WALL_THICKNESS + 5,
-			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS);
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_LEFT_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_TOP_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_LEFT_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_TOP_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_LEFT_1"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_1"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_TOP_1"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_1"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_4"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_5"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PLATFORM_LO"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PLATFORM_HI"));
+		bxVols.push_back(Box((-WALL_WIDTH / 2), -WALL_WIDTH / 2, -WALL_THICKNESS + 5,
+			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS));
 		collDir = NORTH;
 		break;
 	case SOUTH:
 		DC::get()->print("(south)\n");
-		bxVol = Box((-WALL_WIDTH / 2), -WALL_WIDTH / 2, 0 - 5 ,
-			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS);
+		rotAxis = Quat_t(Vec3f(0,1,0), (float)-M_PI);
+
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_4").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_5").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PLATFORM_LO").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PLATFORM_HI").rotate(rotAxis)));
+		bxVols.push_back(Box((-WALL_WIDTH / 2), -WALL_WIDTH / 2, 0 - 5 ,
+			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS));
 		collDir = SOUTH;
 		break;
 	case EAST:
 		DC::get()->print("(east)\n");
-		bxVol = Box(0 - 5, -WALL_WIDTH / 2, -WALL_WIDTH / 2,
-			WALL_THICKNESS, WALL_WIDTH, WALL_WIDTH);
+		bxVols.push_back(Box(0 - 5, -WALL_WIDTH / 2, -WALL_WIDTH / 2,
+			WALL_THICKNESS, WALL_WIDTH, WALL_WIDTH));
 		collDir = WEST;
 		break;
 	case WEST:
 		DC::get()->print("(west)\n");
-		bxVol = Box(-WALL_THICKNESS, -WALL_WIDTH / 2, -WALL_WIDTH / 2,
-			WALL_THICKNESS, WALL_WIDTH, WALL_WIDTH);
+		bxVols.push_back(Box(-WALL_THICKNESS, -WALL_WIDTH / 2, -WALL_WIDTH / 2,
+			WALL_THICKNESS, WALL_WIDTH, WALL_WIDTH));
 		collDir = EAST;
 		break;
 	case UP:
 		DC::get()->print("(ceiling)\n");
-		bxVol = Box(-WALL_WIDTH / 2, 0, -WALL_WIDTH / 2,
-			WALL_WIDTH, WALL_THICKNESS, WALL_WIDTH);
+		bxVols.push_back(Box(-WALL_WIDTH / 2, 0, -WALL_WIDTH / 2,
+			WALL_WIDTH, WALL_THICKNESS, WALL_WIDTH));
 		collDir = DOWN;
 		break;
 	default:
 		DC::get()->print("(floor)\n");
-		bxVol = Box(-WALL_WIDTH / 2, -WALL_THICKNESS + 5, -WALL_WIDTH / 2,
-			WALL_WIDTH, WALL_THICKNESS, WALL_WIDTH);
+		bxVols.push_back(Box(-WALL_WIDTH / 2, -WALL_THICKNESS + 5, -WALL_WIDTH / 2,
+			WALL_WIDTH, WALL_THICKNESS, WALL_WIDTH));
 		rot = Quat_t();
 		collDir = UP;
 		break;
 	}
 
 	pm = new PhysicsModel(pos, rot, 500, collDir);
-	pm->addBox(bxVol);
+
+	vector<Box>::iterator i;
+	for(i = bxVols.begin(); i != bxVols.end(); i++) getCollisionModel()->add(new AabbElement(*i));
+
 	this->modelNum = modelNum;
 	//pm->setColBox(CB_FLAT);
 	t = 0;
@@ -76,13 +117,14 @@ int WallSObj::serialize(char * buf) {
 	{
 		CollisionState *collState = (CollisionState*)(buf + sizeof(ObjectState));
 
-		vector<Box> objBoxes = pm->colBoxes;
+		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
+			end = getCollisionModel()->getEnd();
 
-		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
+		collState->totalBoxes = min(end - cur, maxBoxes);
 
-		for (int i=0; i<collState->totalBoxes; i++)
-		{
-			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
+		for(int i=0; i < collState->totalBoxes; i++, cur++) {
+			//The collision box is relative to the object's frame-of-ref.  Get the non-relative collision box
+			collState->boxes[i] = ((AabbElement*)(*cur))->bx + pm->ref->getPos();
 		}
 
 		return pm->ref->serialize(buf + sizeof(ObjectState) + sizeof(CollisionState)) + sizeof(ObjectState) + sizeof(CollisionState);

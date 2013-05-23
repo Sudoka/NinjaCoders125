@@ -8,7 +8,7 @@ RageSObj::RageSObj(uint id, Point_t pos) : ServerObject(id)
 	if(SOM::get()->debugFlag) DC::get()->print("Created new RageSObj %d\n", id);
 	this->modelNum = (Model)-1; // these guys are invisible
 	pm = new PhysicsModel(pos, Quat_t(), 1);
-	pm->addBox(Box());
+	getCollisionModel()->add(new AabbElement(Box()));
 	age = 0;
 	this->setFlag(IS_STATIC, 1);
 	lifetime = 20;
@@ -24,7 +24,7 @@ RageSObj::~RageSObj(void)
 bool RageSObj::update()
 {
 	// Grow our box!
-	Box bx = this->getPhysicsModel()->colBoxes.at(0);
+	AabbElement* colE = (AabbElement*)(getCollisionModel()->get(0));
 	Vec4f axis = this->getPhysicsModel()->ref->getRot();
 	Vec3f changePos = Vec3f(), changeProportion = Vec3f();
 
@@ -34,10 +34,9 @@ bool RageSObj::update()
 	changeProportion = axis.rotateToThisAxis(changeProportion);
 	changePos = axis.rotateToThisAxis(changePos);
 
-	bx.setRelSize(changeProportion);
-	bx.setRelPos(changePos);
-
-	pm->colBoxes[0] = *(bx.fix());
+	colE->bx.setRelSize(changeProportion);
+	colE->bx.setRelPos(changePos);
+	colE->bx.fix();
 
 	age++;
 	return age >= lifetime;
@@ -51,13 +50,14 @@ int RageSObj::serialize(char * buf) {
 	{
 		CollisionState *collState = (CollisionState*)(buf + sizeof(ObjectState));
 
-		vector<Box> objBoxes = pm->colBoxes;
+		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
+			end = getCollisionModel()->getEnd();
 
-		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
+		collState->totalBoxes = min(end - cur, maxBoxes);
 
-		for (int i=0; i<collState->totalBoxes; i++)
-		{
-			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
+		for(int i=0; i < collState->totalBoxes; i++, cur++) {
+			//The collision box is relative to the object's frame-of-ref.  Get the non-relative collision box
+			collState->boxes[i] = ((AabbElement*)(*cur))->bx + pm->ref->getPos();
 		}
 
 		return pm->ref->serialize(buf + sizeof(ObjectState) + sizeof(CollisionState)) + sizeof(ObjectState) + sizeof(CollisionState);

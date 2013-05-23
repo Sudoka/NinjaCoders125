@@ -190,9 +190,10 @@ void MonsterPartSObj::death() {
 	// No collision boxes in death
 	if (stateCounter == 0)
 	{
-		pm->colBoxes[0] = Box();
-		pm->colBoxes[1] = Box();
-		pm->colBoxes[2] = Box();
+		CollisionModel *cm = getCollisionModel();
+		((AabbElement*)cm->get(0))->bx = Box();
+		((AabbElement*)cm->get(1))->bx = Box();
+		((AabbElement*)cm->get(2))->bx = Box();
 	}
 
 	currStateDone = (stateCounter == 20);
@@ -230,13 +231,17 @@ int MonsterPartSObj::serialize(char * buf) {
 	if (SOM::get()->collisionMode)
 	{
 		CollisionState *collState = (CollisionState*)(buf + sizeof(MonsterPartState));
-		vector<Box> objBoxes = pm->colBoxes;
-		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
-		
-		for (int i=0; i<collState->totalBoxes; i++)
-		{
-			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
+
+		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
+			end = getCollisionModel()->getEnd();
+
+		collState->totalBoxes = min(end - cur, maxBoxes);
+
+		for(int i=0; i < collState->totalBoxes; i++, cur++) {
+			//The collision box is relative to the object's frame-of-ref.  Get the non-relative collision box
+			collState->boxes[i] = ((AabbElement*)(*cur))->bx + pm->ref->getPos();
 		}
+
 		return pm->ref->serialize(buf + sizeof(MonsterPartState) + sizeof(CollisionState)) + sizeof(MonsterPartState) + sizeof(CollisionState);
 	}
 	else
