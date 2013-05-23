@@ -43,37 +43,49 @@ void HeadSObj::probe() {
 
 }
 
+void HeadSObj::shootFireball() {
+	// Find our head position
+	Box headBox = ((AabbElement*)getCollisionModel()->get(2))->bx;
+	Vec3f headPos = headBox.getPos() + this->getPhysicsModel()->ref->getPos();
+
+	// If there was no player, pick a random target
+	if (!this->playerFound) this->playerPos = Vec3f(-100 + rand()%200,-100 + rand()%200,-100 + rand()%200) + headPos;
+
+	// Determine our bullet path
+	Vec3f bulletPath = this->playerPos - headPos;
+	bulletPath.normalize();
+
+	// move the bullet a little bit along our path, just enough so it clears the head
+	Vec3f offset = bulletPath * this->headBoxSize * 1.5; // 1.5 is sqrt(2), ask franklin for the math behind it
+	Vec3f bulletPos = headPos + offset;
+
+	FireBallSObj * fbso = new FireBallSObj(	SOM::get()->genId(), 
+											(Model)-1, bulletPos, 
+											bulletPath * this->fireballForce, 
+											this->fireballDamage, 
+											this->fireballDiameter);
+	SOM::get()->add(fbso);
+}
+
 void HeadSObj::attack() {
 	// First, create our bullet
 	if (stateCounter == 0)
 	{
-		// Find our head position
-		Box headBox = ((AabbElement*)getCollisionModel()->get(2))->bx;
-		Vec3f headPos = headBox.getPos() + this->getPhysicsModel()->ref->getPos();
-
-		// Determine our bullet path
-		Vec3f bulletPath = this->playerPos - headPos;
-		bulletPath.normalize();
-
-		// move the bullet a little bit along our path, just enough so it clears the head
-		Vec3f offset = bulletPath * this->headBoxSize * 1.5; // 1.5 is sqrt(2), ask franklin for the math behind it
-		Vec3f bulletPos = headPos + offset;
-
-		FireBallSObj * fbso = new FireBallSObj(	SOM::get()->genId(), 
-												(Model)-1, bulletPos, 
-												bulletPath * this->fireballForce, 
-												this->fireballDamage, 
-												this->fireballDiameter);
-		SOM::get()->add(fbso);
+		shootFireball();
 	}
 
-	// this is random, for now
-	currStateDone = (stateCounter == 30);
-
+	currStateDone = (stateCounter == SHOOT_CYCLE);
 }
 
+#define NUM_SHOTS 4
 void HeadSObj::combo() {
+	// Fire away!
+	if (stateCounter%SHOOT_CYCLE == 0) {
+		this->playerFound = false; // force shootFireball() to pick a random target xD
+		shootFireball();
+	}
 
+	currStateDone = stateCounter >= SHOOT_CYCLE*NUM_SHOTS;
 }
 
 void HeadSObj::spike() {

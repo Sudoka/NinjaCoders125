@@ -2,6 +2,8 @@
 #include "MonsterPartSObj.h"
 #include "MonsterSObj.h"
 
+#define SHOOT_CYCLE 30
+
 class HeadSObj : public MonsterPartSObj
 {
 public:
@@ -21,5 +23,8 @@ private:
 	int fireballDamage;
 	int fireballDiameter;
 	int headBoxSize;
+
+	// Helper Actions
+	void shootFireball();
 };
 

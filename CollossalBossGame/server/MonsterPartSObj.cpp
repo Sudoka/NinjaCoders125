@@ -115,8 +115,7 @@ bool MonsterPartSObj::update() {
 	}
 
 	///////////////////// State logic ///////////////////////
-	//this->findPlayer();
-	//actionState = ATTACK_ACTION;
+	//actionState = COMBO_ACTION;
 
 	switch(actionState)
 	{
@@ -258,9 +257,11 @@ int MonsterPartSObj::serialize(char * buf) {
  * Finds player nearest to us and sets targetting 
  * information in fields according to its position.
  * 
- * If no player found, it sets the fields to a 
- * default value, just in case the monster AI
- * decides to launch a targetted attack anyway.
+ * If no player found, it sets playerFound to false.
+ * attack() and combo() methods (or any method using
+ * playerPos and playerAngle) are responsible for 
+ * checking playerFound and, if false, setting angle and
+ * pos to some default value (or some random value)
  *
  * Author: Haro
  */
@@ -288,11 +289,5 @@ void MonsterPartSObj::findPlayer()
 			this->playerAngle = atan2(difference.x, -1*difference.y);
 			this->playerPos = playerPos;
 		}
-	}
-
-	// if we found no one, attack randomly xD
-	if (!this->playerFound) {
-		this->playerAngle = rand()%(int)(M_PI*2);
-		this->playerPos = Vec3f(-450 + rand()%(450*2),-100 + rand()%(100*2),-250 + rand()%(250*2));
 	}
 }
