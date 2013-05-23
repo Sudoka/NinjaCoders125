@@ -73,6 +73,7 @@
     <ClCompile Include="BulletSObj.cpp" />
     <ClCompile Include="CyborgSObj.cpp" />
     <ClCompile Include="CollisionModel.cpp" />
+    <ClCompile Include="FireBallSObj.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="GameServer.cpp" />
     <ClCompile Include="HeadSObj.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="BulletSObj.h" />
     <ClInclude Include="CyborgSObj.h" />
     <ClInclude Include="CollisionModel.h" />
+    <ClInclude Include="FireBallSObj.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="GameServer.h" />
     <ClInclude Include="HeadSObj.h" />

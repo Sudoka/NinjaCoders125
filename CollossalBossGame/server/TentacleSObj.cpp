@@ -16,6 +16,10 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 													MonsterPartSObj(id, modelNum, pos, rot, master)
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new TentacleSObj %d\n", id);
+
+	// Tentacle config items
+	this->targettingDist = CM::get()->find_config_as_int("SLAM_MIN_DIST");
+
 	//Box bxVol = CM::get()->find_config_as_box("BOX_MONSTER");
 
 	/////////////// Collision Boxes /////////////////
@@ -133,6 +137,9 @@ void TentacleSObj::probe() {
 void TentacleSObj::attack() {
 	// First, rotate ourselves to the player
 	if (stateCounter == 0) {
+		// If there was no player, rotate ourselves to a random angle
+		if (!this->playerFound) this->playerAngle = rand()%(int)(M_PI*2);
+
 		Vec3f rotationAxis = Vec3f(0,0,1);
 		Vec4f qAngle = Vec4f(rotationAxis, playerAngle);
 		lastRotation = this->getPhysicsModel()->ref->getRot();

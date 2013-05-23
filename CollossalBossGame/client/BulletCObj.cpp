@@ -29,7 +29,7 @@ BulletCObj::~BulletCObj(void)
 }
 
 bool BulletCObj::update() {
-	pewPew->setPosition(rm->getFrameOfRef()->getPos(), this->diameter);
+	pewPew->setPosition(rm->getFrameOfRef()->getPos(), this->diameter, this->color);
 	pewPew->update(.33f);
 	return false;
 }
@@ -37,6 +37,13 @@ bool BulletCObj::update() {
 void BulletCObj::deserialize(char* newState) {
 	diameter = *(int *)newState;
 	newState = (newState + 4);
+	switch(*(int *)newState) {
+		case BLUE: this->color = Vec3f(0.f, 0.f, 1.f); break;
+		case RED:  this->color = Vec3f(1.f, 0.f, 0.f); break;
+		default:   this->color = Vec3f(0.f, 1.f, 0.25f); break;
+	}
+	newState = (newState + 4);
+
 	ObjectState *state = (ObjectState*)newState;
 
 	if (COM::get()->collisionMode)

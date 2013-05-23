@@ -318,7 +318,12 @@ void PlayerSObj::deserialize(char* newInput)
 }
 
 void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
-	if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_HARPOON) {
+	if(obj->getType() == OBJ_BULLET) {
+		this->health-=3;
+		if(this->health < 0) health = 0;
+		if(this->health > 100) health = 100;
+	}
+	if(obj->getType() == OBJ_HARPOON) {
 		return;
 	}
 	if(obj->getFlag(IS_HARMFUL) && !(attacking))

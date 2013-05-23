@@ -113,8 +113,7 @@ bool MonsterSObj::update() {
 			case 1:
 				// todo heads different models 
 				// todo animated head model...not-animated breaks the world xD
-				// newPart = new HeadSObj(SOM::get()->genId(), MDL_HEAD_1, currPlace.getPos(), currPlace.getRot(), this);
-				newPart = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
+				newPart = new HeadSObj(SOM::get()->genId(), MDL_HEAD_1, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			default: // you beat all the phases!
 				GameServer::get()->event_monster_death();
