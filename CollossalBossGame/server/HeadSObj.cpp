@@ -11,6 +11,10 @@ HeadSObj::HeadSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj
 
 	// Head config items
 	this->targettingDist = CM::get()->find_config_as_int("FIREBALL_MIN_DIST");
+	this->fireballForce = CM::get()->find_config_as_int("FIREBALL_FORCE");
+	this->fireballDamage = CM::get()->find_config_as_int("FIREBALL_DAMAGE");
+	this->fireballDiameter = CM::get()->find_config_as_int("FIREBALL_DIAMETER");
+	this->headBoxSize = CM::get()->find_config_as_int("HEAD_BOX_SIZE");
 
 	/////////////// Collision Boxes /////////////////
 	idleBoxes[0] = CM::get()->find_config_as_box("BOX_HEAD_BASE"); 
@@ -39,11 +43,6 @@ void HeadSObj::probe() {
 
 }
 
-// todo config probably
-#define BULLET_FORCE 5
-#define BULLET_DIAMETER 45
-#define BULLET_DAMAGE 10
-#define HEAD_BOX_SIZE 35
 void HeadSObj::attack() {
 	// First, create our bullet
 	if (stateCounter == 0)
@@ -57,10 +56,14 @@ void HeadSObj::attack() {
 		bulletPath.normalize();
 
 		// move the bullet a little bit along our path, just enough so it clears the head
-		Vec3f offset = bulletPath * HEAD_BOX_SIZE * 1.5; // 1.5 is sqrt(2), ask franklin for the math behind it
+		Vec3f offset = bulletPath * this->headBoxSize * 1.5; // 1.5 is sqrt(2), ask franklin for the math behind it
 		Vec3f bulletPos = headPos + offset;
 
-		FireBallSObj * fbso = new FireBallSObj(SOM::get()->genId(), (Model)-1, bulletPos, bulletPath * BULLET_FORCE, BULLET_DAMAGE, BULLET_DIAMETER);
+		FireBallSObj * fbso = new FireBallSObj(	SOM::get()->genId(), 
+												(Model)-1, bulletPos, 
+												bulletPath * this->fireballForce, 
+												this->fireballDamage, 
+												this->fireballDiameter);
 		SOM::get()->add(fbso);
 	}
 

@@ -15,5 +15,11 @@ public:
 	virtual void combo();
 	virtual void spike();
 	virtual void rage();
+
+private:
+	int fireballForce;
+	int fireballDamage;
+	int fireballDiameter;
+	int headBoxSize;
 };
 

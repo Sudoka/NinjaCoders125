@@ -115,7 +115,8 @@ bool MonsterPartSObj::update() {
 	}
 
 	///////////////////// State logic ///////////////////////
-	// actionState = ATTACK_ACTION;
+	//this->findPlayer();
+	//actionState = ATTACK_ACTION;
 
 	switch(actionState)
 	{
