@@ -23,6 +23,7 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	chargingEffect = new ChargeEffect(10);
 	// Register with RE, SO SMART :O
 	RE::get()->addParticleEffect(chargingEffect);
+	this->camHeight = 0;
 
 #if HMAP_TEST
 	///////////////////////////////////////////////////////////////
