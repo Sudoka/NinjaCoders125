@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PlayerCObj.h"
+#include "HarpoonCObj.h"
 
 class ShooterCObj :	public PlayerCObj
 {

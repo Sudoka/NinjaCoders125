@@ -2,13 +2,13 @@
 
 #include "ClientObject.h"
 #include "Action.h"
-#include "ShootingEffect.h"
+#include "HarpoonEffect.h"
 
-class BulletCObj : public ClientObject
+class HarpoonCObj : public ClientObject
 {
 public:
-	BulletCObj(uint id, char *serializedData);
-	virtual ~BulletCObj(void);
+	HarpoonCObj(uint id, char *serializedData);
+	virtual ~HarpoonCObj(void);
 
 	virtual bool update();
 
@@ -16,10 +16,11 @@ public:
 
 	virtual void deserialize(char* newState);
 
+	int creatorid;
+
 private:
 	RenderModel *rm;
-	ShootingEffect* pewPew;
+	HarpoonEffect* pewPew;
 	int diameter;
-	Vec3f color;
 };
 

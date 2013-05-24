@@ -3,17 +3,20 @@
 #include "PlayerSObj.h"
 #include "HarpoonSObj.h"
 
-class ShooterSObj : public PlayerSObj
+class MechanicSObj : public PlayerSObj
 {
 public:
-	ShooterSObj(uint id, uint clientId);
-	virtual ~ShooterSObj(void);
+	MechanicSObj(uint id, uint clientId);
+	virtual ~MechanicSObj(void);
 
 	virtual void initialize();
 	virtual void clearAccessory();
+	int harpoon;
 
 protected:
 	virtual void actionCharge(bool buttondown);
 	virtual void actionAttack();
+	int delay, delaycounter;
+	bool delaytrigger;
 };
 

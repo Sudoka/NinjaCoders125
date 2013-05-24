@@ -7,6 +7,8 @@
 #include "PlayerCObj.h"
 #include "CyborgCObj.h"
 #include "ShooterCObj.h"
+#include "MechanicCObj.h"
+#include "ScientistCObj.h"
 #include "BulletCObj.h"
 #include "MonsterCObj.h"
 #include "TentacleCObj.h"
@@ -127,16 +129,19 @@ void ClientObjectManager::create(uint id, char *data) {
 				obj = new ShooterCObj(id, data + sizeof(CreateHeader));
 				break;
 			case CHAR_CLASS_SCIENTIST:
-				//obj = new ScientistCObj(id, data + sizeof(CreateHeader));
+				obj = new ScientistCObj(id, data + sizeof(CreateHeader));
 				break;
 			case CHAR_CLASS_MECHANIC:
-				//obj = new MechanicCObj(id, data + sizeof(CreateHeader));
+				obj = new MechanicCObj(id, data + sizeof(CreateHeader));
 				break;
 		}
 		//obj = new PlayerCObj(id, data + sizeof(CreateHeader));
 		break;
 	case OBJ_BULLET:
 		obj = new BulletCObj(id, data + sizeof(CreateHeader));
+		break;
+	case OBJ_HARPOON:
+		obj = new HarpoonCObj(id, data + sizeof(CreateHeader));
 		break;
 	case OBJ_MONSTER:
 		obj = new MonsterCObj(id, data + sizeof(CreateHeader));
@@ -162,26 +167,4 @@ void ClientObjectManager::add(ClientObject *obj) {
 	mObjs.insert(pair<uint,ClientObject*>(obj->getId(), obj));
 }
 
-#if 0
-uint ClientObjectManager::genId() {
-	if(vFreeIds.size() == 0) {
-		return curId++;
-	}
-
-	//Recycle an existing id
-	uint id = vFreeIds[vFreeIds.size() - 1];
-	vFreeIds.pop_back();
-	return id;
-}
-
-void ClientObjectManager::freeId(uint id) {
-	//Mark this ID as being ready for recycling
-	vFreeIds.push_back(id);
-}
-
-
-void ClientObjectManager::remove(uint id) {
-	mObjs.erase(id);
-}
-#endif
 

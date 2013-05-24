@@ -1,12 +1,12 @@
-#include "BulletSObj.h"
+#include "FireBallSObj.h"
 #include "ServerObjectManager.h"
 #include "ConfigurationManager.h"
 #include "defs.h"
 #include <math.h>
 
-int BulletSObj::TotalBullets = 0;
+int FireBallSObj::TotalBullets = 0;
 
-BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int dmg, int diameter) : ServerObject(id)
+FireBallSObj::FireBallSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int dmg, int diameter) : ServerObject(id)
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new Bullet %d ", id);
 	Box bxVol;
@@ -34,13 +34,13 @@ BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce,
 }
 
 
-BulletSObj::~BulletSObj(void)
+FireBallSObj::~FireBallSObj(void)
 {
 	delete pm;
 	TotalBullets--;
 }
 
-bool BulletSObj::update() {
+bool FireBallSObj::update() {
 	// Apply Force of Gravity on every time step - or not, since we wanted an arc-ing shot
 	// return true when it collides with something?
 	// That'll wait for onCollision, I suppose.
@@ -66,11 +66,11 @@ bool BulletSObj::update() {
 	}
 }
 
-int BulletSObj::serialize(char * buf) {
+int FireBallSObj::serialize(char * buf) {
 	// All this ObjectState stuff is extra. TODO: Remove extra. 
 	*(int *)buf = diameter;
 	buf = buf + 4;
-	*(int *)buf = BLUE;
+	*(int *)buf = (int)RED;
 	buf = buf + 4;
 
 	ObjectState *state = (ObjectState*)buf;
@@ -98,16 +98,9 @@ int BulletSObj::serialize(char * buf) {
 	}
 }
 
-void BulletSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
+void FireBallSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 	if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_HARPOON) {
 		return;
 	}
-
-	Vec3f olddir = this->lastdirection;
-	float oldvel = this->basevelocity;
-
-	Vec3f coll = Vec3f(collNorm.x, collNorm.y, collNorm.z);
-	coll.normalize();
-	this->lastdirection = this->lastdirection + coll + coll;
-	this->basevelocity = this->basevelocity;
+	this->health = 0;
 }

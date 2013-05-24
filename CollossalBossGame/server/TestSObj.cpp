@@ -11,7 +11,8 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 	this->modelNum = modelNum;
 	switch (modelNum) {
 		case MDL_TEST_BOX:
-			bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-5, 0, -5, 10, 10, 10);
+			// bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-5, 0, -5, 10, 10, 10);
+			bxVol = Box(-25, -25, -25, 50, 50, 50);
 			break;
 		case MDL_TEST_PYRAMID:
 			bxVol = CM::get()->find_config_as_box("BOX_PYRAMID");//Box(-20, 0, -20, 40, 40, 40);
@@ -27,8 +28,9 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 			bxVol = Box();
 			break;
 	}
+
 	pm = new PhysicsModel(pos, rot, 1);
-	testBoxIndex = pm->addBox(bxVol);
+	testBoxIndex = getCollisionModel()->add(new AabbElement(bxVol));
 	t = 0;
 }
 
@@ -84,13 +86,14 @@ int TestSObj::serialize(char * buf) {
 	{
 		CollisionState *collState = (CollisionState*)(buf + sizeof(ObjectState));
 
-		vector<Box> objBoxes = pm->colBoxes;
+		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
+			end = getCollisionModel()->getEnd();
 
-		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
+		collState->totalBoxes = min(end - cur, maxBoxes);
 
-		for (int i=0; i<collState->totalBoxes; i++)
-		{
-			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
+		for(int i=0; i < collState->totalBoxes; i++, cur++) {
+			//The collision box is relative to the object's frame-of-ref.  Get the non-relative collision box
+			collState->boxes[i] = ((AabbElement*)(*cur))->bx + pm->ref->getPos();
 		}
 
 		return pm->ref->serialize(buf + sizeof(ObjectState) + sizeof(CollisionState)) + sizeof(ObjectState) + sizeof(CollisionState);

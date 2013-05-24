@@ -1,6 +1,7 @@
 #pragma once
 #include "ServerObject.h"
 #include "Action.h"
+#include "CollisionModel.h"
 
 
 class PlayerSObj : public ServerObject
@@ -21,23 +22,29 @@ public:
 	void setAnimationState(int state) { modelAnimationState = state; }
 	char serialbuffer[100];
 
+	virtual void clearAccessory() { }
+
+	void acquireTarget();
+	int targetlockon;
+
 	bool attacking, newAttack;
 	uint jumpCounter, attackCounter;
 	int health;
 	int damage;
 	bool ready;
 	CharacterClass charclass;
+	bool jumping;
 protected:
 	uint clientId;
 	PhysicsModel *pm;
 	inputstatus istat;
 	Point_t lastCollision;
-	bool jumping, newJump, appliedJumpForce;
+	bool newJump, appliedJumpForce;
 	bool charging, newCharge;
 	float charge;
 	// Configuration options
 	float jumpDist;
-	float chargeForce, chargeUpdate;
+	float chargeForce, chargeUpdate, chargeCap;
 	int movDamp;
 
 	//Rotational tracking
@@ -64,7 +71,7 @@ protected:
 	void  controlCamera(const Quat_t &upRot);
 	float controlAngles(float des, float cur);
 
-	virtual void releaseCharge() = 0;
+	virtual void actionCharge(bool buttondown) = 0;
 	virtual void actionAttack() = 0;
 };
 

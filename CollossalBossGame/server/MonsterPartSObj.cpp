@@ -79,23 +79,20 @@ bool MonsterPartSObj::update() {
 				{
 					this->setFlag(IS_HARMFUL, 1);
 
-					playerAngle = this->angleToNearestPlayer();
-					bool playerNear = playerAngle != -1.f;
+					// This sets all player info in our fields
+					this->findPlayer();
 
-					int targetAttackProb = playerNear ? 90 : 25;
+					int targetAttackProb = this->playerFound ? 90 : 25;
 
 					// targetted attack
 					if ((rand() % 100) < targetAttackProb)
 					{
-						// if we got here without a real target, just set a default
-						// for now anyway
-						if (playerAngle == -1.f) playerAngle = 0.f;
 						actionState = ATTACK_ACTION;
 					}
 					// non-targetted attack
 					else
 					{
-						// randomly pick between slam combo, spike, and defense rage
+						// randomly pick between combo attack, spike, and defense rage
 						switch(rand() % 3)
 						{
 						case 0:		actionState = COMBO_ACTION; break;
@@ -118,8 +115,7 @@ bool MonsterPartSObj::update() {
 	}
 
 	///////////////////// State logic ///////////////////////
-
-	// actionState = MOVE_ACTION;
+	//actionState = COMBO_ACTION;
 
 	switch(actionState)
 	{
@@ -190,34 +186,42 @@ void MonsterPartSObj::death() {
 	// No collision boxes in death
 	if (stateCounter == 0)
 	{
-		pm->colBoxes[0] = Box();
-		pm->colBoxes[1] = Box();
-		pm->colBoxes[2] = Box();
+		CollisionModel *cm = getCollisionModel();
+		((AabbElement*)cm->get(0))->bx = Box();
+		((AabbElement*)cm->get(1))->bx = Box();
+		((AabbElement*)cm->get(2))->bx = Box();
 	}
 
 	currStateDone = (stateCounter == 20);
 }
 
 void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
+	int damage = 0;
+
 	// if I collided against the player, AND they're attacking me, loose health
 	if(obj->getType() == OBJ_PLAYER)
 	{	
 		PlayerSObj* player = reinterpret_cast<PlayerSObj*>(obj);
-		health-= player->damage;
-		
-		if(this->health < 0) health = 0;
-		if(this->health > 100) health = 100; // would this ever be true? o_O
-
-		// I have been attacked! You'll regret it in the next udpate loop player! >_>
-		attacked = player->damage > 0;
+		damage = player->damage;
 	}
 
 	if(obj->getType() == OBJ_BULLET) {
 		BulletSObj* bullet = reinterpret_cast<BulletSObj*>(obj);
-		health -= bullet->damage;
-		if(this->health < 0) health = 0;
-		if(this->health > 100) health = 100;
+		damage = bullet->damage;
 	}
+
+	if(obj->getType() == OBJ_HARPOON) {
+		// HarpoonSObj* bullet = reinterpret_cast<HarpoonSObj*>(obj);
+		// damage = bullet->damage;
+	}
+
+	health -= damage;
+
+	if(this->health < 0) health = 0;
+	if(this->health > 100) health = 100; // would this ever be true? o_O
+
+	// I have been attacked! You'll regret it in the next udpate loop player! >_>
+	attacked = damage > 0;
 }
 
 int MonsterPartSObj::serialize(char * buf) {
@@ -230,13 +234,17 @@ int MonsterPartSObj::serialize(char * buf) {
 	if (SOM::get()->collisionMode)
 	{
 		CollisionState *collState = (CollisionState*)(buf + sizeof(MonsterPartState));
-		vector<Box> objBoxes = pm->colBoxes;
-		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
-		
-		for (int i=0; i<collState->totalBoxes; i++)
-		{
-			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
+
+		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
+			end = getCollisionModel()->getEnd();
+
+		collState->totalBoxes = min(end - cur, maxBoxes);
+
+		for(int i=0; i < collState->totalBoxes; i++, cur++) {
+			//The collision box is relative to the object's frame-of-ref.  Get the non-relative collision box
+			collState->boxes[i] = ((AabbElement*)(*cur))->bx + pm->ref->getPos();
 		}
+
 		return pm->ref->serialize(buf + sizeof(MonsterPartState) + sizeof(CollisionState)) + sizeof(MonsterPartState) + sizeof(CollisionState);
 	}
 	else
@@ -246,37 +254,40 @@ int MonsterPartSObj::serialize(char * buf) {
 }
 
 /**
- * Checks if there's a player we can smash, if so
- * returns the angle we need to roll before we attack.
- * If no player is within range, we return -1.
+ * Finds player nearest to us and sets targetting 
+ * information in fields according to its position.
+ * 
+ * If no player found, it sets playerFound to false.
+ * attack() and combo() methods (or any method using
+ * playerPos and playerAngle) are responsible for 
+ * checking playerFound and, if false, setting angle and
+ * pos to some default value (or some random value)
+ *
  * Author: Haro
  */
-float MonsterPartSObj::angleToNearestPlayer()
+void MonsterPartSObj::findPlayer()
 {
-	float angle = -1.f;
+	this->playerFound = false;
 
-	// Find player with minimum distance to me
+	// Find a player with minimum distance to me
 	vector<ServerObject *> players;
 	SOM::get()->findObjects(OBJ_PLAYER, &players);
 
-	#define TENTACLE_LENGTH 300
-
-	float minDist = TENTACLE_LENGTH;
+	float minDist = this->targettingDist;
 	float currDist;
-	Vec3f difference;
+	Vec3f difference, playerPos;
+
+	Vec3f myPos = this->getPhysicsModel()->ref->getPos();
 
 	for(vector<ServerObject *>::iterator it = players.begin(); it != players.end(); ++it) {
-		difference = (*it)->getPhysicsModel()->ref->getPos() - this->getPhysicsModel()->ref->getPos();
+		playerPos = (*it)->getPhysicsModel()->ref->getPos();
+		difference = playerPos - myPos;
 		currDist = magnitude(difference);
 		if (currDist < minDist) {
 			minDist = currDist;
+			this->playerFound = true;
+			this->playerAngle = atan2(difference.x, -1*difference.y);
+			this->playerPos = playerPos;
 		}
 	}
-
-	if (minDist < TENTACLE_LENGTH)
-	{
-		// ignoring z... this is with respect to the y axis (since the tentacle smashes DOWN)
-		angle = atan2(difference.x, -1*difference.y);
-	}
-	return angle;
 }

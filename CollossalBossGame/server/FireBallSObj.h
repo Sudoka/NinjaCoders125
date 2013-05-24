@@ -2,11 +2,11 @@
 
 #include "ServerObject.h"
 
-class BulletSObj : public ServerObject
+class FireBallSObj : public ServerObject
 {
 public:
-	BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int dmg, int diameter);
-	virtual ~BulletSObj(void);
+	FireBallSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int dmg, int diameter);
+	virtual ~FireBallSObj(void);
 
 	virtual bool update();
 	virtual PhysicsModel *getPhysicsModel() { return pm; }

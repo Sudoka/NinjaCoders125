@@ -16,7 +16,7 @@ MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 	if(SOM::get()->debugFlag) DC::get()->print("Created new MonsterObj %d\n", id);
 	this->health = 0;
 	// todo make null make sure it works
-	pm = new PhysicsModel(Point_t(), Quat_t(), CM::get()->find_config_as_float("PLAYER_MASS"));
+	//pm = new PhysicsModel(Point_t(), Quat_t(), CM::get()->find_config_as_float("PLAYER_MASS"));
 	this->setFlag(IS_STATIC, 1);
 	
 	this->availablePlacements = CM::get()->find_config_as_places("TENTACLE_POSITIONS");
@@ -35,7 +35,6 @@ MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 
 MonsterSObj::~MonsterSObj(void)
 {
-	delete pm;
 }
 
 void MonsterSObj::removePart(MonsterPartSObj* t)
@@ -114,8 +113,7 @@ bool MonsterSObj::update() {
 			case 1:
 				// todo heads different models 
 				// todo animated head model...not-animated breaks the world xD
-				// newPart = new HeadSObj(SOM::get()->genId(), MDL_HEAD_1, currPlace.getPos(), currPlace.getRot(), this);
-				newPart = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
+				newPart = new HeadSObj(SOM::get()->genId(), MDL_HEAD_1, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			default: // you beat all the phases!
 				GameServer::get()->event_monster_death();
@@ -166,7 +164,7 @@ bool MonsterSObj::update() {
 int MonsterSObj::serialize(char * buf) {
 	MonsterState *state = (MonsterState*)buf;
 	state->health = health;
-	return this->getPhysicsModel()->ref->serialize(buf + sizeof(MonsterState)) + sizeof(MonsterState);
+	return /*pm->ref->serialize(buf + sizeof(MonsterState)) + */ sizeof(MonsterState);
 }
 
 void MonsterSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {

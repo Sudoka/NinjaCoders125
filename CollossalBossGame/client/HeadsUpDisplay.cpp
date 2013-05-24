@@ -131,13 +131,13 @@ void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
 
 	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
 
-	direct3dText->DrawText(sprite1,        //pSprite
+	/*direct3dText->DrawText(sprite1,        //pSprite
 						  "LT: Camera Track\nRT: Power\nA: Jump\nLS: Move\nRS: Camera",	 //pString
                            -1,          //Count
                            &charge_rect,  //pRect
                            DT_LEFT|DT_NOCLIP,//Format,
                            0xFFFFFFFF);//0xFF000000); //Color
-
+	*/
 	sprite1->End();
 }
 

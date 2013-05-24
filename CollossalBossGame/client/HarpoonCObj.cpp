@@ -1,4 +1,4 @@
-#include "BulletCObj.h"
+#include "HarpoonCObj.h"
 #include "ClientEngine.h"
 #include "ClientObjectManager.h"
 #include <math.h>
@@ -6,7 +6,7 @@
 #include "RenderEngine.h"
 #include "NetworkData.h"
 
-BulletCObj::BulletCObj(uint id, char *serializedData) :
+HarpoonCObj::HarpoonCObj(uint id, char *serializedData) :
 	ClientObject(id)
 {
 	if (COM::get()->debugFlag) DC::get()->print("Created new TestObject %d\n", id);
@@ -16,32 +16,28 @@ BulletCObj::BulletCObj(uint id, char *serializedData) :
 	// todo send -1
 	rm = new RenderModel(Point_t(),Quat_t(), (Model)-1);
 	deserialize(serializedData);
-	pewPew = new ShootingEffect();
+	pewPew = new HarpoonEffect();
 	RE::get()->addParticleEffect(pewPew);
 }
 
 
-BulletCObj::~BulletCObj(void)
+HarpoonCObj::~HarpoonCObj(void)
 {
 	// delete xctrl;
 	delete rm;
 	RE::get()->removeParticleEffect(pewPew);
 }
 
-bool BulletCObj::update() {
-	pewPew->setPosition(rm->getFrameOfRef()->getPos(), this->diameter, this->color);
-	pewPew->update(.33f);
+bool HarpoonCObj::update() {
+	pewPew->setPosition(rm->getFrameOfRef()->getPos(), this->diameter);
+	pewPew->update(.33);
 	return false;
 }
 
-void BulletCObj::deserialize(char* newState) {
+void HarpoonCObj::deserialize(char* newState) {
 	diameter = *(int *)newState;
 	newState = (newState + 4);
-	switch(*(int *)newState) {
-		case BLUE: this->color = Vec3f(0.f, 0.f, 1.f); break;
-		case RED:  this->color = Vec3f(1.f, 0.f, 0.f); break;
-		default:   this->color = Vec3f(0.f, 1.f, 0.25f); break;
-	}
+	creatorid = *(int *)newState;
 	newState = (newState + 4);
 
 	ObjectState *state = (ObjectState*)newState;
