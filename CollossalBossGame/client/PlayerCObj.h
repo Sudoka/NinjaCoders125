@@ -27,6 +27,7 @@ public:
 
 private:
 	RenderModel * box;
+	int camHeight;
 	int health;
 	float charge;
 	RenderModel *rm;

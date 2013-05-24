@@ -51,6 +51,9 @@ PlayerCObj::~PlayerCObj(void)
 	delete rm;
 	RE::get()->removeParticleEffect(chargingEffect);
 
+	// todo, figure out what it should be then config
+	camHeight = 0;
+
 	//Quit the game
 	CE::get()->exit();
 }
@@ -77,9 +80,14 @@ bool PlayerCObj::update() {
 					cameraPitch = (float)-M_PI / 4.f;
 				}
 			}
+
+			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
+			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
 		}
 
-		Point_t objPos = rm->getFrameOfRef()->getPos();
+		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;
+
+		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*camHeight;
 		RE::get()->getCamera()->update(objPos, camRot, cameraPitch);
 		showStatus();
 		chargingEffect->setPosition(objPos, charge);

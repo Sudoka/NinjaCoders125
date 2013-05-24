@@ -118,7 +118,7 @@ void ClientObjectManager::create(uint id, char *data) {
 	switch(h->type) {
 	case OBJ_WORLD:
 		//Just copy the world state into our state variable- no need to create an object
-		this->worldState = (*(WorldState*)data);
+		this->worldState = (*(WorldState*)(data + sizeof(CreateHeader)));
 		break;
 	case OBJ_PLAYER:
 		switch(h->cc) {
