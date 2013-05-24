@@ -67,7 +67,9 @@ void gameInit() {
 	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
 	som->add(monster);
 
-	TestSObj * box = new TestSObj(som->genId(), MDL_TEST_BOX, Vec3f(), Quat_t());
+	TestSObj * box = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(0,40,0), Quat_t());
+	box->setFlag(IS_FLOATING, true);
+//	box->setFlag(IS_STATIC, true);
 	som->add(box);
 /*
 	Point_t pos = Point_t(0, 10, 15);

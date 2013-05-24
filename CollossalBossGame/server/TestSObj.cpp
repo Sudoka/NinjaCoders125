@@ -12,7 +12,7 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 	switch (modelNum) {
 		case MDL_TEST_BOX:
 			// bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-5, 0, -5, 10, 10, 10);
-			bxVol = Box(-25, -25, -25, 50, 50, 50);
+			bxVol = Box( -10, -10, -10, 20, 20, 20);
 			break;
 		case MDL_TEST_PYRAMID:
 			bxVol = CM::get()->find_config_as_box("BOX_PYRAMID");//Box(-20, 0, -20, 40, 40, 40);
@@ -29,7 +29,7 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 			break;
 	}
 
-	pm = new PhysicsModel(pos, rot, 1);
+	pm = new PhysicsModel(pos, rot, 100);
 	testBoxIndex = getCollisionModel()->add(new AabbElement(bxVol));
 	t = 0;
 }
@@ -62,10 +62,11 @@ bool TestSObj::update() {
 		pm->applyForce(Vec3f(-MOVE_AMT * sin((float)t / DIV), 0, 0));
 		break;
 	default:
+		pm->applyForce(Vec3f(0, -MOVE_AMT * sin((float)t / DIV), 0));
 		break;
 	}
 	++t;
-
+	pm->frictCoeff = 1.3;
 	// update box randomly
 	//bxVol.w++;
 	//bxVol.l++;
