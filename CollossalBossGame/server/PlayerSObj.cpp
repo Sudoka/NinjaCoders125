@@ -35,13 +35,13 @@ void PlayerSObj::initialize() {
 	if(SOM::get()->debugFlag) DC::get()->print("Initialized new PlayerSObj %d\n", this->getId());
 
 	Point_t pos = Point_t(0, 5, 10);
-	Box bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-10, 0, -10, 20, 20, 20);
+	bxStaticVol = CM::get()->find_config_as_box("BOX_PLAYER");//Box(-10, 0, -10, 20, 20, 20);
 
 	if(pm != NULL)
 		delete pm;
 
 	pm = new PhysicsModel(pos, Quat_t(), CM::get()->find_config_as_float("PLAYER_MASS"));
-	getCollisionModel()->add(new AabbElement(bxVol));
+	getCollisionModel()->add(new AabbElement(bxStaticVol));
 
 	lastCollision = pos;
 
@@ -110,9 +110,11 @@ bool PlayerSObj::update() {
 	Quat_t upRot;
 	calcUpVector(&upRot);
 	controlCamera(upRot);
+
 	bool f = this->getFlag(IS_STATIC);
 	bool g = this->getFlag(IS_FLOATING);
 	bool h = this->getFlag(IS_FALLING);
+
 	if(this->health > 0)
 	{
 		firedeath = false;
@@ -186,6 +188,9 @@ bool PlayerSObj::update() {
 			this->setAnimationState(WALK);
 		}
 	} else {
+		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
+		pm->ref->setRot(qRot);
+
 		damage = 0; // you can't kill things if you're dead xD
 
 		// TODO Franklin: THE PLAYER IS DEAD. WHAT DO?
@@ -204,10 +209,20 @@ void PlayerSObj::calcUpVector(Quat_t *upRot) {
 	PE *pe = PE::get();
 	if(lastGravDir != pe->getGravDir()) {
 		lastGravDir = pe->getGravDir();
-		//pm->ref->rotate(pe->getCurGravRot());
+
+		//Calculate the new initial and final up vectors
 		slerp(&initUpRot, initUpRot, finalUpRot, t);	//We may not have finished rotating
 		finalUpRot = pe->getCurGravRot();
 		t = 0;
+		
+		//Update the collision box
+		AabbElement *e = dynamic_cast<AabbElement*>(getCollisionModel()->get(0));
+		if(e != NULL) {
+			e->bx = bxStaticVol;
+			e->bx.rotate(finalUpRot);
+		} else {
+			DC::get()->print(__FILE__" %d: ERROR- Player collision AABB 0 not found!\n", __LINE__);
+		}
 	}
 
 	//Rotate by amount specified by player (does not affect up direction)
@@ -241,16 +256,16 @@ void PlayerSObj::controlCamera(const Quat_t &upRot) {
 		}
 
 		//Correct the camera angle so it is between +/-pi
-		if(camYaw < -M_PI) camYaw += M_TAU;
-		else if(camYaw > M_PI) camYaw -= M_TAU;
+		if(camYaw < -M_PI) camYaw += (float)M_TAU;
+		else if(camYaw > M_PI) camYaw -= (float)M_TAU;
 		camRot = upRot * Quat_t(Vec3f(0,1,0), camYaw);
 }
 
 float PlayerSObj::controlAngles(float des, float cur) {
-	//Determine
+	//Determine the camera angle cost
 	float err1 = des - cur, err2, errDiff;
-	if(des < 0) err2 = (des + M_TAU) - cur;
-	else err2 = (des - M_TAU) - cur;
+	if(des < 0) err2 = (des + (float)M_TAU) - cur;
+	else err2 = (des - (float)M_TAU) - cur;
 
 	errDiff = fabs(fabs(err1) - fabs(err2));
 	//DC::get()->print("Error differences: %f-%f = %f\n", err1, err2, );
@@ -281,7 +296,7 @@ int PlayerSObj::serialize(char * buf) {
 	}
 	state->health = health;
 	state->ready = ready;
-	state->charge = charge;
+	state->charge = (int)charge;
 	if (SOM::get()->debugFlag) DC::get()->print("CURRENT MODEL STATE %d\n",this->modelAnimationState);
 	state->animationstate = this->modelAnimationState;
 	state->camRot = this->camRot;
@@ -312,8 +327,11 @@ void PlayerSObj::deserialize(char* newInput)
 {
 	inputstatus* newStatus = reinterpret_cast<inputstatus*>(newInput);
 	istat = *newStatus;
-	if (istat.start) {
+	if (istat.start && this->health > 0) {
 		GameServer::get()->event_reset(this->getId());
+	} else if(istat.start) {
+		this->health = CM::get()->find_config_as_int("INIT_HEALTH");
+		this->pm->ref->setPos(Point_t());
 	}
 }
 
@@ -340,6 +358,14 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 	// jump force once every iteration
 	if(!appliedJumpForce && (jumpCounter > 0 && jumpCounter < 10))
 	{
+		//Clear player's velocity along the gravity axis
+		pm->vel -= pm->vel * dirAxis(PE::get()->getGravDir());
+
+		//Apply jump force
+		Vec3f jumpVec = collNorm - PE::get()->getGravVec();
+		jumpVec.normalize();
+		pm->applyForce(jumpVec * jumpDist);
+#if 0
 		// surface bouncing
 		// Get the collNorm from the surface
 		float bounceDamp = 0.05f;
@@ -365,7 +391,7 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 			// optimize: *= ^= better!
 			pm->vel = (collNorm * (((incident ^ collNorm) * -2.f )) + incident) * bounceDamp;
 		}
-
+#endif
 		appliedJumpForce = true;
 	}
 

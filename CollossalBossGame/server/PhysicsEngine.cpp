@@ -1,14 +1,12 @@
 #include "PhysicsEngine.h"
 #include "ConfigurationManager.h"
 #include "CollisionModel.h"
+#include "PhysicsModel.h"
+#include "ServerObject.h"
 #define TIMESTEP 5
 
 //Movement Defines
 #define MAX_VEL 5.0f
-
-//Collision Defines
-#define SMALLRADIUS 5.0f
-#define LARGERADIUS 30.0f
 
 //Static members
 PhysicsEngine *PhysicsEngine::pe;
@@ -16,13 +14,16 @@ PhysicsEngine *PhysicsEngine::pe;
 PhysicsEngine::PhysicsEngine(void)
 {
 	// Configuration options
-	gravMag = CM::get()->find_config_as_float("GRAVITY_FORCE");
+	gravMag = constGravMag = CM::get()->find_config_as_float("GRAVITY_FORCE");
 
 	xPos = yPos = zPos = 500;
 	xNeg = yNeg = zNeg = 0;
 	gravVec = Vec3f(0, -1, 0);
 	gravDir = DOWN;
 	this->setGravDir(gravDir);
+
+	frictGround = CM::get()->find_config_as_float("FRICT_GROUND");
+	frictAir    = CM::get()->find_config_as_float("FRICT_AIR");\
 }
 
 
@@ -57,6 +58,7 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	float dx = 0.5f * mdl->accel.x * dt * dt + mdl->vel.x * dt,
 		  dy = 0.5f * mdl->accel.y * dt * dt + mdl->vel.y * dt,
 		  dz = 0.5f * mdl->accel.z * dt * dt + mdl->vel.z * dt;
+	mdl->lastPos = mdl->ref->getPos();
 	mdl->ref->translate(Point_t(dx, dy, dz));
 
 
@@ -79,7 +81,7 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	//Object falls if it has moved (it may not fall after collision checks have been applied)
 	if(fabs(dx) > 0 || fabs(dy) > 0 || fabs(dz) > 0) {
 		obj->setFlag(IS_FALLING, true);
-		mdl->frictCoeff = AIR_FRICTION;
+		mdl->frictCoeff = frictAir;
 	}
 
 	return true;	//We'll add a detection for has-moved later
@@ -118,7 +120,8 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, Aabb
 	vector<CollisionElement*>::iterator cur, end = cmdl2->getEnd();
 
 	
-	Box bx1 = el->bx + obj1->getPhysicsModel()->ref->getPos(), bx2;
+	Box bx1 = el->bx + obj1->getPhysicsModel()->ref->getPos(),
+		bx2;
 	Point_t pos;
 
 	//AABBs can collide with anything
@@ -126,6 +129,7 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, Aabb
 		switch((*cur)->getType()) {
 		case CMDL_AABB:
 			bx2 = ((AabbElement*)(*cur))->bx + obj2->getPhysicsModel()->ref->getPos();
+
 			if(areColliding(bx1, bx2)) {
 				getCollisionInfo(&shift, &dir, bx1, bx2);
 				handleCollision(obj1, obj2, shift, dir);
@@ -198,10 +202,10 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	//Handle not-falling status
 	if(flip(dir) == gravDir) {
 		obj1->setFlag(IS_FALLING, false);
-		obj1->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
+		obj1->getPhysicsModel()->frictCoeff = frictGround;
 	} else if((dir) == gravDir) {
 		obj2->setFlag(IS_FALLING, false);
-		obj2->getPhysicsModel()->frictCoeff = GROUND_FRICTION;
+		obj2->getPhysicsModel()->frictCoeff = frictGround;
 	}
 
 	//Get the actual object shifts
@@ -231,8 +235,6 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 }
 
 void PhysicsEngine::setGravDir(DIRECTION dir) {
-	gravDir = dir;
-
 	Vec3f newVec, crossVec;
 	switch(dir) {
 	case NORTH:
@@ -259,7 +261,12 @@ void PhysicsEngine::setGravDir(DIRECTION dir) {
 		newVec = Vec3f(0,-1,0);
 		curGravRot = Quat_t();
 		break;
+	default:
+		gravMag = 0.0f;
+		return;	//We don't want to set gravVec or gravDir, just gravMag
 	}
 
 	gravVec = newVec;
+	gravDir = dir;
+	gravMag = constGravMag;	//Make sure this is nonzero
 }

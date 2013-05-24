@@ -11,7 +11,6 @@ WallSObj::WallSObj(uint id, Model modelNum, Point_t pos, DIRECTION dir) : Server
 	if(SOM::get()->debugFlag) DC::get()->print("Created new WallSObj %d ", id);
 	vector<Box> bxVols;
 	Quat_t rot = Quat_t();
-	uint collDir = dir;
 	Quat_t rotAxis = Quat_t();
 
 	// Determine collision normal, add plane collision box
@@ -36,7 +35,6 @@ WallSObj::WallSObj(uint id, Model modelNum, Point_t pos, DIRECTION dir) : Server
 		bxVols.push_back(CM::get()->find_config_as_box("BOX_PLATFORM_HI"));
 		bxVols.push_back(Box((-WALL_WIDTH / 2), -WALL_WIDTH / 2, -WALL_THICKNESS + 5,
 			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS));
-		collDir = NORTH;
 		break;
 	case SOUTH:
 		DC::get()->print("(south)\n");
@@ -60,36 +58,31 @@ WallSObj::WallSObj(uint id, Model modelNum, Point_t pos, DIRECTION dir) : Server
 		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PLATFORM_HI").rotate(rotAxis)));
 		bxVols.push_back(Box((-WALL_WIDTH / 2), -WALL_WIDTH / 2, 0 - 5 ,
 			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS));
-		collDir = SOUTH;
 		break;
 	case EAST:
 		DC::get()->print("(east)\n");
 		bxVols.push_back(Box(0 - 5, -WALL_WIDTH / 2, -WALL_WIDTH / 2,
 			WALL_THICKNESS, WALL_WIDTH, WALL_WIDTH));
-		collDir = WEST;
 		break;
 	case WEST:
 		DC::get()->print("(west)\n");
 		bxVols.push_back(Box(-WALL_THICKNESS, -WALL_WIDTH / 2, -WALL_WIDTH / 2,
 			WALL_THICKNESS, WALL_WIDTH, WALL_WIDTH));
-		collDir = EAST;
 		break;
 	case UP:
 		DC::get()->print("(ceiling)\n");
 		bxVols.push_back(Box(-WALL_WIDTH / 2, 0, -WALL_WIDTH / 2,
 			WALL_WIDTH, WALL_THICKNESS, WALL_WIDTH));
-		collDir = DOWN;
 		break;
 	default:
 		DC::get()->print("(floor)\n");
 		bxVols.push_back(Box(-WALL_WIDTH / 2, -WALL_THICKNESS + 5, -WALL_WIDTH / 2,
 			WALL_WIDTH, WALL_THICKNESS, WALL_WIDTH));
 		rot = Quat_t();
-		collDir = UP;
 		break;
 	}
 
-	pm = new PhysicsModel(pos, rot, 500, collDir);
+	pm = new PhysicsModel(pos, rot, 500);
 
 	vector<Box>::iterator i;
 	for(i = bxVols.begin(); i != bxVols.end(); i++) getCollisionModel()->add(new AabbElement(*i));

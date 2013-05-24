@@ -35,6 +35,7 @@ public:
 	CharacterClass charclass;
 	bool jumping;
 protected:
+
 	uint clientId;
 	PhysicsModel *pm;
 	inputstatus istat;
@@ -59,6 +60,7 @@ protected:
 	Quat_t initUpRot;
 	Quat_t finalUpRot;
 	DIRECTION lastGravDir;
+	Box bxStaticVol;
 	bool camLocked;
 	float camKp, camKpFast, camKpSlow;
 

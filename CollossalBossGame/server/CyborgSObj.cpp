@@ -19,6 +19,7 @@ void CyborgSObj::initialize() {
 	chargeUpdate = 13.0f/50.0f;
 }
 
+
 void CyborgSObj::actionAttack() {
 	// Does nothing atm
 }

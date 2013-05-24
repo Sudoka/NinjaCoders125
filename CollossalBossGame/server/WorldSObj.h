@@ -13,9 +13,12 @@ public:
 	virtual ObjectType getType()			{ return OBJ_WORLD; }
 	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal) {}
 
+	void setGravitySwitch(bool en) { gravSwitchEnabled = en; }
+
 private:
 	int gravityTimer;
-	int gravityInterval;
-	DIRECTION gravDir;
+	int gravityInterval, nullInterval;
+	bool gravSwitchEnabled;
+	//DIRECTION gravDir;
 };
 
