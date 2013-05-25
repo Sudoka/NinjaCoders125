@@ -11,6 +11,7 @@
 #include "TentacleSObj.h"
 #include "HeadSObj.h"
 
+
 MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new MonsterObj %d\n", id);
@@ -19,7 +20,8 @@ MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 	//pm = new PhysicsModel(Point_t(), Quat_t(), CM::get()->find_config_as_float("PLAYER_MASS"));
 	this->setFlag(IS_STATIC, 1);
 	
-	this->availablePlacements = CM::get()->find_config_as_places("TENTACLE_POSITIONS");
+	setupAvailablePlacements();
+	//this->availablePlacements = CM::get()->find_config_as_places("TENTACLE_POSITIONS");
 
 	/*for(map<Point_t,Quat_t>::iterator it = availablePlacements.begin(); it != availablePlacements.end(); ++it) {
 	  placements.push_back(it->first);
@@ -35,6 +37,18 @@ MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 
 MonsterSObj::~MonsterSObj(void)
 {
+}
+
+/** 
+ * Programatically adds tentacle positions, as opposed
+ * to doing it through the config, since the config 
+ * can't handle long lists...
+ */
+void MonsterSObj::setupAvailablePlacements()
+{
+	availablePlacements.push_back(Frame(Vec3f(-106.25, 147.5, 300), Quat_t(Vec3f(0, 0, 0), 0)));
+	availablePlacements.push_back(Frame(Vec3f(-106.25, 147.5, 300), Quat_t(Vec3f(0, 0, 0), 0)));
+	//availablePlacements.push_back(Frame(Vec3f(-20, 100, -300), Quat_t(Vec3f(1, 0, 0), 3.14159)));
 }
 
 void MonsterSObj::removePart(MonsterPartSObj* t)
