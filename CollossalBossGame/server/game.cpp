@@ -52,6 +52,79 @@ void buildRoom() {
 	som->add(south);
 }
 
+void addPlatforms()
+{
+	ServerObjectManager *som = SOM::get();
+	TestSObj * platform = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(10,40,10), Quat_t());
+	platform->setFlag(IS_FLOATING, true);
+	som->add(platform);
+
+	TestSObj * platform_east = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(110,10,110), Quat_t(), TEST_EAST);
+	platform_east->setFlag(IS_FLOATING, true);
+	som->add(platform_east);
+
+	TestSObj * platform_north = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(120,80,-110), Quat_t(), TEST_NORTH);
+	platform_north->setFlag(IS_FLOATING, true);
+	som->add(platform_north);
+
+	TestSObj * platform_west = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(120,40,-140), Quat_t(), TEST_WEST);
+	platform_west->setFlag(IS_FLOATING, true);
+	som->add(platform_west);
+
+	TestSObj * platform_south = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(160,90,-110), Quat_t(), TEST_SOUTH);
+	platform_south->setFlag(IS_FLOATING, true);
+	som->add(platform_south);
+
+	TestSObj * platform1 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(10,140,10), Quat_t());
+	platform1->setFlag(IS_FLOATING, true);
+	som->add(platform1);
+
+	TestSObj * platformeast = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(110,110,110), Quat_t(), TEST_EAST);
+	platformeast->setFlag(IS_FLOATING, true);
+	som->add(platformeast);
+
+	TestSObj * platformnorth = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(120,180,-110), Quat_t(), TEST_NORTH);
+	platformnorth->setFlag(IS_FLOATING, true);
+	som->add(platformnorth);
+
+	TestSObj * platformwest = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(120,140,-140), Quat_t(), TEST_WEST);
+	platformwest->setFlag(IS_FLOATING, true);
+	som->add(platformwest);
+
+	TestSObj * platformsouth = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(160,190,-110), Quat_t(), TEST_SOUTH);
+	platformsouth->setFlag(IS_FLOATING, true);
+	som->add(platformsouth);
+
+	TestSObj * platform2 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(10,170,-110), Quat_t(), TEST_NORTH);
+	platform2->setFlag(IS_FLOATING, true);
+	som->add(platform2);
+
+	TestSObj * platform3 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(210,240,210), Quat_t());
+	platform3->setFlag(IS_FLOATING, true);
+	som->add(platform3);
+
+	TestSObj * platform_east_1 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(210,210,210), Quat_t(), TEST_EAST);
+	platform_east_1->setFlag(IS_FLOATING, true);
+	som->add(platform_east_1);
+
+	TestSObj * platform_north_1 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(220,280,-210), Quat_t(), TEST_NORTH);
+	platform_north_1->setFlag(IS_FLOATING, true);
+	som->add(platform_north_1);
+
+	TestSObj * platform_west_1 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(220,240,-240), Quat_t(), TEST_WEST);
+	platform_west_1->setFlag(IS_FLOATING, true);
+	som->add(platform_west_1);
+
+	TestSObj * platform_south_1 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(260,290,-210), Quat_t(), TEST_SOUTH);
+	platform_south_1->setFlag(IS_FLOATING, true);
+	som->add(platform_south_1);
+
+	TestSObj * platform4 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(10,170,-110), Quat_t(), TEST_NORTH);
+	platform4->setFlag(IS_FLOATING, true);
+	som->add(platform4);
+
+}
+
 void gameInit() {
 	ServerObjectManager *som = SOM::get();
 	
@@ -62,15 +135,12 @@ void gameInit() {
 	//This object manages the world state 
 	WorldSObj *wobj = new WorldSObj(som->genId());
 	som->add(wobj);
-
+	wobj->setGravitySwitch(false);
 	//MonsterSObj* monster = new MonsterSObj(som->genId(), 2);
-	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
+	MonsterSObj* monster = new MonsterSObj(som->genId(), 3); // 4
 	som->add(monster);
 
-	TestSObj * box = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(0,40,0), Quat_t());
-	box->setFlag(IS_FLOATING, true);
-//	box->setFlag(IS_STATIC, true);
-	som->add(box);
+	addPlatforms();
 /*
 	Point_t pos = Point_t(0, 10, 15);
 	Vec3f force = Vec3f(0, 0, 0);
