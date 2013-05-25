@@ -151,17 +151,24 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 
 		D3DXVECTOR3 test1;
 	
-		test1.x= 750; //CM::get()->find_config_as_float("TEST1_X");
+		test1.x= 1000; //CM::get()->find_config_as_float("TEST1_X");
 		test1.y= 0; //CM::get()->find_config_as_float("TEST1_Y");
 		test1.z= 0; //CM::get()->find_config_as_float("TEST1_Z");
 
+		D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);
+		D3DXVECTOR2 scaling(0.8f,0.75f);
+		D3DXMATRIX mat;
+		D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,NULL,0.f,&trans);
+
+		playerHealthSprite->SetTransform(&mat);
 		playerHealthSprite->Begin(D3DXSPRITE_ALPHABLEND);
 		playerHealthSprite->Draw(playerHealth_texture,NULL,NULL,&test1,0xFFFFFFFF);
 		playerHealthSprite->End();
 
-		float healthBarPos[] = {test1.x+100.f, test1.y+25.f};
+		float healthBarPos[] = {860.f, test1.y+20.f};
+		float healthBarSize = 120.f;
 		//player health background
-		D3DXVECTOR2 blines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(healthBarPos[0]+100.f, healthBarPos[1])};
+		D3DXVECTOR2 blines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(healthBarPos[0]+healthBarSize, healthBarPos[1])};
 		backgroundLine->SetWidth(15.0f);
 		backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
 
@@ -169,12 +176,12 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 		float max_health = (float) CM::get()->find_config_as_int("INIT_HEALTH");
 		float percentage = ((float)playerHealth)/max_health;
 		float inverse = 1.f - ((float)playerHealth)/max_health;
-		D3DXVECTOR2 hlines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(percentage*100.f + healthBarPos[0], healthBarPos[1])};
+		D3DXVECTOR2 hlines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(percentage*healthBarSize + healthBarPos[0], healthBarPos[1])};
 		healthLine->SetWidth(15.0f);
 		healthLine->Draw(hlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * inverse), (int)(255.0 * percentage), 0));
 
 		//background for the charge
-		blines[0] = D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40); blines[1] = D3DXVECTOR2(healthBarPos[0]+100.f, healthBarPos[1]+40);
+		blines[0] = D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40); blines[1] = D3DXVECTOR2(healthBarPos[0]+healthBarSize, healthBarPos[1]+40);
 		backgroundLine->SetWidth(15.0f);
 		backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
 
@@ -182,7 +189,7 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 		if (charge > 100) charge = 100;
 
 		//charge bar
-		D3DXVECTOR2 clines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40), D3DXVECTOR2(healthBarPos[0]+charge , healthBarPos[1]+40)};
+		D3DXVECTOR2 clines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40), D3DXVECTOR2(healthBarPos[0]+charge*healthBarSize , healthBarPos[1]+40)};
 		chargeLine->SetWidth(15.0f);
 		chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100.0 - charge) / 100.0), (int)(255.0 * charge / 100.0), (int)(charge * 2)));
 
@@ -300,30 +307,101 @@ void HeadsUpDisplay::displayStart()
 				ready[playercount] = pc->ready;
 			}
 		}
-		
+		D3DXVECTOR3 pc(0,0,0.25);
+		D3DXVECTOR3 pr(0,0,0);
+		D3DXVECTOR2 spriteCentre=D3DXVECTOR2(1920.0f/2, 1920.0f/2);
+			
 		if(playercount >= 1) { //60, 60, 0.25
-			D3DXVECTOR3 p1c(60,60,0.25);
-			D3DXVECTOR3 p1r(0,0,0);
-			if (ready[1]) { displaytexture(&playerready, &p1r, &playerreadytxt); }
-			(playernumber == 1) ? displaytexture(&youarep1, &p1c, &youarep1txt) : displaytexture(&p1connect, &p1c, &p1connecttxt);
+			D3DXVECTOR2 trans=D3DXVECTOR2(25,30);
+			D3DXVECTOR2 scaling(1.9f,1.9f);
+			D3DXMATRIX mat;
+			D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,&spriteCentre,0.f,&trans);
+
+			if (ready[1]) {
+				playerready->SetTransform(&mat);
+				playerready->Begin(D3DXSPRITE_ALPHABLEND);
+				playerready->Draw(playerreadytxt,NULL,NULL,&pc,0xFFFFFFFF);
+				playerready->End(); 
+			} else if (playernumber == 1) {
+				youarep1->SetTransform(&mat);
+				youarep1->Begin(D3DXSPRITE_ALPHABLEND);
+				youarep1->Draw(youarep1txt,NULL,NULL,&pc,0xFFFFFFFF);
+				youarep1->End(); 
+			} else {
+				p1connect->SetTransform(&mat);
+				p1connect->Begin(D3DXSPRITE_ALPHABLEND);
+				p1connect->Draw(p1connecttxt,NULL,NULL,&pc,0xFFFFFFFF);
+				p1connect->End(); 
+			}
 		}
-		if(playercount >= 2) { //700, 60, 0.25
-			D3DXVECTOR3 p2c(700, 60, 0.25);
-			D3DXVECTOR3 p2r(300,0,0);
-			if (ready[2]) { displaytexture(&playerready, &p2r, &playerreadytxt); }
-			(playernumber == 2) ? displaytexture(&youarep2, &p2c, &youarep2txt) : displaytexture(&p2connect, &p2c, &p2connecttxt);
+		if(playercount >=	2) { //740, 30
+			D3DXVECTOR2 trans=D3DXVECTOR2(747,30);
+			D3DXMATRIX mat;
+			D3DXVECTOR2 scaling(1.9f,1.9f);
+			D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,&spriteCentre,0.f,&trans);
+
+			if (ready[2]) {
+				playerready->SetTransform(&mat);
+				playerready->Begin(D3DXSPRITE_ALPHABLEND);
+				playerready->Draw(playerreadytxt,NULL,NULL,&pc,0xFFFFFFFF);
+				playerready->End(); 
+			} else if (playernumber == 2) {
+				youarep2->SetTransform(&mat);
+				youarep2->Begin(D3DXSPRITE_ALPHABLEND);
+				youarep2->Draw(youarep1txt,NULL,NULL,&pc,0xFFFFFFFF);
+				youarep2->End(); 
+			} else {
+				p2connect->SetTransform(&mat);
+				p2connect->Begin(D3DXSPRITE_ALPHABLEND);
+				p2connect->Draw(p1connecttxt,NULL,NULL,&pc,0xFFFFFFFF);
+				p2connect->End(); 
+			}
 		}
 		if(playercount >= 3) {
-			D3DXVECTOR3 p3c(60,430,0.25);
-			D3DXVECTOR3 p3r(0,300,0);
-			if (ready[3]) { displaytexture(&playerready, &p3r, &playerreadytxt); }
-			(playernumber == 3) ? displaytexture(&youarep3, &p3c, &youarep3txt) : displaytexture(&p3connect, &p3c, &p3connecttxt);
+			D3DXVECTOR2 trans=D3DXVECTOR2(25,490);
+			D3DXVECTOR2 scaling(1.9f,1.9f);
+			D3DXMATRIX mat;
+			D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,&spriteCentre,0.f,&trans);
+
+			if (ready[3]) {
+				playerready->SetTransform(&mat);
+				playerready->Begin(D3DXSPRITE_ALPHABLEND);
+				playerready->Draw(playerreadytxt,NULL,NULL,&pc,0xFFFFFFFF);
+				playerready->End(); 
+			} else if (playernumber == 3) {
+				youarep1->SetTransform(&mat);
+				youarep1->Begin(D3DXSPRITE_ALPHABLEND);
+				youarep1->Draw(youarep3txt,NULL,NULL,&pc,0xFFFFFFFF);
+				youarep1->End(); 
+			} else {
+				p3connect->SetTransform(&mat);
+				p3connect->Begin(D3DXSPRITE_ALPHABLEND);
+				p3connect->Draw(p3connecttxt,NULL,NULL,&pc,0xFFFFFFFF);
+				p3connect->End(); 
+			}
 		}
-		if(playercount >= 4) {
-			D3DXVECTOR3 p4c(700,430,0.25);
-			D3DXVECTOR3 p4r(300,300,0);
-			if (ready[4]) { displaytexture(&playerready, &p4r, &playerreadytxt); }
-			(playernumber == 4) ? displaytexture(&youarep4, &p4c, &youarep4txt) : displaytexture(&p4connect, &p4c, &p4connecttxt);
+		if(playercount >= 4) { //747,490
+			D3DXVECTOR2 trans=D3DXVECTOR2(747,490);
+			D3DXMATRIX mat;
+			D3DXVECTOR2 scaling(1.9f,1.9f);
+			D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,&spriteCentre,0.f,&trans);
+
+			if (ready[4]) {
+				playerready->SetTransform(&mat);
+				playerready->Begin(D3DXSPRITE_ALPHABLEND);
+				playerready->Draw(playerreadytxt,NULL,NULL,&pc,0xFFFFFFFF);
+				playerready->End(); 
+			} else if (playernumber == 4) {
+				youarep4->SetTransform(&mat);
+				youarep4->Begin(D3DXSPRITE_ALPHABLEND);
+				youarep4->Draw(youarep4txt,NULL,NULL,&pc,0xFFFFFFFF);
+				youarep4->End(); 
+			} else {
+				p4connect->SetTransform(&mat);
+				p4connect->Begin(D3DXSPRITE_ALPHABLEND);
+				p4connect->Draw(p4connecttxt,NULL,NULL,&pc,0xFFFFFFFF);
+				p4connect->End(); 
+			}
 		}
 		/*
 		if(!ready[playernumber]) {
@@ -331,7 +409,6 @@ void HeadsUpDisplay::displayStart()
 			displaytexture(&pressstart, &rdy, &pressstarttxt);
 		}*/
 		D3DXVECTOR3 blk(0,0,0.5);
-		D3DXVECTOR2 spriteCentre=D3DXVECTOR2(1920.0f/2, 1920.0f/2);
 		D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);
 		D3DXVECTOR2 scaling(1.f,0.75f);
 		D3DXMATRIX mat;
