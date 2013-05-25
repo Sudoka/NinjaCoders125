@@ -37,7 +37,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>\\acsnfs4.ucsd.edu\CifsHomes\032\hmonciva\CSE125\NinjaCoders125\CollossalBossGame\shared;$(IncludePath)</IncludePath>
+    <IncludePath>../shared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <SourcePath>$(SourcePath)</SourcePath>

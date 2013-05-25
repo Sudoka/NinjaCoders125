@@ -151,17 +151,24 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 
 		D3DXVECTOR3 test1;
 	
-		test1.x= 750; //CM::get()->find_config_as_float("TEST1_X");
+		test1.x= 1000; //CM::get()->find_config_as_float("TEST1_X");
 		test1.y= 0; //CM::get()->find_config_as_float("TEST1_Y");
 		test1.z= 0; //CM::get()->find_config_as_float("TEST1_Z");
 
+		D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);
+		D3DXVECTOR2 scaling(0.8f,0.75f);
+		D3DXMATRIX mat;
+		D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,NULL,0.f,&trans);
+
+		playerHealthSprite->SetTransform(&mat);
 		playerHealthSprite->Begin(D3DXSPRITE_ALPHABLEND);
 		playerHealthSprite->Draw(playerHealth_texture,NULL,NULL,&test1,0xFFFFFFFF);
 		playerHealthSprite->End();
 
-		float healthBarPos[] = {test1.x+100.f, test1.y+25.f};
+		float healthBarPos[] = {860.f, test1.y+20.f};
+		float healthBarSize = 120.f;
 		//player health background
-		D3DXVECTOR2 blines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(healthBarPos[0]+100.f, healthBarPos[1])};
+		D3DXVECTOR2 blines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(healthBarPos[0]+healthBarSize, healthBarPos[1])};
 		backgroundLine->SetWidth(15.0f);
 		backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
 
@@ -169,12 +176,12 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 		float max_health = (float) CM::get()->find_config_as_int("INIT_HEALTH");
 		float percentage = ((float)playerHealth)/max_health;
 		float inverse = 1.f - ((float)playerHealth)/max_health;
-		D3DXVECTOR2 hlines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(percentage*100.f + healthBarPos[0], healthBarPos[1])};
+		D3DXVECTOR2 hlines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]), D3DXVECTOR2(percentage*healthBarSize + healthBarPos[0], healthBarPos[1])};
 		healthLine->SetWidth(15.0f);
 		healthLine->Draw(hlines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * inverse), (int)(255.0 * percentage), 0));
 
 		//background for the charge
-		blines[0] = D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40); blines[1] = D3DXVECTOR2(healthBarPos[0]+100.f, healthBarPos[1]+40);
+		blines[0] = D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40); blines[1] = D3DXVECTOR2(healthBarPos[0]+healthBarSize, healthBarPos[1]+40);
 		backgroundLine->SetWidth(15.0f);
 		backgroundLine->Draw(blines, 2, D3DCOLOR_ARGB(255, 0, 0, 0));
 
@@ -182,7 +189,7 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 		if (charge > 100) charge = 100;
 
 		//charge bar
-		D3DXVECTOR2 clines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40), D3DXVECTOR2(healthBarPos[0]+charge , healthBarPos[1]+40)};
+		D3DXVECTOR2 clines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40), D3DXVECTOR2(healthBarPos[0]+charge*healthBarSize , healthBarPos[1]+40)};
 		chargeLine->SetWidth(15.0f);
 		chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100.0 - charge) / 100.0), (int)(255.0 * charge / 100.0), (int)(charge * 2)));
 
