@@ -43,6 +43,9 @@ private:
 	vector<Frame> availablePlacements;
 	//vector<Point_t> placements;
 	uint numParts;
+
+	void setupAvailablePlacements();
+
 	//TentacleState state;
 
 	//The logic is that we keep track of how long until we switch to another state.
