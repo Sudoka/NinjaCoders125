@@ -20,8 +20,11 @@ TentacleCObj::TentacleCObj(uint id, char *data) : ClientObject(id, OBJ_TENTACLE)
 TentacleCObj::~TentacleCObj(void)
 {
 	if(density > 0) RE::get()->stopFog(0);
-	RE::get()->removeParticleEffect(smoking);
-	RE::get()->removeParticleEffect(portal);
+	if(RE::get() != NULL)
+	{
+		RE::get()->removeParticleEffect(smoking);
+		RE::get()->removeParticleEffect(portal);
+	}
 	delete rm;
 }
 
