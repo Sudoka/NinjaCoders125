@@ -254,7 +254,7 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 		chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100.0 - charge) / 100.0), (int)(255.0 * charge / 100.0), (int)(0)));
 
 	}
-
+	
 	//D3DXVECTOR3 pos;
 	//pos.x=0.0f;
 	//pos.y=0.0f;
@@ -318,14 +318,19 @@ void HeadsUpDisplay::displayBackground()
 
 void HeadsUpDisplay::displayGameOver()
 {
-	D3DXVECTOR3 test1;
 
-	test1.x= 0; //CM::get()->find_config_as_float("TEST1_X");
-	test1.y= 100; //CM::get()->find_config_as_float("TEST1_Y");
-	test1.z= 0; //CM::get()->find_config_as_float("TEST1_Z");
-	
+	D3DXVECTOR2 spriteCentre=D3DXVECTOR2(1920.0f/2, 1920.0f/2);
+
+	D3DXVECTOR3 test1;
+	D3DXVECTOR3 blk(0,0,0.5);
+	D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);
+	D3DXVECTOR2 scaling(1.f,0.75f);
+	D3DXMATRIX mat;
+	D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,&spriteCentre,0.f,&trans);
+
+	sprite2->SetTransform(&mat);
 	sprite2->Begin(D3DXSPRITE_ALPHABLEND);
-	sprite2->Draw(test1_texture,NULL,NULL,&test1,0xFFFFFFFF);
+	sprite2->Draw(test1_texture,NULL,NULL,&blk,0xFFFFFFFF);
 	sprite2->End();
 }	
 
