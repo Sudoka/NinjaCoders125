@@ -51,7 +51,7 @@ void RenderEngine::startWindow()
 		"WindowClass",
 		"Seek, Scavenge, Slay",
 		WS_EX_TOPMOST | WS_POPUP,
-		CW_USEDEFAULT, CW_USEDEFAULT, //0, 0,
+		0, 0,//CW_USEDEFAULT, CW_USEDEFAULT, //0, 0,
 		SCREEN_WIDTH, SCREEN_HEIGHT,
 		NULL,
 		NULL,
@@ -73,10 +73,10 @@ void RenderEngine::renderInitalization()
 	D3DPRESENT_PARAMETERS deviceInfo; // create a struct to hold various device information
 
 	ZeroMemory(&deviceInfo, sizeof(deviceInfo)); // clear out the struct for use
-	deviceInfo.Windowed = TRUE; // program windowed, not fullscreen
+	deviceInfo.Windowed = CM::get()->find_config_as_bool("FULLSCREEN"); // program windowed, not fullscreen //!!
 	deviceInfo.SwapEffect = D3DSWAPEFFECT_DISCARD; // discard old frames	//D3DSWAPEFFECT_COPY
 	deviceInfo.hDeviceWindow = windowHandle; // set the window to be used by Direct3D
-	deviceInfo.BackBufferFormat = D3DFMT_UNKNOWN;//D3DFMT_A8R8G8B8;//D3DFMT_X8R8G8B8; // set the back buffer format to 32-bit
+	deviceInfo.BackBufferFormat = D3DFMT_X8R8G8B8;//D3DFMT_UNKNOWN;//D3DFMT_A8R8G8B8;//D3DFMT_X8R8G8B8; // set the back buffer format to 32-bit
 	deviceInfo.BackBufferWidth = SCREEN_WIDTH; // set the width of the buffer
 	deviceInfo.BackBufferHeight = SCREEN_HEIGHT; // set the height of the buffer
 	
@@ -140,7 +140,6 @@ void RenderEngine::renderInitalization()
 	light2.Range      = 500.0f;
 	// Create a direction for our light - it must be normalized  
 	D3DXVECTOR3 vecDir1;
-//	vecDir1 = D3DXVECTOR3(0.0f,-0.3f,-0.5);
 	vecDir1 = D3DXVECTOR3(1.0f,-0.1f,-0.5);
 	D3DXVec3Normalize( (D3DXVECTOR3*)&light2.Direction, &vecDir1 );
 
@@ -152,18 +151,6 @@ void RenderEngine::renderInitalization()
 
 	direct3dDevice->SetRenderState( D3DRS_LIGHTING, TRUE );	
 	direct3dDevice->SetRenderState(D3DRS_FOGENABLE, false);
-
-	//------------------FOG-------------------------
-	//direct3dDevice->SetRenderState(D3DRS_FOGENABLE, TRUE);
-	//direct3dDevice->SetRenderState(D3DRS_FOGCOLOR, D3DXCOLOR(1.0f,.80f,1.0f,1.0f));
-	//direct3dDevice->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR );
-	//float Start   = 20.0f;
- //   float End     = 500.0f;
-	//direct3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)(&Start));
- //   direct3dDevice->SetRenderState(D3DRS_FOGEND,   *(DWORD *)(&End));
-	//float density = .0000000000001f;
-	//direct3dDevice->SetRenderState(D3DRS_FOGDENSITY, *(DWORD *)(&density));
-	////direct3dDevice->SetRenderState(D3DRS_RANGEFOGENABLE, TRUE);
 }
 
 void RenderEngine::startFog(float density)
@@ -180,7 +167,7 @@ void RenderEngine::stopFog(float density)
 {
 	if(density <= 0) 
 	{
-		direct3dDevice->SetRenderState(D3DRS_FOGENABLE, false);
+		if(direct3dDevice != NULL) direct3dDevice->SetRenderState(D3DRS_FOGENABLE, false);
 		fogging = false;
 	}
 	else

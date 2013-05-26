@@ -135,9 +135,10 @@ void gameInit() {
 	//This object manages the world state 
 	WorldSObj *wobj = new WorldSObj(som->genId());
 	som->add(wobj);
-	wobj->setGravitySwitch(false);
+	wobj->setGravitySwitch(CM::get()->find_config_as_bool("ENABLE_GRAVITY"));
+
 	//MonsterSObj* monster = new MonsterSObj(som->genId(), 2);
-	MonsterSObj* monster = new MonsterSObj(som->genId(), 3); // 4
+	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
 	som->add(monster);
 
 	addPlatforms();
