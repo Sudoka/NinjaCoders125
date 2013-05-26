@@ -136,3 +136,8 @@ void PlayerCObj::deserialize(char* newState) {
 		rm->getFrameOfRef()->deserialize(newState + sizeof(PlayerState));
 	}
 }
+
+int PlayerCObj::getTypeInt()
+{
+	return -1;
+}

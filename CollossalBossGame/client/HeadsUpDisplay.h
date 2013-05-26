@@ -35,6 +35,10 @@ private:
 	IDirect3DTexture9 *p;
 	IDirect3DTexture9 *monsterHealth_texture;
 	IDirect3DTexture9 *playerHealth_texture;
+	IDirect3DTexture9 *cyborgHelp_texture;
+	IDirect3DTexture9 *mechanicHelp_texture;
+	IDirect3DTexture9 *scientistHelp_texture;
+	IDirect3DTexture9 *shooterHelp_texture;
 
 	int hudTopX, hudTopY;
 
@@ -76,5 +80,9 @@ private:
 
 	clock_t initTime;
 	void displayMonsterHealth(int monsterHealth);
+
+	void establishType(void);
+	
+	int playerType; //Our type
 };
 

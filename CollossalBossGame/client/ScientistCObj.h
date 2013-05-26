@@ -8,5 +8,6 @@ class ScientistCObj : public PlayerCObj
 public:
 	ScientistCObj(uint id, char *data);
 	~ScientistCObj(void);
+	virtual int getTypeInt();
 };
 

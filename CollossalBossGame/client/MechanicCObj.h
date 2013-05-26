@@ -7,5 +7,6 @@ class MechanicCObj : public PlayerCObj
 public:
 	MechanicCObj(uint id, char *data);
 	~MechanicCObj(void);
+	virtual int getTypeInt();
 };
 

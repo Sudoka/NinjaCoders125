@@ -23,6 +23,8 @@ public:
 
 	virtual void deserialize(char* newState);
 
+	virtual int getTypeInt();
+
 	int ready;
 
 private:

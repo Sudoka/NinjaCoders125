@@ -7,6 +7,7 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	hudTopX = CM::get()->find_config_as_int("HUD_TOP_X");
 	hudTopY = CM::get()->find_config_as_int("HUD_TOP_Y");
 
+	playerType = -1;
 
 	D3DXCreateSprite(direct3dDevice,&sprite);
 	D3DXCreateSprite(direct3dDevice,&sprite1);
@@ -27,6 +28,23 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateTextureFromFile(direct3dDevice,
 							"res/playerMenu.png",
 							&playerHealth_texture);
+	
+	D3DXCreateTextureFromFile(direct3dDevice,
+							"res/cyborgHelp.png",
+							&cyborgHelp_texture);
+	
+	D3DXCreateTextureFromFile(direct3dDevice,
+							"res/mechanicHelp.png",
+							&mechanicHelp_texture);
+	
+	D3DXCreateTextureFromFile(direct3dDevice,
+							"res/scientistHelp.png",
+							&scientistHelp_texture);
+	
+	D3DXCreateTextureFromFile(direct3dDevice,
+							"res/shooterHelp.png",
+							&shooterHelp_texture);
+
 
 	D3DXCreateFont(	direct3dDevice,     //D3D Device
 				    22,                       //Font height
@@ -74,6 +92,20 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateSprite(direct3dDevice,&youwin);
 
 	initTime = clock();
+}
+
+void HeadsUpDisplay::establishType(void) 
+{
+	//get the type of object
+	vector<ClientObject *> players;
+	COM::get()->findObjects(OBJ_PLAYER, &players);
+	int pid = COM::get()->player_id;
+	for(vector<ClientObject *>::iterator it = players.begin(); it != players.end(); ++it) {
+			PlayerCObj * pc = (PlayerCObj *)(*it);
+			if (pc->getId() == pid) {
+				this->playerType = pc->getTypeInt();
+			}
+	}
 }
 
 HeadsUpDisplay::~HeadsUpDisplay(void)
@@ -130,6 +162,34 @@ void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
 			768);
 
 	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
+	D3DXVECTOR3 test1;
+	
+	test1.x= 1000; //CM::get()->find_config_as_float("TEST1_X");
+	test1.y= 100; //CM::get()->find_config_as_float("TEST1_Y");
+	test1.z= 0; //CM::get()->find_config_as_float("TEST1_Z");
+
+	D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);
+	D3DXVECTOR2 scaling(0.8f,0.75f);
+	D3DXMATRIX mat;
+	D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,NULL,0.f,&trans);
+
+	sprite1->SetTransform(&mat);
+	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
+	
+	switch (this->playerType) {
+		case 0:
+			sprite1->Draw(cyborgHelp_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		case 1:
+			sprite1->Draw(mechanicHelp_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		case 2:
+			sprite1->Draw(scientistHelp_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		case 3:
+			sprite1->Draw(shooterHelp_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+	}
 
 	/*direct3dText->DrawText(sprite1,        //pSprite
 						  "LT: Camera Track\nRT: Power\nA: Jump\nLS: Move\nRS: Camera",	 //pString
@@ -291,6 +351,7 @@ void displaytexture(LPD3DXSPRITE * sprite, D3DXVECTOR3 * pos, IDirect3DTexture9 
 void HeadsUpDisplay::displayStart()
 {
 	if (!*gamestart) {
+		this->establishType();
 		int pid = COM::get()->player_id;
 		int playercount = 0;
 		int playernumber = 0;
