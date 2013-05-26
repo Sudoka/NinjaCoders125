@@ -165,7 +165,7 @@ void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
 	D3DXVECTOR3 test1;
 	
 	test1.x= 1000; //CM::get()->find_config_as_float("TEST1_X");
-	test1.y= 100; //CM::get()->find_config_as_float("TEST1_Y");
+	test1.y= 200; //CM::get()->find_config_as_float("TEST1_Y");
 	test1.z= 0; //CM::get()->find_config_as_float("TEST1_Z");
 
 	D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);
