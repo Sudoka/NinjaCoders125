@@ -174,7 +174,6 @@ void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
 	D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,NULL,0.f,&trans);
 
 	sprite1->SetTransform(&mat);
-	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
 	
 	switch (this->playerType) {
 		case 0:
