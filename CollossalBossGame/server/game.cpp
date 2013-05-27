@@ -55,74 +55,76 @@ void buildRoom() {
 void addPlatforms()
 {
 	ServerObjectManager *som = SOM::get();
-	TestSObj * platform = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(10,40,10), Quat_t());
-	platform->setFlag(IS_FLOATING, true);
-	som->add(platform);
 
-	TestSObj * platform_east = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(110,10,110), Quat_t(), TEST_EAST);
-	platform_east->setFlag(IS_FLOATING, true);
-	som->add(platform_east);
+	//---------------------------------------Moving---------------------------------------------
 
-	TestSObj * platform_north = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(120,80,-110), Quat_t(), TEST_NORTH);
-	platform_north->setFlag(IS_FLOATING, true);
-	som->add(platform_north);
+	vector<Point_t> moving_box_placements; //make sure divisible by 5
+	moving_box_placements.push_back(Point_t(10,40,10));
+	moving_box_placements.push_back(Point_t(110,10,110));
+	moving_box_placements.push_back(Point_t(120,80,-110));
+	moving_box_placements.push_back(Point_t(160,90,-110));
+	moving_box_placements.push_back(Point_t(110,110,110));
+	moving_box_placements.push_back(Point_t(120,180,-110));
+	moving_box_placements.push_back(Point_t(120,140,-140));
+	moving_box_placements.push_back(Point_t(160,190,-110));
+	moving_box_placements.push_back(Point_t(10,170,-110));
+	moving_box_placements.push_back(Point_t(210,240,210));
+	moving_box_placements.push_back(Point_t(210,210,210));
+	moving_box_placements.push_back(Point_t(220,280,-210));
+	moving_box_placements.push_back(Point_t(220,240,-240));
+	moving_box_placements.push_back(Point_t(260,290,-210));
+	moving_box_placements.push_back(Point_t(360,290,-310));
 
-	TestSObj * platform_west = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(120,40,-140), Quat_t(), TEST_WEST);
-	platform_west->setFlag(IS_FLOATING, true);
-	som->add(platform_west);
+	for(int i = 0; i < moving_box_placements.size(); i+=5)
+	{
+		TestSObj * platform_east = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i], Quat_t(), TEST_EAST);
+		platform_east->setFlag(IS_FLOATING, true);
+		som->add(platform_east);
 
-	TestSObj * platform_south = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(160,90,-110), Quat_t(), TEST_SOUTH);
-	platform_south->setFlag(IS_FLOATING, true);
-	som->add(platform_south);
+		TestSObj * platform_north = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+1], Quat_t(), TEST_NORTH);
+		platform_north->setFlag(IS_FLOATING, true);
+		som->add(platform_north);
 
-	TestSObj * platform1 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(10,140,10), Quat_t());
-	platform1->setFlag(IS_FLOATING, true);
-	som->add(platform1);
+		TestSObj * platform_west = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+2], Quat_t(), TEST_WEST);
+		platform_west->setFlag(IS_FLOATING, true);
+		som->add(platform_west);
 
-	TestSObj * platformeast = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(110,110,110), Quat_t(), TEST_EAST);
-	platformeast->setFlag(IS_FLOATING, true);
-	som->add(platformeast);
+		TestSObj * platform_south = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+3], Quat_t(), TEST_SOUTH);
+		platform_south->setFlag(IS_FLOATING, true);
+		som->add(platform_south);
 
-	TestSObj * platformnorth = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(120,180,-110), Quat_t(), TEST_NORTH);
-	platformnorth->setFlag(IS_FLOATING, true);
-	som->add(platformnorth);
+		TestSObj * platform = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+4], Quat_t());
+		platform->setFlag(IS_FLOATING, true);
+		som->add(platform);
 
-	TestSObj * platformwest = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(120,140,-140), Quat_t(), TEST_WEST);
-	platformwest->setFlag(IS_FLOATING, true);
-	som->add(platformwest);
+	}
+	
+	// ---------------------------------- Static -------------------------------------------------------------
 
-	TestSObj * platformsouth = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(160,190,-110), Quat_t(), TEST_SOUTH);
-	platformsouth->setFlag(IS_FLOATING, true);
-	som->add(platformsouth);
+	vector<Point_t> static_box_placements; //make sure divisible by 4
+	static_box_placements.push_back(Point_t(10,10,10));
+	static_box_placements.push_back(Point_t(510,210,210));
+	static_box_placements.push_back(Point_t(420,80,-300));
+	static_box_placements.push_back(Point_t(560,90,-110));
+	static_box_placements.push_back(Point_t(610,110,300));
+	static_box_placements.push_back(Point_t(610,180,-300));
+	static_box_placements.push_back(Point_t(-520,240,-240));
+	static_box_placements.push_back(Point_t(-160,190,-210));
+	static_box_placements.push_back(Point_t(-10,170,-300));
+	static_box_placements.push_back(Point_t(-210,240,-110));
+	static_box_placements.push_back(Point_t(610,190,300));
+	static_box_placements.push_back(Point_t(610,180,-300));
+	static_box_placements.push_back(Point_t(-610,240,-270));
+	static_box_placements.push_back(Point_t(-560,190,-210));
+	static_box_placements.push_back(Point_t(460,190,-110));
+	static_box_placements.push_back(Point_t(-260,190,-280));
 
-	TestSObj * platform2 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(10,170,-110), Quat_t(), TEST_NORTH);
-	platform2->setFlag(IS_FLOATING, true);
-	som->add(platform2);
-
-	TestSObj * platform3 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(210,240,210), Quat_t());
-	platform3->setFlag(IS_FLOATING, true);
-	som->add(platform3);
-
-	TestSObj * platform_east_1 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(210,210,210), Quat_t(), TEST_EAST);
-	platform_east_1->setFlag(IS_FLOATING, true);
-	som->add(platform_east_1);
-
-	TestSObj * platform_north_1 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(220,280,-210), Quat_t(), TEST_NORTH);
-	platform_north_1->setFlag(IS_FLOATING, true);
-	som->add(platform_north_1);
-
-	TestSObj * platform_west_1 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(220,240,-240), Quat_t(), TEST_WEST);
-	platform_west_1->setFlag(IS_FLOATING, true);
-	som->add(platform_west_1);
-
-	TestSObj * platform_south_1 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(260,290,-210), Quat_t(), TEST_SOUTH);
-	platform_south_1->setFlag(IS_FLOATING, true);
-	som->add(platform_south_1);
-
-	TestSObj * platform4 = new TestSObj(som->genId(), MDL_TEST_BOX, Point_t(10,170,-110), Quat_t(), TEST_NORTH);
-	platform4->setFlag(IS_FLOATING, true);
-	som->add(platform4);
-
+	for(int i = 0; i < static_box_placements.size(); i++)
+	{
+		TestSObj * platform = new TestSObj(som->genId(), MDL_TEST_BOX, static_box_placements[i], Quat_t());
+		platform->setFlag(IS_STATIC, true);
+		som->add(platform);
+	}
 }
 
 void gameInit() {
