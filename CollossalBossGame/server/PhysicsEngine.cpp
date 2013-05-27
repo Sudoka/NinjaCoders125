@@ -194,8 +194,8 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	//Passable or static collision objects should not be moved because of a collision
 	if((obj1->getFlag(IS_PASSABLE) || obj2->getFlag(IS_PASSABLE)) ||
 			(obj1->getFlag(IS_STATIC) && obj2->getFlag(IS_STATIC))) {
-		obj1->onCollision(obj2, Vec3f());
-		obj2->onCollision(obj1, Vec3f());
+					obj1->onCollision(obj2, Vec3f());
+					obj2->onCollision(obj1, Vec3f());
 		return;
 	}
 

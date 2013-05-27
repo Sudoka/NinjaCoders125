@@ -410,3 +410,19 @@ void TentacleSObj::rage() {
 	currStateDone = stateCounter >= RageSObj::lifetime;
 }
 
+/*fastForwardAnimation
+ *	We have gotten a collision with a static object, so to make sure we don't 
+ *    make the collision box go through the object we need to fast forward by calculating
+ *    the frame we want to go to and sending that to the client side object.
+ *
+ *  Author: Bryan
+ */
+
+void TentacleSObj::fastForward()
+{
+	//1. Get the current animation frame
+	//2. Get the amount of frames the current animation takes
+	//3. If we are in the first half of the animation, go to the opposite side
+	//4. Otherwise, go to half way to the last frame?
+
+}
