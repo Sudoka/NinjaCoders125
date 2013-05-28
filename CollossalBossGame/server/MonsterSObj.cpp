@@ -46,6 +46,10 @@ MonsterSObj::~MonsterSObj(void)
  */
 void MonsterSObj::setupAvailablePlacements()
 {
+	// East Wall (non-window)
+	availablePlacements.push_back(Frame(Vec3f(585.5, 85, 75), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
+	availablePlacements.push_back(Frame(Vec3f(585.5, 220, -160), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
+
 	// North Wall
 	availablePlacements.push_back(Frame(Vec3f(140.25, 147.5, -300), Quat_t(Vec3f(1, 0, 0), M_PI)));
 	availablePlacements.push_back(Frame(Vec3f(106.25, 50, -300), Quat_t(Vec3f(1, 0, 0), M_PI)));
