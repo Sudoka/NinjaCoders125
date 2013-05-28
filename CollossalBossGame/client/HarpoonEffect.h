@@ -4,7 +4,7 @@ class HarpoonEffect :
 	public ParticleSystem
 {
 public:
-	HarpoonEffect(void);
+	HarpoonEffect(int playerid);
 	virtual ~HarpoonEffect(void);
 	virtual void resetParticle(ParticleAttributes* a);
 	virtual void update(float timeDelta);
@@ -12,5 +12,7 @@ public:
 
 	D3DXVECTOR3 pos;
 	D3DXVECTOR3 prevPos;
+
+	int playerid;
 };
 
