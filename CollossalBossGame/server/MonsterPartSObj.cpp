@@ -198,6 +198,29 @@ void MonsterPartSObj::death() {
 void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
 	int damage = 0;
 
+	// if I collided against a static object, then we want to skip to whatever animation
+	//  allows me to go away (if we're in a moving animation)
+	if (obj->getFlag(IS_STATIC))
+	{
+		switch(actionState) 
+		{
+			case IDLE_ACTION:
+				
+				break;
+			case PROBE_ACTION:
+				break;
+			case ATTACK_ACTION:
+				break;
+			case COMBO_ACTION:
+				break;
+			case RAGE_ACTION:
+				break;
+			default:	//omitting: Spike, Move, Death
+				break;
+		}
+		return;
+	}
+
 	// if I collided against the player, AND they're attacking me, loose health
 	if(obj->getType() == OBJ_PLAYER)
 	{	
