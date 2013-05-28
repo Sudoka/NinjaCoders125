@@ -202,9 +202,9 @@ void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
 
 void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, float charge)
 {
-	if(playerHealth == 0) displayGameOver();
-	else if(monsterHealth == 0) displayVictory(); // todo Franklin fix so that we only Victory on last phase
-	else {
+	// if(playerHealth == 0) displayGameOver();
+	// else if(monsterHealth == 0) displayVictory(); // todo Franklin fix so that we only Victory on last phase
+	if(1) { // Work on how the infinite business is going to work.
 		//display GUI
 		HeadsUpDisplay::displayMonsterHealth(monsterHealth);
 

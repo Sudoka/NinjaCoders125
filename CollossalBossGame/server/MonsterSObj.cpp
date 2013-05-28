@@ -109,7 +109,7 @@ bool MonsterSObj::update() {
 	}
 
 	if (numTentacles == 0) {
-		phase++;
+		phase = (phase+1)%2;
 
 		// Make sure we've got enough positions
 		assert(availablePlacements.size() >= numParts && "You ran out of positions for your tentacles!");
