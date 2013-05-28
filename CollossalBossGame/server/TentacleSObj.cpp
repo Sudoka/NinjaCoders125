@@ -60,12 +60,12 @@ TentacleSObj::~TentacleSObj(void)
 
 void TentacleSObj::idle() {
 	modelAnimationState = M_IDLE;
-
+	
 	/* Cycle logic:
 	 * CYCLE*1/2 = The tentacle is extended
 	 * CYCLE = when the tentacle is back at the default position
 	 */
-
+	
 	CollisionModel *cm = getCollisionModel();
 	Box base =	 ((AabbElement*)cm->get(0))->bx; //this->getPhysicsModel()->colBoxes.at(0);
 	Box middle = ((AabbElement*)cm->get(1))->bx; //this->getPhysicsModel()->colBoxes.at(1);
@@ -79,7 +79,7 @@ void TentacleSObj::idle() {
 
 	// reset your state
 	if (stateCounter == 0) {
-		Box origBase = idleBoxes[0];
+ 		Box origBase = idleBoxes[0];
 		Box origMiddle = idleBoxes[1];
 		Box origTip = idleBoxes[2];
 
@@ -92,17 +92,22 @@ void TentacleSObj::idle() {
 		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
 		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 	}
-	else if(stateCounter < 15) {
-		changeProportionM.y+=7;
-		changePosM.y--;
-		changePosT.y++;
+	else if(stateCounter < 16) {
+		changePosT.y -= 2;
+		changePosT.z += 3;
+		changeProportionT.z -= 3;
+	}
+	else if (stateCounter < 24) {
+		changePosT.y += 2;
+		changePosT.z -= 3;
+		changeProportionT.z += 3;
 	}
 	else {
-		changeProportionM.y-=7;
-		changePosM.y++;
-		changePosT.y--;
+		changePosT.y += 2;
+		changePosT.z += 3;
+		changeProportionT.z -= 3;
 	}
-
+	
 	// we're done!
 	currStateDone = (stateCounter == 30);
 
@@ -124,6 +129,7 @@ void TentacleSObj::idle() {
 	((AabbElement*)cm->get(0))->bx = *(base.fix());		//pm->colBoxes[0] = *(base.fix());
 	((AabbElement*)cm->get(1))->bx = *(middle.fix());	//pm->colBoxes[1] = *(middle.fix());
 	((AabbElement*)cm->get(2))->bx = *(tip.fix());		//pm->colBoxes[2] = *(tip.fix());
+	
 }
 
 // TODO PROBE!!!

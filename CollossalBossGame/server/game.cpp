@@ -74,7 +74,7 @@ void addPlatforms()
 	moving_box_placements.push_back(Point_t(220,240,-240));
 	moving_box_placements.push_back(Point_t(260,290,-210));
 	moving_box_placements.push_back(Point_t(360,290,-310));
-
+	
 	for(int i = 0; i < moving_box_placements.size(); i+=5)
 	{
 		TestSObj * platform_east = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i], Quat_t(), TEST_EAST);
@@ -143,7 +143,7 @@ void gameInit() {
 	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
 	som->add(monster);
 
-	addPlatforms();
+//	addPlatforms();
 /*
 	Point_t pos = Point_t(0, 10, 15);
 	Vec3f force = Vec3f(0, 0, 0);
