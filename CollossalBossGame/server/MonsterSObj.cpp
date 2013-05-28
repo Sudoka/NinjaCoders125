@@ -46,6 +46,16 @@ MonsterSObj::~MonsterSObj(void)
  */
 void MonsterSObj::setupAvailablePlacements()
 {
+	// North Wall
+	availablePlacements.push_back(Frame(Vec3f(140.25, 147.5, -300), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(106.25, 50, -300), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(-106.25, 50, -300), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(318.75, 147.5, -300), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(532.5, 250.15, -300), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(-73.25, 245.15, -300), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(-570.5, 258.15, -300), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(-553.5, 147.5, -300), Quat_t(Vec3f(1, 0, 0), M_PI)));
+
 	// South Wall
 	availablePlacements.push_back(Frame(Vec3f(553.5, 147.5, 300), Quat_t(Vec3f(0, 0, 0), 0)));
 	availablePlacements.push_back(Frame(Vec3f(570.5, 258.15, 300), Quat_t(Vec3f(0, 0, 0), 0)));
