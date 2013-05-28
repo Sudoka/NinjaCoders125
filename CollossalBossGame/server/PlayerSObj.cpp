@@ -86,6 +86,9 @@ void PlayerSObj::initialize() {
 	camKpSlow = CM::get()->find_config_as_float("CAM_KP_SLOW");
 	camKpFast = CM::get()->find_config_as_float("CAM_KP_FAST");
 	camKp = camKpSlow;
+
+	scientistBuffCounter = 0;
+	scientistBuffDecreasing = false;
 }
 
 PlayerSObj::~PlayerSObj(void) {
@@ -198,6 +201,16 @@ bool PlayerSObj::update() {
 		if(!firedeath) {
 			firedeath = true;
 			GameServer::get()->event_player_death(this->getId());
+		}
+	}
+
+	if (this->scientistBuffDecreasing)
+	{
+		this->attacking = true;
+		this->scientistBuffCounter -= 1;
+		if (this->scientistBuffCounter == 0) {
+			this->scientistBuffDecreasing = false;
+			this->attacking = false;
 		}
 	}
 

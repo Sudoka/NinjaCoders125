@@ -34,6 +34,11 @@ public:
 	bool ready;
 	CharacterClass charclass;
 	bool jumping;
+	
+	//For the scientist buff
+	int scientistBuffCounter;
+	bool scientistBuffDecreasing;
+
 protected:
 
 	uint clientId;
