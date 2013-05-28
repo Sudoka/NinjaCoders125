@@ -46,6 +46,11 @@ MonsterSObj::~MonsterSObj(void)
  */
 void MonsterSObj::setupAvailablePlacements()
 {
+	// Floor
+	availablePlacements.push_back(Frame(Vec3f(-265, 45, 120), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
+	availablePlacements.push_back(Frame(Vec3f(370, 45, -220), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
+	availablePlacements.push_back(Frame(Vec3f(75, 45, -20), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
+
 	// East Wall (non-window)
 	availablePlacements.push_back(Frame(Vec3f(585.5, 85, 75), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
 	availablePlacements.push_back(Frame(Vec3f(585.5, 220, -160), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
