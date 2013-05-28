@@ -16,7 +16,7 @@ HarpoonCObj::HarpoonCObj(uint id, char *serializedData) :
 	// todo send -1
 	rm = new RenderModel(Point_t(),Quat_t(), (Model)-1);
 	deserialize(serializedData);
-	pewPew = new HarpoonEffect();
+	pewPew = new HarpoonEffect(this->creatorid);
 	RE::get()->addParticleEffect(pewPew);
 }
 

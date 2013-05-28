@@ -1,12 +1,13 @@
 #include "HarpoonEffect.h"
 
 
-HarpoonEffect::HarpoonEffect(void)
+HarpoonEffect::HarpoonEffect(int playerid)
 {
 	vbSize = 2046;
 	vbOffset = 0;
 	vbBatchSize = 512;
 	pointSize = 2.5f;
+	this->playerid = playerid;
 }
 
 
@@ -24,14 +25,16 @@ void HarpoonEffect::resetParticle(ParticleAttributes* a)
 	else {
 		a->isAlive = true;
 		a->pos = pos;
-		a->age = 0;
-		a->lifetime = 5;
+		a->age = 0.9f;
+		a->lifetime = 1;
 		a->color = D3DXCOLOR(1.0f,0.0f,1.0f,1.0f);
 	}
 }
 
 void HarpoonEffect::update(float timeDelta)
 {
+	particles.clear();
+	
 	list<ParticleAttributes>::iterator i;
 	for(i = particles.begin(); i != particles.end(); i++)
 	{
@@ -40,6 +43,7 @@ void HarpoonEffect::update(float timeDelta)
 		
 	}
 	this->removeDeadParticles();
+	
 }
 
 void HarpoonEffect::setPosition(Vec3f pos, int size)
