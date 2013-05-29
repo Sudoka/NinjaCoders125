@@ -115,7 +115,7 @@ bool MonsterPartSObj::update() {
 	}
 
 	///////////////////// State logic ///////////////////////
-	//actionState = COMBO_ACTION;
+	actionState = MOVE_ACTION;
 
 	switch(actionState)
 	{

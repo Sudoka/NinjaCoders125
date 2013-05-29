@@ -140,10 +140,10 @@ void gameInit() {
 	wobj->setGravitySwitch(CM::get()->find_config_as_bool("ENABLE_GRAVITY"));
 
 	//MonsterSObj* monster = new MonsterSObj(som->genId(), 2);
-	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
+	MonsterSObj* monster = new MonsterSObj(som->genId(), 4); // 4
 	som->add(monster);
+	//addPlatforms();
 
-//	addPlatforms();
 /*
 	Point_t pos = Point_t(0, 10, 15);
 	Vec3f force = Vec3f(0, 0, 0);
