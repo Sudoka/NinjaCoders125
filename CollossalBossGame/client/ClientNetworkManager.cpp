@@ -1,6 +1,7 @@
 #include "ClientNetworkManager.h"
 #include "ConfigurationManager.h"
 #include "ClientObjectManager.h"
+#include "ClientEngine.h"
 #include "TestObject.h"
 #include <iostream>
 #include <string>
@@ -199,7 +200,7 @@ bool ClientNetworkManager::update()
 				COM::get()->serverUpdate(packet.object_id, packet.command_type, packet.packet_data);
                 break;
 			case GAMESTATE_MANAGER:
-				// ClientEngine::get()->serverUpdate(packet.packet_data);
+				ClientEngine::get()->setState(packet.packet_data);
 				break;
 			case RESET:
 				// RESET LOGIC. Like destroying everything and resetting.

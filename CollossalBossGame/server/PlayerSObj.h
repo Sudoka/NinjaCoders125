@@ -39,9 +39,10 @@ public:
 	int scientistBuffCounter;
 	bool scientistBuffDecreasing;
 
-protected:
-
 	uint clientId;
+
+protected:
+	int deathtimer;
 	PhysicsModel *pm;
 	inputstatus istat;
 	Point_t lastCollision;

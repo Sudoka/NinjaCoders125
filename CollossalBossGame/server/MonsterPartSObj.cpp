@@ -3,6 +3,7 @@
 #include "BulletSObj.h"
 #include "ConfigurationManager.h"
 #include "ServerObjectManager.h"
+#include "GameServer.h"
 
 MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj* master) : ServerObject(id)
 {
@@ -21,135 +22,141 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 	stateCounter = 0;
 	attacked = false; // haven't been attacked yet
 	currStateDone = true; // no states have started yet
+
+	GameServer::get()->state.monsterspawn();
 }
 
 
 MonsterPartSObj::~MonsterPartSObj(void)
 {
 	delete pm;
+	
+	GameServer::get()->state.monsterdeath();
 }
 
 bool MonsterPartSObj::update() {
-	stateCounter++;
+	if (!GameServer::get()->state.gameover) {
+		stateCounter++;
 
-	////////////////// State transitions /////////////////////
-	// These should maybe be moved to the monster...
-	// Only change states when our current state has gone through a whole cycle
-	// This should be set by the individual state methods when their cycle is over
-	// i.e. idle(), slam(), spike(), etc...
-	if (currStateDone)
-	{
-		// we're about to start a new state =)
-		stateCounter = 0;
-		currStateDone = false; 
-
-		// If you're dead, you're dead xD
-		if (health <= 0) {
-			health = 0;
-
-			// If my previous state was death, I already did my fancy animation
-			if (actionState == DEATH_ACTION) {
-				overlord->removePart(this);
-				return true; // I died!
-			}
-			// Otherwise, do my fancy animation before actually dying
-			else
-			{
-				actionState = DEATH_ACTION;
-			}
-		}
-		else
+		////////////////// State transitions /////////////////////
+		// These should maybe be moved to the monster...
+		// Only change states when our current state has gone through a whole cycle
+		// This should be set by the individual state methods when their cycle is over
+		// i.e. idle(), slam(), spike(), etc...
+		if (currStateDone)
 		{
-			int angryProb = attacked ? 85 : 60;
-		
-			// we're angry!
-			if ((rand() % 100) < angryProb) 
-			{
-				// fight or flight?
-				int moveProb = 15;
+			// we're about to start a new state =)
+			stateCounter = 0;
+			currStateDone = false; 
 
-				// Flight!
-				if ((rand() % 100) < moveProb)
-				{
-					this->setFlag(IS_HARMFUL, 0);
-					actionState = MOVE_ACTION;
+			// If you're dead, you're dead xD
+			if (health <= 0) {
+				health = 0;
+
+				// If my previous state was death, I already did my fancy animation
+				if (actionState == DEATH_ACTION) {
+					overlord->removePart(this);
+					return true; // I died!
 				}
-				// Fight!!
+				// Otherwise, do my fancy animation before actually dying
 				else
 				{
-					this->setFlag(IS_HARMFUL, 1);
+					actionState = DEATH_ACTION;
+				}
+			}
+			else
+			{
+				int angryProb = attacked ? 85 : 60;
+		
+				// we're angry!
+				if ((rand() % 100) < angryProb) 
+				{
+					// fight or flight?
+					int moveProb = 15;
 
-					// This sets all player info in our fields
-					this->findPlayer();
-
-					int targetAttackProb = this->playerFound ? 90 : 25;
-
-					// targetted attack
-					if ((rand() % 100) < targetAttackProb)
+					// Flight!
+					if ((rand() % 100) < moveProb)
 					{
-						actionState = ATTACK_ACTION;
+						this->setFlag(IS_HARMFUL, 0);
+						actionState = MOVE_ACTION;
 					}
-					// non-targetted attack
+					// Fight!!
 					else
 					{
-						// randomly pick between combo attack, spike, and defense rage
-						switch(rand() % 3)
+						this->setFlag(IS_HARMFUL, 1);
+
+						// This sets all player info in our fields
+						this->findPlayer();
+
+						int targetAttackProb = this->playerFound ? 90 : 25;
+
+						// targetted attack
+						if ((rand() % 100) < targetAttackProb)
 						{
-						case 0:		actionState = COMBO_ACTION; break;
-						case 1:		actionState = SPIKE_ACTION; break;
-						default:	actionState = RAGE_ACTION; break;
+							actionState = ATTACK_ACTION;
+						}
+						// non-targetted attack
+						else
+						{
+							// randomly pick between combo attack, spike, and defense rage
+							switch(rand() % 3)
+							{
+							case 0:		actionState = COMBO_ACTION; break;
+							case 1:		actionState = SPIKE_ACTION; break;
+							default:	actionState = RAGE_ACTION; break;
+							}
 						}
 					}
 				}
-			}
-			// we're not attacking!
-			else
-			{
-				this->setFlag(IS_HARMFUL, 0);
+				// we're not attacking!
+				else
+				{
+					this->setFlag(IS_HARMFUL, 0);
 
-				// randomly pick between idle and probing
-				if (rand() % 2) { actionState = IDLE_ACTION; }
-				else { actionState = PROBE_ACTION; }
+					// randomly pick between idle and probing
+					if (rand() % 2) { actionState = IDLE_ACTION; }
+					else { actionState = PROBE_ACTION; }
+				}
 			}
 		}
+
+		///////////////////// State logic ///////////////////////
+		actionState = MOVE_ACTION;
+
+		switch(actionState)
+		{
+		case IDLE_ACTION:
+			idle();
+			break;
+		case PROBE_ACTION:
+			probe();
+			break;
+		case ATTACK_ACTION:
+			attack();
+			break;
+		case COMBO_ACTION:
+			combo();
+			break;
+		case SPIKE_ACTION:
+			spike();
+			break;
+		case RAGE_ACTION:
+			rage();
+			break;
+		case MOVE_ACTION:
+			move();
+			break;
+		case DEATH_ACTION:
+			death();
+			break;
+		default:
+			if(actionState > NUM_MONSTER_ACTIONS) DC::get()->print("ERROR: Monster state %d not known\n", actionState);
+			break;
+		}
+
+		// Reset attack every update loop, onCollision re-sets it
+		attacked = false;
 	}
-
-	///////////////////// State logic ///////////////////////
-	actionState = MOVE_ACTION;
-
-	switch(actionState)
-	{
-	case IDLE_ACTION:
-		idle();
-		break;
-	case PROBE_ACTION:
-		probe();
-		break;
-	case ATTACK_ACTION:
-		attack();
-		break;
-	case COMBO_ACTION:
-		combo();
-		break;
-	case SPIKE_ACTION:
-		spike();
-		break;
-	case RAGE_ACTION:
-		rage();
-		break;
-	case MOVE_ACTION:
-		move();
-		break;
-	case DEATH_ACTION:
-		death();
-		break;
-	default:
-		if(actionState > NUM_MONSTER_ACTIONS) DC::get()->print("ERROR: Monster state %d not known\n", actionState);
-		break;
-	}
-	// Reset attack every update loop, onCollision re-sets it
-	attacked = false;
-
 	return false;
 }
 

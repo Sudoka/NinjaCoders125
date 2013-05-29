@@ -226,8 +226,12 @@ RenderEngine::~RenderEngine() {
 
 void RenderEngine::drawHUD() {
 	if(gamestarted) {
-		hud->displayText(this->hudText,this->monsterHUDText);
-		hud->displayHealthBars(this->healthPts, this->monsterHealthPts, this->charge);
+		if(CE::get()->getState().gameover) {
+			hud->displayGameStats();
+		} else {
+			hud->displayText(this->hudText,this->monsterHUDText);
+			hud->displayHealthBars(this->healthPts, this->monsterHealthPts, this->charge);
+		}
 	}
 	else
 	{
