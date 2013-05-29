@@ -59,21 +59,21 @@ void addPlatforms()
 	//---------------------------------------Moving---------------------------------------------
 
 	vector<Point_t> moving_box_placements; //make sure divisible by 5
-	moving_box_placements.push_back(Point_t(10,40,10));
+	//moving_box_placements.push_back(Point_t(10,40,10));
 	moving_box_placements.push_back(Point_t(110,10,110));
-	moving_box_placements.push_back(Point_t(120,80,-110));
+	//moving_box_placements.push_back(Point_t(120,80,-110));
 	moving_box_placements.push_back(Point_t(160,90,-110));
-	moving_box_placements.push_back(Point_t(110,110,110));
+	//moving_box_placements.push_back(Point_t(110,110,110));
 	moving_box_placements.push_back(Point_t(120,180,-110));
-	moving_box_placements.push_back(Point_t(120,140,-140));
+	//moving_box_placements.push_back(Point_t(120,140,-140));
 	moving_box_placements.push_back(Point_t(160,190,-110));
-	moving_box_placements.push_back(Point_t(10,170,-110));
+	//moving_box_placements.push_back(Point_t(10,170,-110));
 	moving_box_placements.push_back(Point_t(210,240,210));
-	moving_box_placements.push_back(Point_t(210,210,210));
-	moving_box_placements.push_back(Point_t(220,280,-210));
-	moving_box_placements.push_back(Point_t(220,240,-240));
-	moving_box_placements.push_back(Point_t(260,290,-210));
-	moving_box_placements.push_back(Point_t(360,290,-310));
+	//moving_box_placements.push_back(Point_t(210,210,210));
+	//moving_box_placements.push_back(Point_t(220,280,-210));
+	//moving_box_placements.push_back(Point_t(220,240,-240));
+	//moving_box_placements.push_back(Point_t(260,290,-210));
+	//moving_box_placements.push_back(Point_t(360,290,-310));
 
 	for(int i = 0; i < moving_box_placements.size(); i+=5)
 	{
@@ -101,29 +101,32 @@ void addPlatforms()
 	
 	// ---------------------------------- Static -------------------------------------------------------------
 
-	vector<Point_t> static_box_placements; //make sure divisible by 4
-	static_box_placements.push_back(Point_t(10,10,10));
+	vector<Point_t> static_box_placements; //make sure divisible by 2
 	static_box_placements.push_back(Point_t(510,210,210));
-	static_box_placements.push_back(Point_t(420,80,-300));
+	static_box_placements.push_back(Point_t(420,80,-250));
 	static_box_placements.push_back(Point_t(560,90,-110));
-	static_box_placements.push_back(Point_t(610,110,300));
-	static_box_placements.push_back(Point_t(610,180,-300));
+	static_box_placements.push_back(Point_t(610,110,260));
+	static_box_placements.push_back(Point_t(510,180,-270));
 	static_box_placements.push_back(Point_t(-520,240,-240));
 	static_box_placements.push_back(Point_t(-160,190,-210));
-	static_box_placements.push_back(Point_t(-10,170,-300));
-	static_box_placements.push_back(Point_t(-210,240,-110));
-	static_box_placements.push_back(Point_t(610,190,300));
-	static_box_placements.push_back(Point_t(610,180,-300));
-	static_box_placements.push_back(Point_t(-610,240,-270));
-	static_box_placements.push_back(Point_t(-560,190,-210));
-	static_box_placements.push_back(Point_t(460,190,-110));
-	static_box_placements.push_back(Point_t(-260,190,-280));
+	static_box_placements.push_back(Point_t(-10,140,-250));
+	//static_box_placements.push_back(Point_t(-210,240,-110));
+	//static_box_placements.push_back(Point_t(610,160,260));
+	//static_box_placements.push_back(Point_t(610,160,-270));
+	//static_box_placements.push_back(Point_t(-610,240,-270));
+	//static_box_placements.push_back(Point_t(-560,190,-210));
+	//static_box_placements.push_back(Point_t(460,190,-110));
+	//static_box_placements.push_back(Point_t(-260,190,-280));
+	//static_box_placements.push_back(Point_t(260,190,280));
 
-	for(int i = 0; i < static_box_placements.size(); i++)
+	for(int i = 0; i < static_box_placements.size() - 1; i++)
 	{
-		TestSObj * platform = new TestSObj(som->genId(), MDL_TEST_BOX, static_box_placements[i], Quat_t());
+		TestSObj * platform = new TestSObj(som->genId(), MDL_TEST_BOX, static_box_placements[i], Quat_t(), TEST_STILL);
 		platform->setFlag(IS_STATIC, true);
 		som->add(platform);
+
+		TestSObj * crate = new TestSObj(som->genId(), MDL_TEST_CRATE, static_box_placements[i+1], Quat_t(), TEST_STILL);
+		som->add(crate);
 	}
 }
 
