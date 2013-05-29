@@ -22,5 +22,6 @@ private:
 	RenderModel *rm;
 	HarpoonEffect* pewPew;
 	int diameter;
+	ClientObject* master;
 };
 

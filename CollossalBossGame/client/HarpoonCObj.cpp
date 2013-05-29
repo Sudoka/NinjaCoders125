@@ -16,8 +16,10 @@ HarpoonCObj::HarpoonCObj(uint id, char *serializedData) :
 	// todo send -1
 	rm = new RenderModel(Point_t(),Quat_t(), (Model)-1);
 	deserialize(serializedData);
-	pewPew = new HarpoonEffect(this->creatorid);
-	RE::get()->addParticleEffect(pewPew);
+	//pewPew = new HarpoonEffect();
+	//RE::get()->addParticleEffect(pewPew);
+
+	master = COM::get()->find(this->creatorid);
 }
 
 
@@ -25,12 +27,13 @@ HarpoonCObj::~HarpoonCObj(void)
 {
 	// delete xctrl;
 	delete rm;
-	RE::get()->removeParticleEffect(pewPew);
+	//RE::get()->removeParticleEffect(pewPew);
 }
 
 bool HarpoonCObj::update() {
-	pewPew->setPosition(rm->getFrameOfRef()->getPos(), this->diameter);
-	pewPew->update(.33);
+	
+	//pewPew->setPosition(rm->getFrameOfRef()->getPos(), master->getRenderModel()->getFrameOfRef()->getPos(), this->diameter);
+    //pewPew->update(.33);
 	return false;
 }
 
