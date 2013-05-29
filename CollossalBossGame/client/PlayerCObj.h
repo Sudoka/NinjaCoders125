@@ -33,7 +33,7 @@ private:
 	//sounds
 	uint jumpsound;
 	bool buttonheld;
-	SoundState sState;
-	SoundTrigger sTrig;
+	PlayerSoundState sState;
+	PlayerSoundTrigger sTrig;
 };
 

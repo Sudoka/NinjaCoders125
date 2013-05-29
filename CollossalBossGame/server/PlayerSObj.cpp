@@ -103,8 +103,8 @@ bool PlayerSObj::update() {
 	Quat_t upRot;
 	calcUpVector(&upRot);
 	controlCamera(upRot);
-	sState = SOUND_SILENT;
-	sTrig = SOUND_NO_NEW_TRIG;
+	sState = SOUND_PLAYER_SLIENT;
+	sTrig = SOUND_PLAYER_NO_NEW_TRIG;
 
 	if(this->health > 0)
 	{

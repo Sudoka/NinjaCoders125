@@ -92,27 +92,74 @@ enum ObjectType {
 };
 
 /*
- * These enums are used for specifying which sounds to play
+ * These enums are used mostly for specifying sound loops
  */
-enum SoundState {
-	SOUND_SILENT,
+enum PlayerSoundState {
+	SOUND_PLAYER_SLIENT,
 	SOUND_PLAYER_WALK,
-	SOUND_PLAYER_FALL,
-	SOUND_CYBORG_CHARGE,
-	SOUND_BOSS_IDLE,
+	SOUND_PLAYER_FALL, //maybe?
+	SOUND_CYBORG_CHARGE //might have to make it so you can charge and walk
 };
 
-enum SoundTrigger {
-	SOUND_NO_NEW_TRIG,
-	SOUND_PLAYER_JUMP,
-	SOUND_PLAYER_HIT,
-	SOUND_PLAYER_HURT,
-	SOUND_CYBORG_ATTACK,
-	SOUND_SHOOT_GUN,
-	SOUND_SHOOT_GRAPPEL,
-	SOUND_BOSS_SLAM,
-	SOUND_ARENA_DOOR_OPEN,
-	SOUND_ARENA_DOOR_CLOSE
+enum TentacleSoundState {
+	SOUND_TENTACLE_SILENT,
+	SOUND_TENTACLE_IDLE,
+};
+
+enum HeadSoundState {
+	SOUND_HEAD_SILENT,
+	SOUND_HEAD_IDLE,
+	SOUND_HEAD_ROAR //might be a trigger?
+};
+
+//combine with music?
+enum ArenaSoundState {
+	SOUND_ARENA_SILENT,
+	SOUND_ARENA_IDLE
+};
+
+/* Do we need this?
+enum PropSoundState {
+	SOUND_SILENT,
+	SOUND_BOX_HUM //hum for the moving boxes?
+}
+ */
+
+/*
+ * These enums are used to trigger one shot samples
+ */
+enum PlayerSoundTrigger {
+	SOUND_PLAYER_NO_NEW_TRIG, 
+	SOUND_PLAYER_JUMP, //on impact or vocal jump like link?
+	SOUND_PLAYER_HIT, 
+	SOUND_PLAYER_HURT, //may be the same as hit, but for now keep separate
+	SOUND_CYBORG_ATTACK, //swoosh sound
+	SOUND_CYBORG_ATTACK_IMPACT, //sword clash after swoosh
+	SOUND_SHOOT_GUN, 
+	SOUND_SHOOT_GRAPPLE
+};
+
+enum TentacleSoundTrigger {
+	SOUND_TENTACLE_NO_NEW_TRIG,
+	SOUND_TENTACLE_SLAM
+};
+
+enum HeadSoundTrigger {
+	SOUND_HEAD_NO_NEW_TRIG,
+	SOUND_HEAD_SHOOT,
+	SOUND_HEAD_RAGE,
+	SOUND_HEAD_SPIKE
+};
+
+enum ArenaSoundTrigger {
+	SOUND_ARENA_NO_NEW_TRIG,
+	SOUND_DOOR_OPEN,
+	SOUND_DOOR_CLOSE
+};
+
+enum PropSoundTrigger {
+	SOUND_PROP_NO_NEW_TRIG,
+	SOUND_CRATE_CRASH //for impact on gravity change
 };
 
 /*
@@ -146,8 +193,8 @@ struct PlayerState {
 	int ready;
 	int charge;
 	int animationstate;
-	SoundState sState;
-	SoundTrigger sTrig;
+	PlayerSoundState sState;
+	PlayerSoundTrigger sTrig;
 	Quat_t camRot;
 };
 

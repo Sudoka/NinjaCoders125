@@ -53,8 +53,9 @@ private:
 	bool camLocked;
 	float camKp, camKpFast, camKpSlow;
 
-	SoundState sState;
-	SoundTrigger sTrig;
+	//Sounds
+	PlayerSoundState sState;
+	PlayerSoundTrigger sTrig;
 
 	bool firedeath;
 	int gravityTimer;
