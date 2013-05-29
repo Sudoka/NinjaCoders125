@@ -7,9 +7,12 @@
 #include "PlayerCObj.h"
 #include "CyborgCObj.h"
 #include "ShooterCObj.h"
+#include "MechanicCObj.h"
+#include "ScientistCObj.h"
 #include "BulletCObj.h"
 #include "MonsterCObj.h"
 #include "TentacleCObj.h"
+#include "RageCObj.h"
 
 ClientObjectManager *ClientObjectManager::com;
 
@@ -115,7 +118,7 @@ void ClientObjectManager::create(uint id, char *data) {
 	switch(h->type) {
 	case OBJ_WORLD:
 		//Just copy the world state into our state variable- no need to create an object
-		this->worldState = (*(WorldState*)data);
+		this->worldState = (*(WorldState*)(data + sizeof(CreateHeader)));
 		break;
 	case OBJ_PLAYER:
 		switch(h->cc) {
@@ -126,10 +129,10 @@ void ClientObjectManager::create(uint id, char *data) {
 				obj = new ShooterCObj(id, data + sizeof(CreateHeader));
 				break;
 			case CHAR_CLASS_SCIENTIST:
-				//obj = new ScientistCObj(id, data + sizeof(CreateHeader));
+				obj = new ScientistCObj(id, data + sizeof(CreateHeader));
 				break;
 			case CHAR_CLASS_MECHANIC:
-				//obj = new MechanicCObj(id, data + sizeof(CreateHeader));
+				obj = new MechanicCObj(id, data + sizeof(CreateHeader));
 				break;
 		}
 		//obj = new PlayerCObj(id, data + sizeof(CreateHeader));
@@ -137,11 +140,17 @@ void ClientObjectManager::create(uint id, char *data) {
 	case OBJ_BULLET:
 		obj = new BulletCObj(id, data + sizeof(CreateHeader));
 		break;
+	case OBJ_HARPOON:
+		obj = new HarpoonCObj(id, data + sizeof(CreateHeader));
+		break;
 	case OBJ_MONSTER:
 		obj = new MonsterCObj(id, data + sizeof(CreateHeader));
 		break;
 	case OBJ_TENTACLE:
 		obj = new TentacleCObj(id, data + sizeof(CreateHeader));
+		break;
+	case OBJ_RAGE:
+		obj = new RageCObj(id, data + sizeof(CreateHeader));
 		break;
 	//case OBJ_ARENA:
 	//	obj = new WallCObj(id, data + sizeof(CreateHeader));

@@ -22,30 +22,36 @@ public:
 	void setAnimationState(int state) { modelAnimationState = state; }
 	char serialbuffer[100];
 
+	virtual void clearAccessory() { }
+
+	void acquireTarget();
+	int targetlockon;
+
 	bool attacking, newAttack;
 	uint jumpCounter, attackCounter;
 	int health;
 	int damage;
 	bool ready;
 	CharacterClass charclass;
+	bool jumping;
 protected:
 
 	uint clientId;
 	PhysicsModel *pm;
 	inputstatus istat;
 	Point_t lastCollision;
-	bool jumping, newJump, appliedJumpForce;
+	bool newJump, appliedJumpForce;
 	bool charging, newCharge;
 	float charge;
 	// Configuration options
 	float jumpDist;
-	float chargeForce, chargeUpdate;
+	float chargeForce, chargeUpdate, chargeCap;
 	int movDamp;
 
 	//Rotational tracking
 	float t;
 	float tRate;
-	//Quat_t yawRot;			//Yaw about the default up vector
+	//Quat_t yawRot;		//Yaw about the default up vector
 	//Quat_t camYawRot;		//Camera yaw about the default up vector
 	float yaw;
 	float camYaw;
@@ -58,6 +64,10 @@ protected:
 	bool camLocked;
 	float camKp, camKpFast, camKpSlow;
 
+	//Sounds
+	PlayerSoundState sState;
+	PlayerSoundTrigger sTrig;
+
 	bool firedeath;
 	int gravityTimer;
 	int modelAnimationState;
@@ -67,7 +77,7 @@ protected:
 	void  controlCamera(const Quat_t &upRot);
 	float controlAngles(float des, float cur);
 
-	virtual void releaseCharge() = 0;
+	virtual void actionCharge(bool buttondown) = 0;
 	virtual void actionAttack() = 0;
 };
 

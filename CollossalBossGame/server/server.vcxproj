@@ -37,7 +37,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>../shared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <SourcePath>$(SourcePath)</SourcePath>
@@ -73,16 +73,24 @@
     <ClCompile Include="BulletSObj.cpp" />
     <ClCompile Include="CyborgSObj.cpp" />
     <ClCompile Include="CollisionModel.cpp" />
+    <ClCompile Include="FireBallSObj.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="GameServer.cpp" />
+    <ClCompile Include="HeadSObj.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MonsterPartSObj.cpp" />
     <ClCompile Include="MonsterSObj.cpp" />
-    <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="PlayerSObj.cpp" />
+    <ClCompile Include="RageSObj.cpp" />
+    <ClCompile Include="HarpoonSObj.cpp" />
+    <ClCompile Include="MechanicSObj.cpp" />
+    <ClCompile Include="PhysicsEngine.cpp" />
+    <ClCompile Include="ScientistSObj.cpp" />
     <ClCompile Include="ServerNetworkManager.cpp" />
     <ClCompile Include="ServerObject.cpp" />
     <ClCompile Include="ServerObjectManager.cpp" />
     <ClCompile Include="ShooterSObj.cpp" />
+    <ClCompile Include="StunGunSObj.cpp" />
     <ClCompile Include="TentacleSObj.cpp" />
     <ClCompile Include="TestSObj.cpp" />
     <ClCompile Include="WallSObj.cpp" />
@@ -93,16 +101,24 @@
     <ClInclude Include="BulletSObj.h" />
     <ClInclude Include="CyborgSObj.h" />
     <ClInclude Include="CollisionModel.h" />
+    <ClInclude Include="FireBallSObj.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="GameServer.h" />
+    <ClInclude Include="HeadSObj.h" />
+    <ClInclude Include="MonsterPartSObj.h" />
+    <ClInclude Include="HarpoonSObj.h" />
+    <ClInclude Include="MechanicSObj.h" />
     <ClInclude Include="MonsterSObj.h" />
     <ClInclude Include="PhysicsEngine.h" />
     <ClInclude Include="PhysicsModel.h" />
     <ClInclude Include="PlayerSObj.h" />
+    <ClInclude Include="RageSObj.h" />
+    <ClInclude Include="ScientistSObj.h" />
     <ClInclude Include="ServerNetworkManager.h" />
     <ClInclude Include="ServerObject.h" />
     <ClInclude Include="ServerObjectManager.h" />
     <ClInclude Include="ShooterSObj.h" />
+    <ClInclude Include="StunGunSObj.h" />
     <ClInclude Include="TentacleSObj.h" />
     <ClInclude Include="TestSObj.h" />
     <ClInclude Include="WallSObj.h" />

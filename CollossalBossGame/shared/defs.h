@@ -147,7 +147,9 @@ typedef enum OBJ_FLAG {
 	//Physics flags
 	IS_STATIC,
 	IS_PASSABLE,
-	IS_FALLING
+	IS_FALLING,
+	IS_FLOATING,
+	IS_IGNORE_INPUT
 };
 
 typedef enum DIRECTION {

@@ -10,6 +10,6 @@ public:
 
 	virtual void initialize();
 protected:
-	virtual void releaseCharge();
+	virtual void actionCharge(bool buttondown);
 	virtual void actionAttack();
 };

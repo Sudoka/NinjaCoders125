@@ -1,5 +1,8 @@
 #pragma once
 #include "ClientObject.h"
+#include "SmokeEffect.h"
+#include "PushAwayEffect.h"
+#include "PortalEffect.h"
 
 class TentacleCObj : public ClientObject
 {
@@ -17,5 +20,11 @@ public:
 private:
 	RenderModel * box;
 	RenderModel *rm;
+	SmokeEffect* smoking;
+	PortalEffect* portal; 
+	bool fogging;
+	bool startedFogging;
+	float density;
+	float densityCounter;
 };
 

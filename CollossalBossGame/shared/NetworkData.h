@@ -60,6 +60,7 @@ enum Model {
     MDL_TENTACLE_3,
     MDL_TENTACLE_4,
     MDL_TENTACLE_5,
+	MDL_HEAD_1,
     MDL_FLOOR,
     MDL_CEILING,
 	MDL_EAST_WALL,
@@ -71,6 +72,7 @@ enum Model {
 	MDL_PLAYER_3,
 	MDL_PLAYER_4,
 	MDL_TEST_BOX,
+	MDL_TEST_CRATE, 
 	MDL_TEST_PYRAMID,
 	MDL_TEST_PLANE,
 	MDL_TEST_BALL,
@@ -88,8 +90,82 @@ enum ObjectType {
 	OBJ_PLAYER,
 	OBJ_MONSTER,
 	OBJ_TENTACLE,
+	OBJ_RAGE,
 	OBJ_BULLET,
+	OBJ_HARPOON,
+	OBJ_STUNGUN,
 	NUM_OBJS
+};
+
+/*
+ * These enums are used mostly for specifying sound loops
+ */
+enum PlayerSoundState {
+	SOUND_PLAYER_SLIENT,
+	SOUND_PLAYER_WALK,
+	SOUND_PLAYER_FALL, //maybe?
+	SOUND_CYBORG_CHARGE //might have to make it so you can charge and walk
+};
+
+enum TentacleSoundState {
+	SOUND_TENTACLE_SILENT,
+	SOUND_TENTACLE_IDLE,
+};
+
+enum HeadSoundState {
+	SOUND_HEAD_SILENT,
+	SOUND_HEAD_IDLE,
+	SOUND_HEAD_ROAR //might be a trigger?
+};
+
+//combine with music?
+enum ArenaSoundState {
+	SOUND_ARENA_SILENT,
+	SOUND_ARENA_IDLE
+};
+
+/* Do we need this?
+enum PropSoundState {
+	SOUND_SILENT,
+	SOUND_BOX_HUM //hum for the moving boxes?
+}
+*/
+
+/*
+ * These enums are used to trigger one shot samples
+ */
+enum PlayerSoundTrigger {
+	SOUND_PLAYER_NO_NEW_TRIG, 
+	SOUND_PLAYER_JUMP, //on impact or vocal jump like link?
+	SOUND_PLAYER_HIT, 
+	SOUND_PLAYER_HURT, //may be the same as hit, but for now keep separate
+	SOUND_CYBORG_ATTACK, //swoosh sound
+	SOUND_CYBORG_ATTACK_IMPACT, //sword clash after swoosh
+	SOUND_SHOOT_GUN, 
+	SOUND_SHOOT_GRAPPLE
+};
+
+enum TentacleSoundTrigger {
+	SOUND_TENTACLE_NO_NEW_TRIG,
+	SOUND_TENTACLE_SLAM
+};
+
+enum HeadSoundTrigger {
+	SOUND_HEAD_NO_NEW_TRIG,
+	SOUND_HEAD_SHOOT,
+	SOUND_HEAD_RAGE,
+	SOUND_HEAD_SPIKE
+};
+
+enum ArenaSoundTrigger {
+	SOUND_ARENA_NO_NEW_TRIG,
+	SOUND_DOOR_OPEN,
+	SOUND_DOOR_CLOSE
+};
+
+enum PropSoundTrigger {
+	SOUND_PROP_NO_NEW_TRIG,
+	SOUND_CRATE_CRASH //for impact on gravity change
 };
 
 /*
@@ -103,6 +179,7 @@ enum CharacterClass {
 	CHAR_CLASS_SCIENTIST,
 	CHAR_CLASS_MECHANIC 
 };
+
 /*
  * Data format structures
  * These structures are used for formatting serialized data.  No actual
@@ -135,6 +212,8 @@ struct PlayerState {
 	int ready;
 	int charge;
 	int animationstate;
+	PlayerSoundState sState;
+	PlayerSoundTrigger sTrig;
 	Quat_t camRot;
 };
 
@@ -171,18 +250,29 @@ struct MonsterState {
 };
 
 /*
- * State information for the tentacle not encoded by the position
+ * State information for the monster parts (heads/tentacles) not encoded by the position
  */
-struct TentacleState {
+struct MonsterPartState {
 	Model modelNum;
 	int animationState;
+	int animationFrame;
+	bool fog;
 };
 
-enum TentacleActionState {
-	T_IDLE,
-	T_SLAM,
-	NUM_T
-	//int health;
+#define IDLE_CYCLE_SIZE = 30
+#define SLAM_CYCLE_SIZE = 20
+#define DEFENSE_CYCLE_SIZE = 30
+
+enum MonsterAnimationState {
+	M_IDLE,
+	M_ATTACK, // SLAM or SHOOT
+	M_SPIKE,
+	M_RAGE,
+	M_DEATH,
+	M_EXIT,
+	M_ENTER,
+	M_PROBE,
+	NUM_M
 };
 
 /*
@@ -196,3 +286,10 @@ enum PlayerAnimationState {
 	DEAD = 4
 };
 
+enum BulletColor {
+	BLUE,
+	RED,
+	GREEN,
+	PURPLE,
+	GREY
+};

@@ -1,27 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
+    <ClCompile Include="AudioEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ClientEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderEngine.cpp">
+    <ClCompile Include="ClientNetworkManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ClientObject.cpp">
@@ -30,28 +19,28 @@
     <ClCompile Include="ClientObjectManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TestObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ClientNetworkManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="XboxController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderModel.cpp">
+    <ClCompile Include="MonsterCObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PlayerCObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="RenderEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MonsterCObj.cpp">
+    <ClCompile Include="RenderModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TentacleCObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XboxController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HeadsUpDisplay.cpp">
@@ -76,17 +65,53 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BulletCObj.cpp">
-	  <Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShootingEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SoundSource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SmokeEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PushAwayEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RageCObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PortalEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HarpoonCObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScientistCObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MechanicCObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HarpoonEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="XboxController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ClientEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RenderEngine.h">
+    <ClInclude Include="ClientNetworkManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ClientObject.h">
@@ -95,31 +120,28 @@
     <ClInclude Include="ClientObjectManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TestObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientNetworkManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="XboxController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerCObj.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="XAnimator\XAnimator_lib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="FMOD\inc\fmod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MonsterCObj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PlayerCObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="TentacleCObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XAnimator\XAnimator_lib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HeadsUpDisplay.h">
@@ -147,17 +169,47 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BulletCObj.h">
-	  <Filter>Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShootingEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SoundSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SmokeEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PushAwayEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RageCObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PortalEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HarpoonCObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScientistCObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MechanicCObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HarpoonEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="tiny.x">
+    <None Include="res\ballbounce.X">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="tiny_skin.bmp">
+    <None Include="wispwind.x">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="body.bmp">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="BONES.BMP">
@@ -166,13 +218,16 @@
     <None Include="bones_all.x">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="body.bmp">
+    <None Include="res\cute propeller.X">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="face.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="wispwind.x">
+    <None Include="res\plane.X">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="pyramidofDOOM.X">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="rabbit.x">
@@ -181,16 +236,7 @@
     <None Include="renderC.jpg">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="pyramidofDOOM.X">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="smallBox.X">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\plane.X">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\ballbounce.X">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="res\tentacle1.X">
@@ -199,9 +245,23 @@
     <None Include="res\tentacle_anim_1.X">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\cute propeller.X">
+    <None Include="tiny.x">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="tiny_skin.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{6b13c0c7-4191-4194-82c9-6b832a71f796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8294e95d-f501-403e-8e04-de5d97beb48f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{7e14f374-db54-427d-8b4d-f185789eb228}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="client.rc">

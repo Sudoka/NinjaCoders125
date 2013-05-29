@@ -27,7 +27,7 @@ ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Poin
 		fxo = -roomWidth / 2;
 		fyo = 0;
 		fzo = -roomLength / 2;
-		scale = 5.0f / 255.0f;
+		scale = 12.5 / 255.0f;
 		div = 5;
 	}
 

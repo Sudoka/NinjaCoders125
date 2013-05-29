@@ -7,6 +7,7 @@ ShootingEffect::ShootingEffect(void)
 	vbOffset = 0;
 	vbBatchSize = 512;
 	pointSize = 15.5f;
+	this->color = D3DXCOLOR(0.0f,1.0f,0.25f,1.0f);
 	addParticle();
 }
 
@@ -27,7 +28,7 @@ void ShootingEffect::resetParticle(ParticleAttributes* a)
 	D3DXVec3Normalize(&a->vel, &a->vel);
 	a->vel *= 7;  
 	*/
-	a->color = D3DXCOLOR(0.0f,1.0f,0.25f,1.0f);
+	a->color = this->color;
 	//a->age = 0;
 	//a->lifetime = 2;
 }
@@ -45,7 +46,9 @@ void ShootingEffect::update(float timeDelta)
 	}
 }
 
-void ShootingEffect::setPosition(Vec3f pos)
+void ShootingEffect::setPosition(Vec3f pos, int size, Vec3f color)
 {
+	this->pointSize = (float)size;
 	this->pos = D3DXVECTOR3(pos.x, pos.y, pos.z);
+	this->color = D3DXCOLOR(color.x,color.y,color.z,1.0f);
 }

@@ -9,6 +9,7 @@ ServerObject::ServerObject(uint id) {
 
 	//Set default flags
 	setFlag(IS_FALLING, true);
+	setFlag(IS_FLOATING, false);
 }
 
 

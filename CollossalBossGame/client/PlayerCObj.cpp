@@ -18,11 +18,15 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	this->health = state->health;
 	this->charge = state->charge;
 	rm = new RenderModel(Point_t(),Quat_t(), state->modelNum);
+	ss = new SoundSource();
+	char* s1 = CM::get()->find_config("LINK");
+	jumpsound = ss->addSound(s1);
 	cameraPitch = DEFAULT_PITCH;
 	ready = false;
 	chargingEffect = new ChargeEffect(10);
 	// Register with RE, SO SMART :O
 	RE::get()->addParticleEffect(chargingEffect);
+	this->camHeight = 0;
 
 #if HMAP_TEST
 	///////////////////////////////////////////////////////////////
@@ -49,7 +53,11 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 PlayerCObj::~PlayerCObj(void)
 {
 	delete rm;
+	delete ss;
 	RE::get()->removeParticleEffect(chargingEffect);
+
+	// todo, figure out what it should be then config
+	camHeight = 0;
 
 	//Quit the game
 	CE::get()->exit();
@@ -58,7 +66,7 @@ PlayerCObj::~PlayerCObj(void)
 void PlayerCObj::showStatus()
 {
 	std::stringstream status;
-	status << "Player " << getId() << "\n";
+	status << "Health" << "\n";
 	RE::get()->setHUDText(status.str(), health, charge);
 }
 
@@ -77,9 +85,14 @@ bool PlayerCObj::update() {
 					cameraPitch = (float)-M_PI / 4.f;
 				}
 			}
+
+			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
+			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
 		}
 
-		Point_t objPos = rm->getFrameOfRef()->getPos();
+		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;
+
+		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*camHeight;
 		RE::get()->getCamera()->update(objPos, camRot, cameraPitch);
 		showStatus();
 		chargingEffect->setPosition(objPos, charge);
@@ -93,6 +106,12 @@ bool PlayerCObj::update() {
 		///////////////////////////////////////////////////////////////
 #endif
 	}
+
+	if(this->sTrig == SOUND_PLAYER_JUMP)
+	{
+		ss->playOneShot(jumpsound);
+	}
+
 	return false;
 }
 
@@ -101,6 +120,8 @@ void PlayerCObj::deserialize(char* newState) {
 	this->health = state->health;
 	this->ready = state->ready;
 	this->charge = state->charge;
+	this->sState = state->sState;
+	this->sTrig = state->sTrig;
 	camRot = state->camRot;
 
 	if(this->ready == false) {
@@ -126,4 +147,9 @@ void PlayerCObj::deserialize(char* newState) {
 	{
 		rm->getFrameOfRef()->deserialize(newState + sizeof(PlayerState));
 	}
+}
+
+int PlayerCObj::getTypeInt()
+{
+	return -1;
 }
