@@ -56,7 +56,7 @@ protected:
 	//Rotational tracking
 	float t;
 	float tRate;
-	//Quat_t yawRot;			//Yaw about the default up vector
+	//Quat_t yawRot;		//Yaw about the default up vector
 	//Quat_t camYawRot;		//Camera yaw about the default up vector
 	float yaw;
 	float camYaw;
@@ -68,6 +68,10 @@ protected:
 	Box bxStaticVol;
 	bool camLocked;
 	float camKp, camKpFast, camKpSlow;
+
+	//Sounds
+	PlayerSoundState sState;
+	PlayerSoundTrigger sTrig;
 
 	bool firedeath;
 	int gravityTimer;

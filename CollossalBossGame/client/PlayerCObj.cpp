@@ -18,6 +18,9 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	this->health = state->health;
 	this->charge = state->charge;
 	rm = new RenderModel(Point_t(),Quat_t(), state->modelNum);
+	ss = new SoundSource();
+	char* s1 = CM::get()->find_config("LINK");
+	jumpsound = ss->addSound(s1);
 	cameraPitch = DEFAULT_PITCH;
 	ready = false;
 	chargingEffect = new ChargeEffect(10);
@@ -50,6 +53,7 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 PlayerCObj::~PlayerCObj(void)
 {
 	delete rm;
+	delete ss;
 	RE::get()->removeParticleEffect(chargingEffect);
 
 	// todo, figure out what it should be then config
@@ -102,6 +106,12 @@ bool PlayerCObj::update() {
 		///////////////////////////////////////////////////////////////
 #endif
 	}
+
+	if(this->sTrig == SOUND_PLAYER_JUMP)
+	{
+		ss->playOneShot(jumpsound);
+	}
+
 	return false;
 }
 
@@ -110,6 +120,8 @@ void PlayerCObj::deserialize(char* newState) {
 	this->health = state->health;
 	this->ready = state->ready;
 	this->charge = state->charge;
+	this->sState = state->sState;
+	this->sTrig = state->sTrig;
 	camRot = state->camRot;
 
 	if(this->ready == false) {

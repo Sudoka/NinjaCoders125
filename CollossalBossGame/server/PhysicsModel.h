@@ -14,6 +14,7 @@ struct PhysicsModel
 		accel = Vec3f();
 		this->mass = mass;
 		frictCoeff = PE::get()->getGroundFrict();
+		surfaceId = 0;
 	}
 
 	virtual ~PhysicsModel() {
@@ -39,5 +40,6 @@ struct PhysicsModel
 	Vec3f lastPos;		//last position
 	float mass;			//Mass of this object
 	float frictCoeff;	//Friction coefficient
+	uint surfaceId;		//ID of the object that this one is standing on
 	//Vec3f frictNorm;	//Normal on which the friction will be applied
 };

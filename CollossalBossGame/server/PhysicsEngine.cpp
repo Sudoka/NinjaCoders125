@@ -2,6 +2,7 @@
 #include "ConfigurationManager.h"
 #include "CollisionModel.h"
 #include "PhysicsModel.h"
+#include "ServerObjectManager.h"
 #include "ServerObject.h"
 #define TIMESTEP 5
 
@@ -48,16 +49,26 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	if(obj->getFlag(IS_FALLING) && !obj->getFlag(IS_FLOATING)) {
 		//gravity
 		mdl->applyAccel(gravVec*gravMag);
+
 	} else {
+
 		//friction
 	}
-
+	
+	Vec3f surfaceShift = Vec3f();
+	if(!obj->getFlag(IS_FALLING) && !obj->getFlag(IS_FLOATING)) {
+		ServerObject *obj = SOM::get()->find(mdl->surfaceId);
+		if(obj != NULL) {
+			PhysicsModel *mdlSurf = obj->getPhysicsModel();
+			surfaceShift = mdlSurf->ref->getPos() - mdlSurf->lastPos;
+		}
+	}
 
 	//Update position
 	//if(mdl->ref->getPos().y <= 0) mdl->lastPosOnGround = mdl->ref->getPos();
-	float dx = 0.5f * mdl->accel.x * dt * dt + mdl->vel.x * dt,
-		  dy = 0.5f * mdl->accel.y * dt * dt + mdl->vel.y * dt,
-		  dz = 0.5f * mdl->accel.z * dt * dt + mdl->vel.z * dt;
+	float dx = 0.5f * mdl->accel.x * dt * dt + mdl->vel.x * dt + surfaceShift.x,
+		  dy = 0.5f * mdl->accel.y * dt * dt + mdl->vel.y * dt + surfaceShift.y,
+		  dz = 0.5f * mdl->accel.z * dt * dt + mdl->vel.z * dt + surfaceShift.z;
 	mdl->lastPos = mdl->ref->getPos();
 	mdl->ref->translate(Point_t(dx, dy, dz));
 
@@ -203,9 +214,11 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	if(flip(dir) == gravDir) {
 		obj1->setFlag(IS_FALLING, false);
 		obj1->getPhysicsModel()->frictCoeff = frictGround;
+		obj1->getPhysicsModel()->surfaceId = obj2->getId();
 	} else if((dir) == gravDir) {
 		obj2->setFlag(IS_FALLING, false);
 		obj2->getPhysicsModel()->frictCoeff = frictGround;
+		obj2->getPhysicsModel()->surfaceId = obj1->getId();
 	}
 
 	//Get the actual object shifts

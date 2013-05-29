@@ -113,6 +113,8 @@ bool PlayerSObj::update() {
 	Quat_t upRot;
 	calcUpVector(&upRot);
 	controlCamera(upRot);
+	sState = SOUND_PLAYER_SLIENT;
+	sTrig = SOUND_PLAYER_NO_NEW_TRIG;
 
 	bool f = this->getFlag(IS_STATIC);
 	bool g = this->getFlag(IS_FLOATING);
@@ -149,6 +151,9 @@ bool PlayerSObj::update() {
 		// when they pressed 'jump' before they got there
 		if (jumping) jumpCounter++;
 		else jumpCounter = 0; 
+
+		//this is HACKY! HELP ME!!!!!!
+		//if(jumpCounter == 1)
 
 		appliedJumpForce = false; // we apply it on collision
 
@@ -312,6 +317,8 @@ int PlayerSObj::serialize(char * buf) {
 	state->charge = (int)charge;
 	if (SOM::get()->debugFlag) DC::get()->print("CURRENT MODEL STATE %d\n",this->modelAnimationState);
 	state->animationstate = this->modelAnimationState;
+	state->sState = this->sState;
+	state->sTrig = this->sTrig;
 	state->camRot = this->camRot;
 
 	if (SOM::get()->collisionMode)
@@ -378,6 +385,9 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 		Vec3f jumpVec = collNorm - PE::get()->getGravVec();
 		jumpVec.normalize();
 		pm->applyForce(jumpVec * jumpDist);
+
+		//play jump sound
+		sTrig = SOUND_PLAYER_JUMP;
 #if 0
 		// surface bouncing
 		// Get the collNorm from the surface

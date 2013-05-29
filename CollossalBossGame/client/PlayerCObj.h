@@ -2,6 +2,7 @@
 #include "RenderModel.h"
 #include "ChargeEffect.h"
 #include "ClientObject.h"
+#include "SoundSource.h"
 
 #define HMAP_TEST 0
 #if HMAP_TEST
@@ -33,9 +34,15 @@ private:
 	int health;
 	float charge;
 	RenderModel *rm;
+	SoundSource *ss;
 	float cameraPitch;
 	Quat_t camRot;
 	ChargeEffect* chargingEffect;
+
+	//sounds
+	uint jumpsound;
+	PlayerSoundState sState;
+	PlayerSoundTrigger sTrig;
 #if HMAP_TEST
 	///////////////////////////////////////////////////////////////
 	//TEST

@@ -109,6 +109,11 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 		scale = CM::get()->find_config_as_point("MODEL_TEST_BOX_SCALE");
 		initRot = CM::get()->find_config_as_point("MODEL_TEST_BOX_ROTATION");
 		break;
+	case MDL_TEST_CRATE:
+		filename = CM::get()->find_config("MODEL_TEST_CRATE");
+		scale = CM::get()->find_config_as_point("MODEL_TEST_CRATE_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_TEST_CRATE_ROTATION");
+		break;
 	case MDL_TEST_PYRAMID:
 		filename = CM::get()->find_config("MODEL_TEST_PYRAMID");
 		scale = CM::get()->find_config_as_point("MODEL_TEST_PYRAMID_SCALE");

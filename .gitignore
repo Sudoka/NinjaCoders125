@@ -17,6 +17,7 @@ CollossalBossGame/client/res/*
 *.mp3
 *.ogg
 *.wav
+*.max
 
 # Build results
 
