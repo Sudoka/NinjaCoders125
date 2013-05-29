@@ -135,6 +135,7 @@ void TentacleSObj::idle() {
 // TODO PROBE!!!
 void TentacleSObj::probe() {
 	idle();
+	modelAnimationState = M_PROBE;
 }
 
 /*
