@@ -10,7 +10,7 @@ StunGunSObj::StunGunSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForc
 	if(SOM::get()->debugFlag) DC::get()->print("Created new Harpoon %d ", id);
 	
 	Quat_t rot = Quat_t();
-	Box bxVol = Box(-(diameter/2), -(diameter/2), -(diameter/2), diameter, diameter, diameter);
+	Box bxVol = Box((float)-(diameter/2), (float)-(diameter/2), (float)-(diameter/2), (float)diameter, (float)diameter, (float)diameter);
 
 	pm = new PhysicsModel(pos, rot, 50);
 	getCollisionModel()->add(new AabbElement(bxVol));

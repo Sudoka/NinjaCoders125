@@ -67,7 +67,7 @@ HMap::HMap(const char * filename, int unitLength, float scale) {
 		//Convert 24-bit rgb pixels to floating-point heights
 		for(int index(0); index <  numPx; index++) {
 			// Convert the average rgb value from 0-255 to an arbitrary floating-point scale
-			curByte = ((*(src + 2)) + (*(src + 1)) + (*(src + 0))) / 3.0f;
+			curByte = (BYTE)(((*(src + 2)) + (*(src + 1)) + (*(src + 0))) / 3.0f);
 			*(dst) = scale * curByte;
 
 			if(curByte > maxByte) {

@@ -33,7 +33,7 @@ HarpoonCObj::~HarpoonCObj(void)
 bool HarpoonCObj::update() {
 	
 	pewPew->setPosition(rm->getFrameOfRef()->getPos(), master->getRenderModel()->getFrameOfRef()->getPos(), this->diameter);
-    pewPew->update(.33);
+    pewPew->update(.33f);
 	return false;
 }
 

@@ -192,7 +192,7 @@ void RenderModel::render() {
 	//Draw Boxes
 	if(colBoxes.size() > 0)
 	{
-		for (int i=0; i<colBoxes.size(); i++)
+		for (unsigned int i=0; i<colBoxes.size(); i++)
 		{
 			Box curr = colBoxes[i];
 

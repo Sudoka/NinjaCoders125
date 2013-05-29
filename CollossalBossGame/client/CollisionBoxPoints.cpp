@@ -28,7 +28,7 @@ void CollisionBoxPoints::update(float timeDelta)
 
 void CollisionBoxPoints::addParticles(vector<Vec3f> pts)
 {
-	for(int i = 0; i < pts.size(); i++)
+	for(unsigned int i = 0; i < pts.size(); i++)
 	{
 		Vec3f pt = pts[i];
 		ParticleAttributes a;

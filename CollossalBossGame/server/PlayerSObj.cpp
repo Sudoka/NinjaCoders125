@@ -117,10 +117,6 @@ bool PlayerSObj::update() {
 	sState = SOUND_PLAYER_SLIENT;
 	sTrig = SOUND_PLAYER_NO_NEW_TRIG;
 
-	bool f = this->getFlag(IS_STATIC);
-	bool g = this->getFlag(IS_FLOATING);
-	bool h = this->getFlag(IS_FALLING);
-
 	if(this->health > 0 && !GameServer::get()->state.gameover)
 	{
 		firedeath = false;
@@ -322,7 +318,7 @@ int PlayerSObj::serialize(char * buf) {
 	}
 	state->health = health;
 	state->ready = ready;
-	state->charge = (int)charge;
+	state->charge = charge;
 	if (SOM::get()->debugFlag) DC::get()->print("CURRENT MODEL STATE %d\n",this->modelAnimationState);
 	state->animationstate = this->modelAnimationState;
 	state->sState = this->sState;
@@ -443,7 +439,7 @@ void PlayerSObj::acquireTarget() {
 		if((ObjectType)i == OBJ_WORLD || (ObjectType)i == OBJ_MONSTER) continue;
 		SOM::get()->findObjects((ObjectType)i, &allobjs);
 	}
-	for(int i = 0; i < allobjs.size(); i++) {
+	for(unsigned int i = 0; i < allobjs.size(); i++) {
 		Vec3f temppos = allobjs[i]->getPhysicsModel()->ref->getPos();
 		Vec3f tempdir = temppos - currpos;
 		tempdir.normalize();
