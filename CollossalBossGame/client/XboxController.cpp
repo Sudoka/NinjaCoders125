@@ -93,6 +93,7 @@ void XboxController::sendInput() {
 	}
 	//Send the input data, zero'd if nothing is there
 	ClientNetworkManager::get()->sendData(OBJECT_MANAGER, reinterpret_cast<char*>(&istat), sizeof(inputstatus), COM::get()->player_id);
+	ClientNetworkManager::get()->sendData(GAMESTATE_MANAGER, reinterpret_cast<char*>(&istat), sizeof(inputstatus), COM::get()->player_id);
 }
 
 bool XboxController::isConnected()

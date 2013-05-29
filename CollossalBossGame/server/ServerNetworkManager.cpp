@@ -215,6 +215,7 @@ void ServerNetworkManager::receiveFromClients() {
 			// </Log Packet>
             switch (packet.packet_type) {
 				ServerObject* destObject;
+				PlayerSObj * plyr;
                 case INIT_CONNECTION:
                     if(debugFlag) DC::get()->print("server received init packet from client %d\n", iter->first);
                     break;
@@ -227,7 +228,8 @@ void ServerNetworkManager::receiveFromClients() {
 					}
                     break;
 				case GAMESTATE_MANAGER:
-					// GameServer::get()->recieveInput(packet.packet_data);
+					plyr = (PlayerSObj *)SOM::get()->find(packet.object_id);
+					GameServer::get()->recieveInput(packet.packet_data, plyr->clientId);
 					break;
 				case CLIENT_READY:
 					// GameServer::get()->state.clientready(packet.object_id);
