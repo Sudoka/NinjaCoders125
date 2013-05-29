@@ -25,21 +25,25 @@
  */
 void buildRoom() {
 	// Get config measurements
-	int width = CM::get()->find_config_as_int("ROOM_WIDTH");
-	int height = CM::get()->find_config_as_int("ROOM_HEIGHT");
-	int depth = CM::get()->find_config_as_int("ROOM_DEPTH");
+	float width = CM::get()->find_config_as_float("ROOM_WIDTH");
+	float height = CM::get()->find_config_as_float("ROOM_HEIGHT");
+	float depth = CM::get()->find_config_as_float("ROOM_DEPTH");
 
 	ServerObjectManager *som = SOM::get();
 
 	WallSObj //*floor,
 			 *ceiling,
-			 *north, *south,
-			 *east, *west;
-	ArenaWallSObj *floor;
-	floor = new ArenaWallSObj(som->genId(), "../floor_hmap.bmp", MDL_FLOOR, Point_t());
+			 //*north,
+			 *south,
+			 *east,
+			 *west;
+	Point_t pos = Point_t(0.f, height/2.f, -depth/2.f);
+	ArenaWallSObj *floor, *north;
+	floor = new ArenaWallSObj(som->genId(), CM::get()->find_config_as_string("HMAP_FLOOR").c_str(), MDL_FLOOR, Point_t(), UP);
+	north = new ArenaWallSObj(som->genId(), CM::get()->find_config_as_string("HMAP_WALL").c_str(), MDL_NORTH_WALL, pos, NORTH);
 	//floor   = new WallSObj(som->genId(), MDL_FLOOR, Point_t(), DOWN);
 	ceiling = new WallSObj(som->genId(), MDL_CEILING, Point_t(0.f, (float)height, 0.f), UP);
-	north   = new WallSObj(som->genId(), MDL_NORTH_WALL, Point_t(0.f, (float)height/2.f, (float)-depth/2.f), NORTH);
+	//north   = new WallSObj(som->genId(), MDL_NORTH_WALL, pos, NORTH);
 	south   = new WallSObj(som->genId(), MDL_SOUTH_WALL, Point_t(0.f, (float)height/2.f, (float)depth/2.f), SOUTH);
 	east    = new WallSObj(som->genId(), MDL_EAST_WALL, Point_t((float)width/2.f, (float)height/2.f, 0.f), EAST);
 	west    = new WallSObj(som->genId(), MDL_WEST_WALL, Point_t((float)-width/2.f, (float)height/2.f, 0.f), WEST);
@@ -61,7 +65,10 @@ void gameInit() {
 								
 	//This object manages the world state
 	WorldSObj *wobj = new WorldSObj(som->genId());
+	wobj->setGravitySwitch(false);
 	som->add(wobj);
+
+	PE::get()->setGravDir(SOUTH);
 
 	//MonsterSObj* monster = new MonsterSObj(som->genId(), 2);
 	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4

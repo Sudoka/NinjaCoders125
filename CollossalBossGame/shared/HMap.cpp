@@ -106,6 +106,10 @@ HMap::~HMap(void) {
 
 
 float HMap::getHeightAt(int i, int j) {
+	if(i < 0 || j < 0 || i > _w || j > _l) {
+		DC::get()->print("ERROR: Heightmap access (%d,%d) is out of bounds (%d,%d)\n", i, j, _w, _l);
+		return 0.f;
+	}
 	return _hdata[i + j * _w];
 }
 

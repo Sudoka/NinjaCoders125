@@ -6,7 +6,7 @@
  */
 class ArenaWallSObj : public ServerObject {
 public:
-	ArenaWallSObj(uint id, const char* filename, Model modelNum, Point_t pos);
+	ArenaWallSObj(uint id, const char* filename, Model modelNum, Point_t pos, DIRECTION dir);
 	virtual ~ArenaWallSObj(void);
 
 	virtual bool update();							//Perform logic update

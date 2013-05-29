@@ -126,9 +126,11 @@ bool areColliding(Vec3f *shift, DIRECTION *collDir, const Box &bx, const Point_t
 	float hdiff;
 	*collDir = hmap.dir;
 
-	//Rotate x, y, z values so that the hmap shift direction is on the y axis
+	//Rotate x, y, z values so that the hmap shift direction is on the positive y axis
 	switch(hmap.dir) {
 	case NORTH:
+		objPos = Point_t(-(bx.x + bx.w / 2), bx.z, bx.y + bx.h / 2);	//Front of the box
+		hmapPos = Point_t(-hmapCenter.x, hmapCenter.z, hmapCenter.y);
 		break;
 	case SOUTH:
 		break;
@@ -140,14 +142,14 @@ bool areColliding(Vec3f *shift, DIRECTION *collDir, const Box &bx, const Point_t
 		break;
 	default:	//UP
 		//No rotations
-		objPos = Point_t(bx.x + bx.w / 2, bx.y, bx.z + bx.l / 2);	//Bottom of the box
-		hmapPos = hmapCenter;
+		objPos = Point_t(-(bx.x + bx.w / 2), bx.y, bx.z + bx.l / 2);	//Bottom of the box
+		hmapPos = Point_t(-hmapCenter.x, hmapCenter.y, hmapCenter.z);
 		break;
 	}
 	if(pointOnHMapCollision(&hdiff, objPos, hmapPos, hmap)) {
 		switch(hmap.dir) {
 		case NORTH:
-			*shift = Point_t(0, hdiff, 0);
+			*shift = Point_t(0, 0, hdiff);
 			break;
 		case SOUTH:
 			*shift = Point_t(0, hdiff, 0);
