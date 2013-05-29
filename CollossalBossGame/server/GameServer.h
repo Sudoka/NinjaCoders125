@@ -21,13 +21,12 @@ public:
 
 	GameState state;
 
+	void sendGameState();
+	void recieveInput(char * buf, int pid);
 private:
 	static GameServer * gs;
     GameServer(void);
     ~GameServer(void);
-
-	void sendGameState();
-	void recieveInput(char * buf);
 
 	void gameLoop();
 	void initializeSubModules();

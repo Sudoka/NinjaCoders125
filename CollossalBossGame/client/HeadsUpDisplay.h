@@ -26,6 +26,7 @@ public:
 	void displaySceneSelect();
 	void displayLoadingScreen();
 	void displayClassSelect();
+	void displayGameStats();
 private:
 	bool * gamestart;
 	ID3DXFont* direct3dText; // the pointer to the device class
@@ -64,6 +65,7 @@ private:
 	LPD3DXSPRITE pressstart;
 	LPD3DXSPRITE playerready;
 	LPD3DXSPRITE blackbackground;
+	LPD3DXSPRITE blackscreen;
 	LPD3DXSPRITE youwin;
 	IDirect3DTexture9 *p1connecttxt;
 	IDirect3DTexture9 *p2connecttxt;
@@ -76,6 +78,7 @@ private:
 	IDirect3DTexture9 *pressstarttxt;
 	IDirect3DTexture9 *playerreadytxt;
 	IDirect3DTexture9 *blackbackgroundtxt;
+	IDirect3DTexture9 *blackscreentxt;
 	IDirect3DTexture9 *youwintxt;
 
 	clock_t initTime;

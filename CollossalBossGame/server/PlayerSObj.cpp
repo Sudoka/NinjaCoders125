@@ -29,7 +29,7 @@ void PlayerSObj::initialize() {
 	swordDamage = CM::get()->find_config_as_int("SWORD_DAMAGE");
 	chargeDamage = CM::get()->find_config_as_int("CHARGE_DAMAGE");
 	chargeUpdate = CM::get()->find_config_as_float("CHARGE_UPDATE");
-	this->health = CM::get()->find_config_as_int("INIT_HEALTH");
+	this->health = 1; //CM::get()->find_config_as_int("INIT_HEALTH");
 
 
 	if(SOM::get()->debugFlag) DC::get()->print("Initialized new PlayerSObj %d\n", this->getId());
@@ -37,8 +37,10 @@ void PlayerSObj::initialize() {
 	Point_t pos = Point_t(0, 5, 10);
 	bxStaticVol = CM::get()->find_config_as_box("BOX_PLAYER");//Box(-10, 0, -10, 20, 20, 20);
 
-	if(pm != NULL)
+	if(pm != NULL) {
 		delete pm;
+		getCollisionModel()->clean();
+	}
 
 	pm = new PhysicsModel(pos, Quat_t(), CM::get()->find_config_as_float("PLAYER_MASS"));
 	getCollisionModel()->add(new AabbElement(bxStaticVol));
@@ -95,14 +97,13 @@ PlayerSObj::~PlayerSObj(void) {
 	delete pm;
 }
 
-
 bool PlayerSObj::update() {
 
 	if (istat.start && !ready) {
 		ready = true;
 	}
 
-	if (istat.quit) {
+	if (istat.start && istat.quit) {
 		return true; // delete me!
 	}
 	Point_t myPos = pm->ref->getPos();
@@ -120,7 +121,7 @@ bool PlayerSObj::update() {
 	bool g = this->getFlag(IS_FLOATING);
 	bool h = this->getFlag(IS_FALLING);
 
-	if(this->health > 0)
+	if(this->health > 0 && !GameServer::get()->state.gameover)
 	{
 		firedeath = false;
 
@@ -195,17 +196,24 @@ bool PlayerSObj::update() {
 		} else {
 			this->setAnimationState(WALK);
 		}
-	} else {
+	} else if (!GameServer::get()->state.gameover) {
 		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
 		pm->ref->setRot(qRot);
 
 		damage = 0; // you can't kill things if you're dead xD
 
-		// TODO Franklin: THE PLAYER IS DEAD. WHAT DO?
-		// NOTE: Player should probably be also getting their client id.
 		if(!firedeath) {
 			firedeath = true;
-			GameServer::get()->event_player_death(this->getId());
+			GameServer::get()->event_player_death(this->clientId);
+			deathtimer = 0;
+		}
+		
+		deathtimer++;
+		if(deathtimer == 50) {
+			firedeath = false;
+			this->PlayerSObj::initialize();
+			this->initialize();
+			this->ready = true;
 		}
 	}
 
@@ -347,9 +355,9 @@ void PlayerSObj::deserialize(char* newInput)
 {
 	inputstatus* newStatus = reinterpret_cast<inputstatus*>(newInput);
 	istat = *newStatus;
-	if (istat.start && this->health > 0) {
+	/*if (istat.start && this->health > 0) {
 		GameServer::get()->event_reset(this->getId());
-	} else if(istat.start) {
+	} else */if(istat.start) {
 		this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 		this->pm->ref->setPos(Point_t());
 	}
