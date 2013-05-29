@@ -23,6 +23,9 @@ public:
 	virtual void spike();
 	virtual void rage();
 
+	//sounds
+	virtual void roar();
+
 private:
 	//Box updatableBox;
 	//int attackBuffer; // how many frames pass before we're harmful again

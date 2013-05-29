@@ -6,8 +6,8 @@
 
 #include "defs.h"
 #include "DebugConsole.h"
-#include "fmod.hpp"
-#include "fmod_errors.h"
+#include "FMOD\inc\fmod.hpp"
+#include "FMOD\inc\fmod_errors.h"
 
 #ifndef AUDIO_ENGINE_H
 #define AUDIO_ENGINE_H

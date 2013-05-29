@@ -193,3 +193,7 @@ void HeadSObj::rage() {
 	// when the object dies we're done raging
 	currStateDone = stateCounter >= RageSObj::lifetime;
 }
+
+void HeadSObj::roar() {
+	//TODO
+}

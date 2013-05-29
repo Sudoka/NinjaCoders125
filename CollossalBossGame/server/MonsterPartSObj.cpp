@@ -21,6 +21,9 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 	stateCounter = 0;
 	attacked = false; // haven't been attacked yet
 	currStateDone = true; // no states have started yet
+
+	//prob for roar sound
+	roarProb = CM::get()->find_config_as_int("ROAR_CHANCE");
 }
 
 
@@ -31,7 +34,7 @@ MonsterPartSObj::~MonsterPartSObj(void)
 
 bool MonsterPartSObj::update() {
 	stateCounter++;
-
+	sTrig = SOUND_MONSTER_NO_NEW_TRIG;
 	////////////////// State transitions /////////////////////
 	// These should maybe be moved to the monster...
 	// Only change states when our current state has gone through a whole cycle
@@ -65,6 +68,12 @@ bool MonsterPartSObj::update() {
 			// we're angry!
 			if ((rand() % 100) < angryProb) 
 			{
+				//angry roar!
+				if((rand() %100) < roarProb) //roarprob set in config
+				{
+					roar();
+				}
+
 				// fight or flight?
 				int moveProb = 15;
 
@@ -115,7 +124,7 @@ bool MonsterPartSObj::update() {
 	}
 
 	///////////////////// State logic ///////////////////////
-	actionState = MOVE_ACTION;
+	//actionState = MOVE_ACTION;
 
 	switch(actionState)
 	{
@@ -230,6 +239,8 @@ int MonsterPartSObj::serialize(char * buf) {
 	state->animationState = this->modelAnimationState;
 	state->fog = this->isFogging;
 	state->animationFrame = -1;
+	state->sTrig = this->sTrig;
+	state->sState = this->sState;
 
 	if (SOM::get()->collisionMode)
 	{

@@ -6,8 +6,8 @@
 
 #include <vector>
 #include "defs.h"
-#include "fmod.hpp"
-#include "fmod_errors.h"
+#include "FMOD\inc\fmod.hpp"
+#include "FMOD\inc\fmod_errors.h"
 #include "Frame.h"
 
 #ifndef SOUND_SOURCE_H

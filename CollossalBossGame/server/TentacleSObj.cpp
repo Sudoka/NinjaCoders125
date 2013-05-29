@@ -410,3 +410,6 @@ void TentacleSObj::rage() {
 	currStateDone = stateCounter >= RageSObj::lifetime;
 }
 
+void TentacleSObj::roar() {
+	sTrig = SOUND_TENTACLE_ROAR;	
+}

@@ -107,15 +107,10 @@ enum PlayerSoundState {
 	SOUND_CYBORG_CHARGE //might have to make it so you can charge and walk
 };
 
-enum TentacleSoundState {
-	SOUND_TENTACLE_SILENT,
+enum MonsterSoundState {
+	SOUND_MONSTER_SILENT,
 	SOUND_TENTACLE_IDLE,
-};
-
-enum HeadSoundState {
-	SOUND_HEAD_SILENT,
-	SOUND_HEAD_IDLE,
-	SOUND_HEAD_ROAR //might be a trigger?
+	SOUND_HEAD_IDLE
 };
 
 //combine with music?
@@ -145,16 +140,14 @@ enum PlayerSoundTrigger {
 	SOUND_SHOOT_GRAPPLE
 };
 
-enum TentacleSoundTrigger {
-	SOUND_TENTACLE_NO_NEW_TRIG,
-	SOUND_TENTACLE_SLAM
-};
-
-enum HeadSoundTrigger {
-	SOUND_HEAD_NO_NEW_TRIG,
+enum MonsterSoundTrigger {
+	SOUND_MONSTER_NO_NEW_TRIG,
+	SOUND_TENTACLE_SLAM,
+	SOUND_TENTACLE_ROAR,
 	SOUND_HEAD_SHOOT,
 	SOUND_HEAD_RAGE,
-	SOUND_HEAD_SPIKE
+	SOUND_HEAD_SPIKE,
+	SOUND_HEAD_ROAR
 };
 
 enum ArenaSoundTrigger {
@@ -256,6 +249,8 @@ struct MonsterPartState {
 	Model modelNum;
 	int animationState;
 	int animationFrame;
+	MonsterSoundTrigger sTrig;
+	MonsterSoundState sState;
 	bool fog;
 };
 

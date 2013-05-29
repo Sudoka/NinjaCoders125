@@ -55,6 +55,9 @@ public:
 	virtual void spike() = 0;
 	virtual void rage() = 0; // this might be the same...?
 
+	//trigger the roar sound (different for each)
+	virtual void roar() = 0;
+
 protected:
 	int health;
 	bool isFogging;
@@ -75,5 +78,9 @@ protected:
 
 	// Collision Boxes in common
 	Box idleBoxes[3]; // stores initial idle collision boxes
+
+	MonsterSoundTrigger sTrig;
+	MonsterSoundState sState;
+	int roarProb;
 };
 

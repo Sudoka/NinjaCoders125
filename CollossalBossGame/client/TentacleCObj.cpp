@@ -15,6 +15,9 @@ TentacleCObj::TentacleCObj(uint id, char *data) : ClientObject(id, OBJ_TENTACLE)
 	fogging = false;
 	density = 0.f;
 	densityCounter = 0.f;
+	ss = new SoundSource();
+	char* s1 = CM::get()->find_config("TENTACLE_ROAR");
+	roarsound = ss->addSound(s1);
 }
 
 TentacleCObj::~TentacleCObj(void)
@@ -35,6 +38,16 @@ RenderModel* TentacleCObj::getBox() {
 }
 
 bool TentacleCObj::update() {
+
+	switch(this->sTrig) {
+	case SOUND_TENTACLE_ROAR:
+		ss->playOneShot(roarsound);
+		break;
+	default:
+		break;
+
+	}
+
 	//portal->setPosition(rm->getFrameOfRef()->getPos());
 	//portal->update(.33);
 	if(fogging || startedFogging)
@@ -95,4 +108,6 @@ void TentacleCObj::deserialize(char* newState) {
 	{
 		rm->getFrameOfRef()->deserialize(newState + sizeof(MonsterPartState));
 	}
+	this->sTrig = state->sTrig;
+	this->sState = state->sState;
 }

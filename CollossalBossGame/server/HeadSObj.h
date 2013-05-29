@@ -18,6 +18,9 @@ public:
 	virtual void spike();
 	virtual void rage();
 
+	//sounds
+	virtual void roar();
+
 private:
 	int fireballForce;
 	int fireballDamage;

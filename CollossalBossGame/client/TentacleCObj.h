@@ -3,6 +3,7 @@
 #include "SmokeEffect.h"
 #include "PushAwayEffect.h"
 #include "PortalEffect.h"
+#include "SoundSource.h"
 
 class TentacleCObj : public ClientObject
 {
@@ -20,11 +21,20 @@ public:
 private:
 	RenderModel * box;
 	RenderModel *rm;
+	SoundSource *ss;
 	SmokeEffect* smoking;
 	PortalEffect* portal; 
 	bool fogging;
 	bool startedFogging;
 	float density;
 	float densityCounter;
+	
+	//sounds
+	MonsterSoundTrigger sTrig;
+	MonsterSoundState sState;
+
+	//sound ids
+	uint roarsound;
+	//uint slamsound;
 };
 
