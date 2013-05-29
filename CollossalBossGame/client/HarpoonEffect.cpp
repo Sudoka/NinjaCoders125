@@ -39,7 +39,7 @@ void HarpoonEffect::resetParticle(ParticleAttributes* a)
 	D3DXVECTOR3 dist = (pos - origin) / particles.size();
 	a->pos = origin + dist * i;
 	i++;
-	if(i % particles.size() == 0) i = 1;
+	if(particles.size() != 0 && i % particles.size() == 0) i = 1;
 }
 
 void HarpoonEffect::update(float timeDelta)
