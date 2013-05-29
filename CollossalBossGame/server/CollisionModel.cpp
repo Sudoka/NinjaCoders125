@@ -129,8 +129,8 @@ bool areColliding(Vec3f *shift, DIRECTION *collDir, const Box &bx, const Point_t
 	//Rotate x, y, z values so that the hmap shift direction is on the positive y axis
 	switch(hmap.dir) {
 	case NORTH:
-		objPos = Point_t(-(bx.x + bx.w / 2), bx.z, bx.y + bx.h / 2);	//Front of the box
-		hmapPos = Point_t(-hmapCenter.x, hmapCenter.z, hmapCenter.y);
+		objPos = Point_t((bx.x + bx.w / 2), bx.z, bx.y + bx.h / 2);	//Front of the box
+		hmapPos = Point_t(hmapCenter.x, hmapCenter.z, hmapCenter.y);
 		break;
 	case SOUTH:
 		break;

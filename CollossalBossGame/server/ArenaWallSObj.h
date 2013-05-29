@@ -18,5 +18,10 @@ public:
 private:
 	PhysicsModel *pm;
 	Model modelNum;
+
+	void addNorthBoxes();
+	void addSouthBoxes();
+	void addEastBoxes();
+	void addWestBoxes();
 };
 

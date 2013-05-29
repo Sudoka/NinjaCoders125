@@ -33,17 +33,17 @@ void buildRoom() {
 
 	WallSObj //*floor,
 			 *ceiling,
-			 *north,
+			 //*north,
 			 *south,
 			 *east,
 			 *west;
 	Point_t pos = Point_t(0.f, height/2.f, -depth/2.f);
-	ArenaWallSObj *floor;//, *north;
+	ArenaWallSObj *floor, *north;
 	floor = new ArenaWallSObj(som->genId(), CM::get()->find_config_as_string("HMAP_FLOOR").c_str(), MDL_FLOOR, Point_t(), UP);
-	//north = new ArenaWallSObj(som->genId(), CM::get()->find_config_as_string("HMAP_WALL").c_str(), MDL_NORTH_WALL, pos, NORTH);
+	north = new ArenaWallSObj(som->genId(), CM::get()->find_config_as_string("HMAP_WALL").c_str(), MDL_NORTH_WALL, pos, NORTH);
 	//floor   = new WallSObj(som->genId(), MDL_FLOOR, Point_t(), DOWN);
 	ceiling = new WallSObj(som->genId(), MDL_CEILING, Point_t(0.f, (float)height, 0.f), UP);
-	north   = new WallSObj(som->genId(), MDL_NORTH_WALL, pos, NORTH);
+	//north   = new WallSObj(som->genId(), MDL_NORTH_WALL, pos, NORTH);
 	south   = new WallSObj(som->genId(), MDL_SOUTH_WALL, Point_t(0.f, (float)height/2.f, (float)depth/2.f), SOUTH);
 	east    = new WallSObj(som->genId(), MDL_EAST_WALL, Point_t((float)width/2.f, (float)height/2.f, 0.f), EAST);
 	west    = new WallSObj(som->genId(), MDL_WEST_WALL, Point_t((float)-width/2.f, (float)height/2.f, 0.f), WEST);

@@ -18,7 +18,7 @@ ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Poin
 	switch(dir) {
 	case NORTH:
 		fxo = -roomWidth / 2;
-		fyo = 0;
+		fyo = -18.f;
 		fzo = -roomHeight / 2;
 		scale = 60.0f / 255.0f;
 		div = 5;
@@ -62,4 +62,34 @@ int ArenaWallSObj::serialize(char * buf) {
 		return pm->ref->serialize(buf + sizeof(ObjectState)) + sizeof(ObjectState);
 	}
 
+}
+
+
+void ArenaWallSObj::addNorthBoxes() {
+	CollisionModel *cm = getCollisionModel();
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_FRAME_LEFT_3")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_3")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_FRAME_TOP_3")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_FRAME_LEFT_2")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_2")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_FRAME_TOP_2")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_FRAME_LEFT_1")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_1")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_FRAME_TOP_1")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_PILLAR_1")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_PILLAR_2")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_PILLAR_3")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_PILLAR_4")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_PILLAR_5")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_PLATFORM_LO")));
+	cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_PLATFORM_HI")));
+}
+
+void ArenaWallSObj::addSouthBoxes() {
+}
+
+void ArenaWallSObj::addEastBoxes() {
+}
+
+void ArenaWallSObj::addWestBoxes() {
 }
