@@ -34,11 +34,12 @@ ClientEngine::ClientEngine() {
  */
 ClientEngine::~ClientEngine() {
 	//Clean engines
-	RE::clean();
 	COM::clean();
 	AE::clean();
 	CNM::clean();
 	DC::clean();
+	RE::clean();
+
 }
 
 

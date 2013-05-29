@@ -25,14 +25,6 @@ AudioEngine::AudioEngine() {
 		DC::get()->print("[Audio] Init successful\n");
 	}	
 
-	//test audio
-	/*char* music = CM::get()->find_config("MUSIC");
-	uint testid = addStream(music);
-	playOneShot(testid,0.3f);*/
-
-	/*char* link = CM::get()->find_config("LINK");
-	uint jumpsound = addSound(link);
-	playOneShot(testid);*/
 }
 
 AudioEngine::~AudioEngine() {

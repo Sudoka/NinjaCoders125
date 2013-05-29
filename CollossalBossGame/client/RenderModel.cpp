@@ -22,6 +22,7 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 	case -1: 
 		//container object
 		isInvisible = true;
+		modelId = -1;
 		break;
 	case MDL_TENTACLE_1:
 		filename = CM::get()->find_config("MODEL_TENTACLE1");
@@ -47,6 +48,11 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 		filename = CM::get()->find_config("MODEL_TENTACLE5");
 		scale = CM::get()->find_config_as_point("MODEL_TENTACLE5_SCALE");
 		initRot = CM::get()->find_config_as_point("MODEL_TENTACLE5_ROTATION");
+		break;
+	case MDL_HEAD_1:
+		filename = CM::get()->find_config("MODEL_HEAD1");
+		scale = CM::get()->find_config_as_point("MODEL_HEAD1_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_HEAD1_ROTATION");
 		break;
 	case MDL_FLOOR:
 		filename = CM::get()->find_config("MODEL_FLOOR");
@@ -103,6 +109,11 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 		scale = CM::get()->find_config_as_point("MODEL_TEST_BOX_SCALE");
 		initRot = CM::get()->find_config_as_point("MODEL_TEST_BOX_ROTATION");
 		break;
+	case MDL_TEST_CRATE:
+		filename = CM::get()->find_config("MODEL_TEST_CRATE");
+		scale = CM::get()->find_config_as_point("MODEL_TEST_CRATE_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_TEST_CRATE_ROTATION");
+		break;
 	case MDL_TEST_PYRAMID:
 		filename = CM::get()->find_config("MODEL_TEST_PYRAMID");
 		scale = CM::get()->find_config_as_point("MODEL_TEST_PYRAMID_SCALE");
@@ -140,21 +151,6 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 		} else {
 			if (RE::get()->debugFlag) DC::get()->print("Successfully loaded model %d\n",modelNum);
 		}
-				
-		if (filename == CM::get()->find_config("MODEL_TENTACLE1")) 
-		{
-		//	D3DXVECTOR3 mdlMin, mdlMax, sphereCenter;
-		//	float rad;
-		//	int numMesh;
-		//	RE::get()->getAnim()->GetBoundingShapes(modelId,&mdlMin,&mdlMax,&sphereCenter,&rad,&numMesh);
-		/*	DC::get()->print("Bounding box for model %d = (%f,%f,%f:%f,%f,%f); center = (%f,%f,%f); rad = %f; num meshes = %d\n",
-				modelNum,
-				mdlMin.x - sphereCenter.x, mdlMin.y - sphereCenter.y, mdlMin.z - sphereCenter.z,
-				mdlMax.x - mdlMin.x, mdlMax.y - mdlMin.y, mdlMax.z - mdlMin.z,
-				sphereCenter.x, sphereCenter.y, sphereCenter.z,
-				rad, numMesh);
-		*/
-		}
 	}
 	prevModelState = -1;
 }
@@ -185,45 +181,50 @@ void RenderModel::render() {
 
 		//Render
 		if (RE::get()->debugFlag) DC::get()->print("ANIMATION STATE %d\n", modelState);
-		if(modelState != prevModelState) RE::get()->getAnim()->ChangeAnimationSet(modelId, this->modelState);
+		if(modelState != prevModelState) {
+			RE::get()->getAnim()->ChangeAnimationSet(modelId, this->modelState);
+			//RE::get()->getAnim()->ChangeAnimationPlaybackSpeed(modelId, 2.0);
+		}
 		RE::get()->animate(modelId, /*rotX * rotY * rotZ*/ rotMat * trans);
 		prevModelState = modelState;
-		//Draw Boxes
-		if(colBoxes.size() > 0)
+	}
+
+	//Draw Boxes
+	if(colBoxes.size() > 0)
+	{
+		for (int i=0; i<colBoxes.size(); i++)
 		{
-			for (int i=0; i<colBoxes.size(); i++)
-			{
-				Box curr = colBoxes[i];
+			Box curr = colBoxes[i];
 
-				// calculate the box corners
-				Point_t botLeftFront, botRightFront, botLeftBack, botRightBacl, topLeftFront, topRightFront, topLeftBack, topRightBacl;
+			// calculate the box corners
+			Point_t botLeftFront, botRightFront, botLeftBack, botRightBacl, topLeftFront, topRightFront, topLeftBack, topRightBacl;
 
-				botLeftFront = Vec3f(curr.x, curr.y, curr.z);
-				botRightFront = Vec3f(curr.x + curr.w, curr.y, curr.z);
-				botLeftBack = Vec3f(curr.x, curr.y, curr.z + curr.l);
-				botRightBacl = Vec3f(curr.x + curr.w, curr.y, curr.z + curr.l);
+			botLeftFront = Vec3f(curr.x, curr.y, curr.z);
+			botRightFront = Vec3f(curr.x + curr.w, curr.y, curr.z);
+			botLeftBack = Vec3f(curr.x, curr.y, curr.z + curr.l);
+			botRightBacl = Vec3f(curr.x + curr.w, curr.y, curr.z + curr.l);
 				
-				topLeftFront = Vec3f(curr.x, curr.y + curr.h, curr.z);
-				topRightFront = Vec3f(curr.x + curr.w, curr.y + curr.h, curr.z);
-				topLeftBack = Vec3f(curr.x, curr.y + curr.h, curr.z + curr.l);
-				topRightBacl = Vec3f(curr.x + curr.w, curr.y + curr.h, curr.z + curr.l);
+			topLeftFront = Vec3f(curr.x, curr.y + curr.h, curr.z);
+			topRightFront = Vec3f(curr.x + curr.w, curr.y + curr.h, curr.z);
+			topLeftBack = Vec3f(curr.x, curr.y + curr.h, curr.z + curr.l);
+			topRightBacl = Vec3f(curr.x + curr.w, curr.y + curr.h, curr.z + curr.l);
 
-				vector<Vec3f> pts;
+			vector<Vec3f> pts;
 
-				pts.push_back(botLeftFront);
-				pts.push_back(botRightFront);
-				pts.push_back(botLeftBack);
-				pts.push_back(botRightBacl);
+			pts.push_back(botLeftFront);
+			pts.push_back(botRightFront);
+			pts.push_back(botLeftBack);
+			pts.push_back(botRightBacl);
 
-				pts.push_back(topLeftFront);
-				pts.push_back(topRightFront);
-				pts.push_back(topLeftBack);
-				pts.push_back(topRightBacl);
+			pts.push_back(topLeftFront);
+			pts.push_back(topRightFront);
+			pts.push_back(topLeftBack);
+			pts.push_back(topRightBacl);
 
-				RE::get()->getColBxPts()->addParticles(pts);
-			}
+			RE::get()->getColBxPts()->addParticles(pts);
 		}
 	}
+	
 }
 
 void RenderModel::setModelState(int state_id) {
@@ -232,4 +233,16 @@ void RenderModel::setModelState(int state_id) {
 	if (s != state_id)
 		RE::get()->getAnim()->SetAnimationFrame(this->modelId, 0);
 
+}
+
+/* setAnimationFrame
+ *  Frame: the absolute frame this needs to be set to
+ * If the server needs this model to jump to a new part of the animation,
+ *   it figures out the frame and sends that to the client.
+ *   This is currently only being implemented for tentacles.
+ *
+ * Author: Bryan
+ */
+void RenderModel::setAnimationFrame(int frame) {
+	RE::get()->getAnim()->SetAnimationFrame(this->modelId, frame);
 }

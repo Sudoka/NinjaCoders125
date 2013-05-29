@@ -22,18 +22,42 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	char* s1 = CM::get()->find_config("LINK");
 	jumpsound = ss->addSound(s1);
 	cameraPitch = DEFAULT_PITCH;
-	buttonheld = false;
 	ready = false;
 	chargingEffect = new ChargeEffect(10);
 	// Register with RE, SO SMART :O
 	RE::get()->addParticleEffect(chargingEffect);
+	this->camHeight = 0;
+
+#if HMAP_TEST
+	///////////////////////////////////////////////////////////////
+	//TEST
+	HMap *hmap = new HMap("../floor_hmap.bmp", 6, 5.0f / 255);
+	const float fxo = -CM::get()->find_config_as_float("ROOM_WIDTH") / 2,
+				fyo = 0,//CM::get()->find_config_as_float("ROOM_HEIGHT") / 2,
+				fzo = -CM::get()->find_config_as_float("ROOM_DEPTH") / 2;
+	int skip = 10;
+	Point_t pos = Point_t();
+	for(int x = 0; x < hmap->getWidth(); x += skip) {
+		pos.x = x * hmap->getUnitLength() + fxo;
+		for(int z = 0; z < hmap->getLength(); z += skip) {
+			pos.y = hmap->getHeightAt(x, z) + fyo;
+			pos.z = z * hmap->getUnitLength() + fzo;
+			hmapPts.push_back(pos);
+		}
+	}
+	delete hmap;
+	///////////////////////////////////////////////////////////////
+#endif
 }
 
 PlayerCObj::~PlayerCObj(void)
 {
 	delete rm;
-	delete chargingEffect;
 	delete ss;
+	RE::get()->removeParticleEffect(chargingEffect);
+
+	// todo, figure out what it should be then config
+	camHeight = 0;
 
 	//Quit the game
 	CE::get()->exit();
@@ -42,7 +66,7 @@ PlayerCObj::~PlayerCObj(void)
 void PlayerCObj::showStatus()
 {
 	std::stringstream status;
-	status << "Player " << getId() << "\n";
+	status << "Health" << "\n";
 	RE::get()->setHUDText(status.str(), health, charge);
 }
 
@@ -61,13 +85,26 @@ bool PlayerCObj::update() {
 					cameraPitch = (float)-M_PI / 4.f;
 				}
 			}
+
+			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
+			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
 		}
 
-		Point_t objPos = rm->getFrameOfRef()->getPos();
+		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;
+
+		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*camHeight;
 		RE::get()->getCamera()->update(objPos, camRot, cameraPitch);
 		showStatus();
 		chargingEffect->setPosition(objPos, charge);
 		chargingEffect->update(.33);
+
+
+#if HMAP_TEST
+		///////////////////////////////////////////////////////////////
+		//TEST
+		RE::get()->getColBxPts()->addParticles(hmapPts);
+		///////////////////////////////////////////////////////////////
+#endif
 	}
 
 	if(this->sTrig == SOUND_PLAYER_JUMP)
@@ -89,7 +126,7 @@ void PlayerCObj::deserialize(char* newState) {
 
 	if(this->ready == false) {
 		RE::get()->gamestarted = false;
-		chargingEffect->kill();
+		// chargingEffect->kill();
 	}
 
 	this->getRenderModel()->setModelState(state->animationstate);
@@ -110,4 +147,9 @@ void PlayerCObj::deserialize(char* newState) {
 	{
 		rm->getFrameOfRef()->deserialize(newState + sizeof(PlayerState));
 	}
+}
+
+int PlayerCObj::getTypeInt()
+{
+	return -1;
 }

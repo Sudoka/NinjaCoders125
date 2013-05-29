@@ -6,7 +6,7 @@ class CollisionBoxPoints :
 {
 public:
 	CollisionBoxPoints(void);
-	~CollisionBoxPoints(void);
+	virtual ~CollisionBoxPoints(void);
 	virtual void resetParticle(ParticleAttributes* a);
 	virtual void update(float timeDelta);
 	virtual void addParticles(vector<Vec3f> pts);

@@ -1,24 +1,23 @@
 #pragma once
+#include "PhysicsEngine.h"
 #include "defs.h"
 #include "Frame.h"
 #include <vector>
-#define UNITOFHALFLENGTH 25		//as in half the length of a box
+//#define UNITOFHALFLENGTH 25		//as in half the length of a box
 
 //All physics data should be known to the frames
 struct PhysicsModel
 {
-	PhysicsModel(Point_t pos, Quat_t rot, float mass, uint collisionDirs = (NORTH | SOUTH | EAST | WEST | UP | DOWN)) {
+	PhysicsModel(Point_t pos, Quat_t rot, float mass) {
 		ref = new Frame(pos,rot);
-		this->lastPos = pos;
 		vel = Vec3f();
 		accel = Vec3f();
 		this->mass = mass;
-		frictCoeff = GROUND_FRICTION;
-		this->cdirs = collisionDirs;
+		frictCoeff = PE::get()->getGroundFrict();
+		surfaceId = 0;
 	}
 
 	virtual ~PhysicsModel() {
-		colBoxes.clear();
 		delete ref;
 	}
 
@@ -34,17 +33,13 @@ struct PhysicsModel
 		this->accel.y += accel.y;
 		this->accel.z += accel.z;
 	}
-	
-	int addBox(Box b) { colBoxes.push_back(b); return colBoxes.size() - 1; }
 
 	Frame *ref;	//Frame of Reference/skeleton; also root position and collision info
 	Vec3f vel;			//Current velocity
 	Vec3f accel;		//Current acceleration
-	Point_t lastPos;
+	Vec3f lastPos;		//last position
 	float mass;			//Mass of this object
 	float frictCoeff;	//Friction coefficient
-	Vec3f frictNorm;	//Normal on which the friction will be applied
-	//Box vol;
-	uint cdirs;			//Which faces of the collision volume are valid for collision checking?
-	vector<Box> colBoxes;
+	uint surfaceId;		//ID of the object that this one is standing on
+	//Vec3f frictNorm;	//Normal on which the friction will be applied
 };

@@ -82,6 +82,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AudioEngine.cpp" />
+    <ClCompile Include="BulletCObj.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ChargeEffect.cpp" />
     <ClCompile Include="ClientEngine.cpp" />
@@ -89,14 +90,24 @@
     <ClCompile Include="ClientObject.cpp" />
     <ClCompile Include="ClientObjectManager.cpp" />
     <ClCompile Include="CollisionBoxPoints.cpp" />
+    <ClCompile Include="CyborgCObj.cpp" />
+    <ClCompile Include="HarpoonCObj.cpp" />
+    <ClCompile Include="HarpoonEffect.cpp" />
     <ClCompile Include="HeadsUpDisplay.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MechanicCObj.cpp" />
     <ClCompile Include="MonsterCObj.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="PlayerCObj.cpp" />
+    <ClCompile Include="PortalEffect.cpp" />
+    <ClCompile Include="PushAwayEffect.cpp" />
+    <ClCompile Include="RageCObj.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="RenderModel.cpp" />
+    <ClCompile Include="ScientistCObj.cpp" />
+    <ClCompile Include="ShooterCObj.cpp" />
     <ClCompile Include="ShootingEffect.cpp" />
+    <ClCompile Include="SmokeEffect.cpp" />
     <ClCompile Include="Snow.cpp" />
     <ClCompile Include="SoundSource.cpp" />
     <ClCompile Include="TentacleCObj.cpp" />
@@ -105,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioEngine.h" />
+    <ClInclude Include="BulletCObj.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ChargeEffect.h" />
     <ClInclude Include="ClientEngine.h" />
@@ -113,14 +125,24 @@
     <ClInclude Include="ClientObjectManager.h" />
     <ClInclude Include="FMOD\inc\fmod.h" />
     <ClInclude Include="CollisionBoxPoints.h" />
+    <ClInclude Include="CyborgCObj.h" />
+    <ClInclude Include="HarpoonCObj.h" />
+    <ClInclude Include="HarpoonEffect.h" />
     <ClInclude Include="HeadsUpDisplay.h" />
+    <ClInclude Include="MechanicCObj.h" />
     <ClInclude Include="MonsterCObj.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="PlayerCObj.h" />
+    <ClInclude Include="PortalEffect.h" />
+    <ClInclude Include="PushAwayEffect.h" />
+    <ClInclude Include="RageCObj.h" />
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="RenderModel.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ScientistCObj.h" />
+    <ClInclude Include="ShooterCObj.h" />
     <ClInclude Include="ShootingEffect.h" />
+    <ClInclude Include="SmokeEffect.h" />
     <ClInclude Include="Snow.h" />
     <ClInclude Include="SoundSource.h" />
     <ClInclude Include="TentacleCObj.h" />

@@ -60,6 +60,7 @@ enum Model {
     MDL_TENTACLE_3,
     MDL_TENTACLE_4,
     MDL_TENTACLE_5,
+	MDL_HEAD_1,
     MDL_FLOOR,
     MDL_CEILING,
 	MDL_EAST_WALL,
@@ -71,6 +72,7 @@ enum Model {
 	MDL_PLAYER_3,
 	MDL_PLAYER_4,
 	MDL_TEST_BOX,
+	MDL_TEST_CRATE, 
 	MDL_TEST_PYRAMID,
 	MDL_TEST_PLANE,
 	MDL_TEST_BALL,
@@ -88,6 +90,10 @@ enum ObjectType {
 	OBJ_PLAYER,
 	OBJ_MONSTER,
 	OBJ_TENTACLE,
+	OBJ_RAGE,
+	OBJ_BULLET,
+	OBJ_HARPOON,
+	OBJ_STUNGUN,
 	NUM_OBJS
 };
 
@@ -123,7 +129,7 @@ enum PropSoundState {
 	SOUND_SILENT,
 	SOUND_BOX_HUM //hum for the moving boxes?
 }
- */
+*/
 
 /*
  * These enums are used to trigger one shot samples
@@ -163,6 +169,18 @@ enum PropSoundTrigger {
 };
 
 /*
+ * Character Classes
+ * These tell the client which object to create.
+ */
+enum CharacterClass {
+	CHAR_CLASS_GENERAL,
+	CHAR_CLASS_CYBORG,
+	CHAR_CLASS_SHOOTER,
+	CHAR_CLASS_SCIENTIST,
+	CHAR_CLASS_MECHANIC 
+};
+
+/*
  * Data format structures
  * These structures are used for formatting serialized data.  No actual
  * instance of these structures should be created; they should be used by
@@ -182,6 +200,7 @@ enum PropSoundTrigger {
  */
 struct CreateHeader {
 	ObjectType type;
+	CharacterClass cc;
 };
 
 /*
@@ -231,18 +250,29 @@ struct MonsterState {
 };
 
 /*
- * State information for the tentacle not encoded by the position
+ * State information for the monster parts (heads/tentacles) not encoded by the position
  */
-struct TentacleState {
+struct MonsterPartState {
 	Model modelNum;
 	int animationState;
+	int animationFrame;
+	bool fog;
 };
 
-enum TentacleActionState {
-	T_IDLE,
-	T_SLAM,
-	NUM_T
-	//int health;
+#define IDLE_CYCLE_SIZE = 30
+#define SLAM_CYCLE_SIZE = 20
+#define DEFENSE_CYCLE_SIZE = 30
+
+enum MonsterAnimationState {
+	M_IDLE,
+	M_ATTACK, // SLAM or SHOOT
+	M_SPIKE,
+	M_RAGE,
+	M_DEATH,
+	M_EXIT,
+	M_ENTER,
+	M_PROBE,
+	NUM_M
 };
 
 /*
@@ -254,4 +284,12 @@ enum PlayerAnimationState {
 	JUMP = 2,
 	ATK  = 3,
 	DEAD = 4
+};
+
+enum BulletColor {
+	BLUE,
+	RED,
+	GREEN,
+	PURPLE,
+	GREY
 };

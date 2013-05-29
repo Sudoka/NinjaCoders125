@@ -51,7 +51,7 @@ void RenderEngine::startWindow()
 		"WindowClass",
 		"Seek, Scavenge, Slay",
 		WS_EX_TOPMOST | WS_POPUP,
-		CW_USEDEFAULT, CW_USEDEFAULT, //0, 0,
+		0, 0,//CW_USEDEFAULT, CW_USEDEFAULT, //0, 0,
 		SCREEN_WIDTH, SCREEN_HEIGHT,
 		NULL,
 		NULL,
@@ -73,10 +73,10 @@ void RenderEngine::renderInitalization()
 	D3DPRESENT_PARAMETERS deviceInfo; // create a struct to hold various device information
 
 	ZeroMemory(&deviceInfo, sizeof(deviceInfo)); // clear out the struct for use
-	deviceInfo.Windowed = TRUE; // program windowed, not fullscreen
+	deviceInfo.Windowed = CM::get()->find_config_as_bool("FULLSCREEN"); // program windowed, not fullscreen //!!
 	deviceInfo.SwapEffect = D3DSWAPEFFECT_DISCARD; // discard old frames	//D3DSWAPEFFECT_COPY
 	deviceInfo.hDeviceWindow = windowHandle; // set the window to be used by Direct3D
-	deviceInfo.BackBufferFormat = D3DFMT_UNKNOWN;//D3DFMT_A8R8G8B8;//D3DFMT_X8R8G8B8; // set the back buffer format to 32-bit
+	deviceInfo.BackBufferFormat = D3DFMT_X8R8G8B8;//D3DFMT_UNKNOWN;//D3DFMT_A8R8G8B8;//D3DFMT_X8R8G8B8; // set the back buffer format to 32-bit
 	deviceInfo.BackBufferWidth = SCREEN_WIDTH; // set the width of the buffer
 	deviceInfo.BackBufferHeight = SCREEN_HEIGHT; // set the height of the buffer
 	
@@ -96,8 +96,8 @@ void RenderEngine::renderInitalization()
 		D3DDEVTYPE_HAL,
 		windowHandle,
 //		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-//		D3DCREATE_MIXED_VERTEXPROCESSING,
-		D3DCREATE_HARDWARE_VERTEXPROCESSING,
+		D3DCREATE_MIXED_VERTEXPROCESSING,
+//		D3DCREATE_HARDWARE_VERTEXPROCESSING,
 		&deviceInfo,
 		&direct3dDevice);
 
@@ -140,7 +140,6 @@ void RenderEngine::renderInitalization()
 	light2.Range      = 500.0f;
 	// Create a direction for our light - it must be normalized  
 	D3DXVECTOR3 vecDir1;
-//	vecDir1 = D3DXVECTOR3(0.0f,-0.3f,-0.5);
 	vecDir1 = D3DXVECTOR3(1.0f,-0.1f,-0.5);
 	D3DXVec3Normalize( (D3DXVECTOR3*)&light2.Direction, &vecDir1 );
 
@@ -151,6 +150,30 @@ void RenderEngine::renderInitalization()
 	direct3dDevice->LightEnable( 1, TRUE ); 
 
 	direct3dDevice->SetRenderState( D3DRS_LIGHTING, TRUE );	
+	direct3dDevice->SetRenderState(D3DRS_FOGENABLE, false);
+}
+
+void RenderEngine::startFog(float density)
+{
+	fogging = true;
+	direct3dDevice->SetRenderState(D3DRS_FOGENABLE, TRUE);
+	direct3dDevice->SetRenderState(D3DRS_FOGCOLOR, D3DXCOLOR(0.0f,0.0f,0.0f,1.0f));
+	direct3dDevice->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_EXP2 );
+	direct3dDevice->SetRenderState(D3DRS_FOGDENSITY, *(DWORD *)(&density));
+	direct3dDevice->SetRenderState(D3DRS_RANGEFOGENABLE, TRUE);
+}
+
+void RenderEngine::stopFog(float density)
+{
+	if(density <= 0) 
+	{
+		if(direct3dDevice != NULL) direct3dDevice->SetRenderState(D3DRS_FOGENABLE, false);
+		fogging = false;
+	}
+	else
+	{
+		startFog(density);
+	}	
 }
 
 /**
@@ -183,6 +206,7 @@ RenderEngine::RenderEngine() {
 	monsterHUDText = "DEFAULT";
 
 	this->gamestarted = false;
+	this->fogging = false;
 }
 
 
@@ -194,6 +218,8 @@ RenderEngine::~RenderEngine() {
 	RE::re = NULL;
 	direct3dDevice->Release(); // close and release the 3D device
 	direct3dInterface->Release(); // close and release Direct3D
+	this->removeParticleEffect(colBxPts);
+
 	delete hud;
 	delete cam;
 }
@@ -213,14 +239,11 @@ void RenderEngine::drawHUD() {
 * Bryan
 */
 void RenderEngine::sceneDrawing() {
-	//Telling the world to advance any animations we have
 	for(list<ClientObject *>::iterator it = lsObjs.begin();
 			it != lsObjs.end();
 			++it) {
 		if ((*it)->getRenderModel() != NULL)
 			(*it)->getRenderModel()->render();
-		/*if ((*it)->getBox() != NULL)
-			(*it)->getBox()->render();*/
 	}
 	lsObjs.clear();
 }
@@ -236,31 +259,32 @@ void RenderEngine::renderThis(ClientObject *obj) {
 */
 void RenderEngine::render() {
 	this->colBxPts->update(.33);
-	//Update the view matrix
-	direct3dDevice->SetTransform(D3DTS_VIEW, cam->getViewMatrix());
-	// clear the window to a deep blue
+	direct3dDevice->SetTransform(D3DTS_VIEW, cam->getViewMatrix()); // Update view
 	direct3dDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_COLORVALUE(0.0f, 0.0f, 0.0, 0.0f), 1.0f, 0);
 
 	direct3dDevice->BeginScene(); // begins the 3D scene
 
 	gamestartdisplaylogic();
-	hud->displayBackground();
+	if(!fogging) hud->displayBackground();
 	sceneDrawing();
-	for(int i = 0; i < this->particleSystems.size(); i++)
-	{
-		this->particleSystems[i]->render(direct3dDevice);
+	for(list<ParticleSystem *>::iterator it = particleSystems.begin();
+			it != particleSystems.end();
+			++it) {
+		(*it)->render(direct3dDevice);
 	}
 	drawHUD();
-	//ps->render(direct3dDevice);
+
 	direct3dDevice->EndScene(); // ends the 3D scene
 
 	direct3dDevice->Present(0, 0, 0, 0); // displays the created frame
+
+	//Clear collision-box particles
+	this->colBxPts->update(.33);
 }
 
 // todo take time
 #define TIME_SINCE_LAST_UPDATE 33 // 4
 void RenderEngine::animate(int id, const D3DXMATRIX &pos) {
-	//RenderEngine::direct3dDevice->SetTransform(D3DTS_VIEW, &pos);
 	RenderEngine::xAnimator->Render(id,pos,TIME_SINCE_LAST_UPDATE);
 }
 
@@ -283,7 +307,6 @@ LRESULT CALLBACK WindowProc(HWND windowHandle, UINT message, WPARAM wParam, LPAR
 			return 0;
 		} break;
 		default:
-			//printf("Unknown message 0x%x\n", message);
 			break;
 	}
 

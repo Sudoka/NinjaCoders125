@@ -5,7 +5,7 @@ class Snow :
 {
 public:
 	Snow(int numParticles);
-	~Snow(void);
+	virtual ~Snow(void);
 	virtual void resetParticle(ParticleAttributes* a);
 	virtual void update(float timeDelta);
 

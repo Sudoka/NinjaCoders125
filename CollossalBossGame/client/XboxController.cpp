@@ -1,5 +1,6 @@
 #include "ClientNetworkManager.h"
 #include "ClientObjectManager.h"
+#include "RenderEngine.h"
 #include "XboxController.h"
 #include "Action.h"
 #include "defs.h"

@@ -2,6 +2,7 @@
 #include "ServerObjectManager.h"
 #include "ConfigurationManager.h"
 #include "PhysicsEngine.h"
+#include "PlayerSObj.h"
 
 ServerObjectManager *ServerObjectManager::som;
 
@@ -136,7 +137,10 @@ void ServerObjectManager::sendState()
 			//Fill out the header
 			CreateHeader *h = (CreateHeader*)buf;
 			h->type = it->second->getType();
-
+			if(it->second->getType() == OBJ_PLAYER) {
+				PlayerSObj * pso = (PlayerSObj *)(it->second);
+				h->cc = pso->charclass;
+			}
 			//Serialize the object
 			datalen = it->second->serialize(buf + sizeof(CreateHeader)) + sizeof(CreateHeader);
 			totalData += datalen;
@@ -207,9 +211,8 @@ void ServerObjectManager::reset() {
 			it != mObjs.end();
 			++it) {
 		ServerObject * o = it->second;
-		string s = typeid(*o).name();
 		// if it's not a Player object...
-		if(s.compare("class PlayerSObj")) {
+		if(o->getType() != OBJ_PLAYER) {
 			// asdf.push_back(it->first);
 			//freeId(it->first);
 			//lsObjsToSend.push_back(pair<CommandTypes,ServerObject*>(CMD_DELETE,it->second));

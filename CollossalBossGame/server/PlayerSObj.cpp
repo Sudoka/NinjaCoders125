@@ -6,7 +6,7 @@
 #include "defs.h"
 #include "PhysicsEngine.h"
 
-PlayerSObj::PlayerSObj(uint id, uint clientId) : ServerObject(id) {
+PlayerSObj::PlayerSObj(uint id, uint clientId, CharacterClass cc) : ServerObject(id) {
 	// Save parameters here
 	this->clientId = clientId;
 	DC::get()->print("Player %d with obj id %d created\n", clientId, id);
@@ -14,6 +14,7 @@ PlayerSObj::PlayerSObj(uint id, uint clientId) : ServerObject(id) {
 	// Set all your pointers to NULL here, so initialize()
 	// knows if it should create them or not
 	pm = NULL;
+	charclass = cc;
 
 	// Other re-initializations (things that don't depend on parameters, like config)
 	this->initialize();
@@ -34,13 +35,14 @@ void PlayerSObj::initialize() {
 	if(SOM::get()->debugFlag) DC::get()->print("Initialized new PlayerSObj %d\n", this->getId());
 
 	Point_t pos = Point_t(0, 5, 10);
-	Box bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-10, 0, -10, 20, 20, 20);
+	bxStaticVol = CM::get()->find_config_as_box("BOX_PLAYER");//Box(-10, 0, -10, 20, 20, 20);
 
 	if(pm != NULL)
 		delete pm;
 
 	pm = new PhysicsModel(pos, Quat_t(), CM::get()->find_config_as_float("PLAYER_MASS"));
-	pm->addBox(bxVol);
+	getCollisionModel()->add(new AabbElement(bxStaticVol));
+
 	lastCollision = pos;
 
 	// Initialize input status
@@ -68,6 +70,7 @@ void PlayerSObj::initialize() {
 	gravityTimer = 0;
 	charging = false;
 	charge = 0.0;
+	chargeCap = 13.0f;
 	damage = 0;
 	modelAnimationState = IDLE;
 	ready = false;
@@ -79,6 +82,7 @@ void PlayerSObj::initialize() {
 	initUpRot = Quat_t();
 	finalUpRot = Quat_t();
 	camYaw = 0;
+	camPitch = 0;
 	camKpSlow = CM::get()->find_config_as_float("CAM_KP_SLOW");
 	camKpFast = CM::get()->find_config_as_float("CAM_KP_FAST");
 	camKp = camKpSlow;
@@ -98,7 +102,10 @@ bool PlayerSObj::update() {
 	if (istat.quit) {
 		return true; // delete me!
 	}
-	
+	Point_t myPos = pm->ref->getPos();
+	CollisionModel *cm = getCollisionModel();
+	DC::get()->print(LOGFILE | TIMESTAMP, "Player pos: (%f,%f,%f), collSize = %d\n", myPos.x, myPos.y, myPos.z, cm->getEnd() - cm->getStart());
+
 	
 	Quat_t upRot;
 	calcUpVector(&upRot);
@@ -106,15 +113,26 @@ bool PlayerSObj::update() {
 	sState = SOUND_PLAYER_SLIENT;
 	sTrig = SOUND_PLAYER_NO_NEW_TRIG;
 
+	bool f = this->getFlag(IS_STATIC);
+	bool g = this->getFlag(IS_FLOATING);
+	bool h = this->getFlag(IS_FALLING);
+
 	if(this->health > 0)
 	{
 		firedeath = false;
 
-		attacking = istat.attack && newAttack;
-		newAttack = !istat.attack;
+		attacking = istat.specialPower && newAttack;
+		newAttack = !istat.specialPower;
 
-		//if (attacking) attackCounter++;
-		//else attackCounter = 0;
+		if (attacking) {
+			actionAttack();
+		}
+
+		if(istat.specialPower) {
+			if(this->targetlockon == -1) this->acquireTarget();
+		} else {
+			this->targetlockon = -1;
+		}
 
 		// Jumping can happen in two cases
 		// 1. Collisions
@@ -136,21 +154,21 @@ bool PlayerSObj::update() {
 
 		appliedJumpForce = false; // we apply it on collision
 
-		/*if (istat.specialPower && newCharge && !getFlag(IS_FALLING)) {
-			// CHARGE!!!
-			// todo for now up, should be forward (or up + forward?)
-			Vec3f up = (PE::get()->getGravVec() * -1);
-			pm->applyForce(up * chargeForce);
-			charging = true;
-		}
-		newCharge = !istat.specialPower;*/
-
-		damage = charging ? chargeDamage : attacking ? swordDamage : 0;
-		
+		// damage = charging ? chargeDamage : 0;
 
 		//Update the yaw rotation of the player (about the default up vector)
 		if(fabs(istat.forwardDist) > 0.0f || fabs(istat.rightDist) > 0.0f) {
 			yaw = camYaw + istat.rotAngle;
+		}
+		if(istat.camLock) {
+			camPitch = 0.f;
+		} else {
+			camPitch += istat.rotVert;
+		}
+		if (camPitch > M_PI / 2.f) {
+			camPitch = (float)M_PI / 2.f;
+		} else if(camPitch < -M_PI / 4) {
+			camPitch = (float)-M_PI / 4.f;
 		}
 
 		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
@@ -166,26 +184,8 @@ bool PlayerSObj::update() {
 		pm->applyForce(total);
 
 		// Apply special power
-		if (istat.specialPower && !getFlag(IS_FALLING)) // holding down increases the charge
-		{
-			charge+=chargeUpdate;
-			if(charge > 13) charge = 13.f;
-		}
-		else
-		{
-			// If we accumulated some charge, fire!
-			if (charge > 0.f)
-			{
-				// Vec3f up = (PE::get()->getGravVec() * -1);
-				//pm->applyForce(up * (chargeForce * charge));
-				pm->applyForce(rotate(Vec3f(0, chargeForce * charge, chargeForce * charge), qRot));
-				charging = true;
-			}
+		actionCharge(istat.attack);
 
-			charge = 0.f;
-		}
-
-		
 		// change animation according to state
 		if(pm->vel.x <= 0.25 && pm->vel.x >= -0.25 && pm->vel.z <= 0.25 && pm->vel.z >= -0.25) {
 			this->setAnimationState(IDLE);
@@ -193,6 +193,9 @@ bool PlayerSObj::update() {
 			this->setAnimationState(WALK);
 		}
 	} else {
+		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
+		pm->ref->setRot(qRot);
+
 		damage = 0; // you can't kill things if you're dead xD
 
 		// TODO Franklin: THE PLAYER IS DEAD. WHAT DO?
@@ -211,10 +214,20 @@ void PlayerSObj::calcUpVector(Quat_t *upRot) {
 	PE *pe = PE::get();
 	if(lastGravDir != pe->getGravDir()) {
 		lastGravDir = pe->getGravDir();
-		//pm->ref->rotate(pe->getCurGravRot());
+
+		//Calculate the new initial and final up vectors
 		slerp(&initUpRot, initUpRot, finalUpRot, t);	//We may not have finished rotating
 		finalUpRot = pe->getCurGravRot();
 		t = 0;
+		
+		//Update the collision box
+		AabbElement *e = dynamic_cast<AabbElement*>(getCollisionModel()->get(0));
+		if(e != NULL) {
+			e->bx = bxStaticVol;
+			e->bx.rotate(finalUpRot);
+		} else {
+			DC::get()->print(__FILE__" %d: ERROR- Player collision AABB 0 not found!\n", __LINE__);
+		}
 	}
 
 	//Rotate by amount specified by player (does not affect up direction)
@@ -248,16 +261,16 @@ void PlayerSObj::controlCamera(const Quat_t &upRot) {
 		}
 
 		//Correct the camera angle so it is between +/-pi
-		if(camYaw < -M_PI) camYaw += M_TAU;
-		else if(camYaw > M_PI) camYaw -= M_TAU;
+		if(camYaw < -M_PI) camYaw += (float)M_TAU;
+		else if(camYaw > M_PI) camYaw -= (float)M_TAU;
 		camRot = upRot * Quat_t(Vec3f(0,1,0), camYaw);
 }
 
 float PlayerSObj::controlAngles(float des, float cur) {
-	//Determine
+	//Determine the camera angle cost
 	float err1 = des - cur, err2, errDiff;
-	if(des < 0) err2 = (des + M_TAU) - cur;
-	else err2 = (des - M_TAU) - cur;
+	if(des < 0) err2 = (des + (float)M_TAU) - cur;
+	else err2 = (des - (float)M_TAU) - cur;
 
 	errDiff = fabs(fabs(err1) - fabs(err2));
 	//DC::get()->print("Error differences: %f-%f = %f\n", err1, err2, );
@@ -272,10 +285,23 @@ float PlayerSObj::controlAngles(float des, float cur) {
 int PlayerSObj::serialize(char * buf) {
 	PlayerState *state = (PlayerState*)buf;
 	// This helps us distinguish between what model goes to what player
-	state->modelNum = (Model)(MDL_PLAYER_1 + this->clientId);
+	switch(this->charclass) {
+		case CHAR_CLASS_CYBORG:
+			state->modelNum = (Model)(MDL_PLAYER_1);
+			break;
+		case CHAR_CLASS_SHOOTER:
+			state->modelNum = (Model)(MDL_PLAYER_2);
+			break;
+		case CHAR_CLASS_SCIENTIST:
+			state->modelNum = (Model)(MDL_PLAYER_3);
+			break;
+		case CHAR_CLASS_MECHANIC:
+			state->modelNum = (Model)(MDL_PLAYER_4);
+			break;
+	}
 	state->health = health;
 	state->ready = ready;
-	state->charge = charge;
+	state->charge = (int)charge;
 	if (SOM::get()->debugFlag) DC::get()->print("CURRENT MODEL STATE %d\n",this->modelAnimationState);
 	state->animationstate = this->modelAnimationState;
 	state->sState = this->sState;
@@ -286,13 +312,14 @@ int PlayerSObj::serialize(char * buf) {
 	{
 		CollisionState *collState = (CollisionState*)(buf + sizeof(PlayerState));
 
-		vector<Box> objBoxes = pm->colBoxes;
+		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
+			end = getCollisionModel()->getEnd();
 
-		collState->totalBoxes = min(objBoxes.size(), maxBoxes);
+		collState->totalBoxes = min(end - cur, maxBoxes);
 
-		for (int i=0; i<collState->totalBoxes; i++)
-		{
-			collState->boxes[i] = objBoxes[i] + pm->ref->getPos(); // copying applyPhysics
+		for(int i=0; i < collState->totalBoxes; i++, cur++) {
+			//The collision box is relative to the object's frame-of-ref.  Get the non-relative collision box
+			collState->boxes[i] = ((AabbElement*)(*cur))->bx + pm->ref->getPos();
 		}
 
 		return pm->ref->serialize(buf + sizeof(PlayerState) + sizeof(CollisionState)) + sizeof(PlayerState) + sizeof(CollisionState);
@@ -307,12 +334,23 @@ void PlayerSObj::deserialize(char* newInput)
 {
 	inputstatus* newStatus = reinterpret_cast<inputstatus*>(newInput);
 	istat = *newStatus;
-	if (istat.start) {
+	if (istat.start && this->health > 0) {
 		GameServer::get()->event_reset(this->getId());
+	} else if(istat.start) {
+		this->health = CM::get()->find_config_as_int("INIT_HEALTH");
+		this->pm->ref->setPos(Point_t());
 	}
 }
 
 void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
+	if(obj->getType() == OBJ_BULLET) {
+		this->health-=3;
+		if(this->health < 0) health = 0;
+		if(this->health > 100) health = 100;
+	}
+	if(obj->getType() == OBJ_HARPOON) {
+		return;
+	}
 	if(obj->getFlag(IS_HARMFUL) && !(attacking))
 		this->health-=3;
 	if(obj->getFlag(IS_HEALTHY))
@@ -327,14 +365,22 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 	// jump force once every iteration
 	if(!appliedJumpForce && (jumpCounter > 0 && jumpCounter < 10))
 	{
+		//Clear player's velocity along the gravity axis
+		pm->vel -= pm->vel * dirAxis(PE::get()->getGravDir());
+
+		//Apply jump force
+		Vec3f jumpVec = collNorm - PE::get()->getGravVec();
+		jumpVec.normalize();
+		pm->applyForce(jumpVec * jumpDist);
+
+		//play jump sound
+		sTrig = SOUND_PLAYER_JUMP;
+#if 0
 		// surface bouncing
 		// Get the collNorm from the surface
 		float bounceDamp = 0.05f;
 
 		Vec3f incident = pm->ref->getPos() - lastCollision;
-
-		//play jump sound
-		sTrig = SOUND_PLAYER_JUMP;
 
 		// incident is zero, so we just jump upwards
 		// this happens when you jump of the same surface
@@ -355,12 +401,40 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 			// optimize: *= ^= better!
 			pm->vel = (collNorm * (((incident ^ collNorm) * -2.f )) + incident) * bounceDamp;
 		}
-
+#endif
 		appliedJumpForce = true;
 	}
 
 	// Set last collision pos for bouncing off different surfaces
 	lastCollision = pm->ref->getPos();
 	jumping = false;
-	charging = false;
+	// charging = false; // Charging handled by subclasses.
+}
+
+void PlayerSObj::acquireTarget() {
+	Vec3f currpos = this->pm->ref->getPos();
+	Vec3f currdir = rotate(Vec3f(0, -sin(camPitch), cos(camPitch)), pm->ref->getRot());
+	currdir.normalize();
+	vector<ServerObject *> allobjs;
+	float closestdirection = 0.0f;
+	int closestobjid = -1;
+	for(int i = 0; i < NUM_OBJS; i++) {
+		if((ObjectType)i == OBJ_WORLD || (ObjectType)i == OBJ_MONSTER) continue;
+		SOM::get()->findObjects((ObjectType)i, &allobjs);
+	}
+	for(int i = 0; i < allobjs.size(); i++) {
+		Vec3f temppos = allobjs[i]->getPhysicsModel()->ref->getPos();
+		Vec3f tempdir = temppos - currpos;
+		tempdir.normalize();
+		float dotprod = tempdir ^ currdir;
+		if(dotprod > 0 && dotprod > closestdirection) {
+			closestdirection = dotprod;
+			closestobjid = allobjs[i]->getId();
+		}
+	}
+	if(closestobjid != -1) {
+		targetlockon = closestobjid;
+	} else {
+		assert(false && "I'm pretty sure it doesn't hit here, but just in case.");
+	}
 }
