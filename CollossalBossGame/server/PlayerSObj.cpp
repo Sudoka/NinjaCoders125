@@ -334,9 +334,7 @@ void PlayerSObj::deserialize(char* newInput)
 {
 	inputstatus* newStatus = reinterpret_cast<inputstatus*>(newInput);
 	istat = *newStatus;
-	if (istat.start && this->health > 0) {
-		GameServer::get()->event_reset(this->getId());
-	} else if(istat.start) {
+	if(istat.start) {
 		this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 		this->pm->ref->setPos(Point_t());
 	}
@@ -375,33 +373,6 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 
 		//play jump sound
 		sTrig = SOUND_PLAYER_JUMP;
-#if 0
-		// surface bouncing
-		// Get the collNorm from the surface
-		float bounceDamp = 0.05f;
-
-		Vec3f incident = pm->ref->getPos() - lastCollision;
-
-		// incident is zero, so we just jump upwards
-		// this happens when you jump of the same surface
-		// you were at before (so the floor, or when you
-		// slide off the wall and then jump)
-		if ((incident.x < .01 && incident.x > -.01)
-			|| (incident.y < .01 && incident.y > -.01)
-			|| (incident.z < .01 && incident.z > -.01))
-		{
-			Vec3f force = (PE::get()->getGravVec() * -1) + collNorm;
-			pm->vel = Vec3f();
-			pm->applyForce(force*jumpDist);
-		}
-		// we have incident! so we bounce
-		else
-		{
-			// http://www.3dkingdoms.com/weekly/weekly.php?a=2
-			// optimize: *= ^= better!
-			pm->vel = (collNorm * (((incident ^ collNorm) * -2.f )) + incident) * bounceDamp;
-		}
-#endif
 		appliedJumpForce = true;
 	}
 

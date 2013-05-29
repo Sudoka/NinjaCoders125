@@ -7,7 +7,7 @@
 ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Point_t pos, DIRECTION dir) : ServerObject(id) {
 	Quat_t rot = Quat_t();
 	pm = new PhysicsModel(pos, rot, 500);
-	
+	DC::get()->print("New ArenaWallSObj created with id %d and direction ", id);
 
 	float fxo, fyo, fzo;
 	const float roomWidth = CM::get()->find_config_as_float("ROOM_WIDTH"),
@@ -17,13 +17,15 @@ ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Poin
 	int div;
 	switch(dir) {
 	case NORTH:
+		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "NORTH\n");
 		fxo = -roomWidth / 2;
-		fyo = -18.f;
+		fyo = -85.f;
 		fzo = -roomHeight / 2;
-		scale = 60.0f / 255.0f;
+		scale = 110.0f / 255.0f;
 		div = 5;
 		break;
 	default:
+		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "UP\n");
 		fxo = -roomWidth / 2;
 		fyo = 0;
 		fzo = -roomLength / 2;
@@ -33,6 +35,15 @@ ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Poin
 
 	HMapElement *el = new HMapElement(filename, Point_t(fxo, fyo, fzo), div, scale, dir);	//Cleaned by the collision model
 	getCollisionModel()->add(el);
+
+	//Add other collision elements
+	switch(dir) {
+	case NORTH:
+		addNorthBoxes();
+		break;
+	default:
+		addUpBoxes();
+	}
 
 	this->modelNum = modelNum;
 	this->setFlag(IS_STATIC, true);
@@ -86,10 +97,36 @@ void ArenaWallSObj::addNorthBoxes() {
 }
 
 void ArenaWallSObj::addSouthBoxes() {
+	CollisionModel *cm = getCollisionModel();
+	Quat_t rotAxis = Quat_t(Vec3f(0,1,0), (float)-M_PI);
+
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_3").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_3").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_3").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_2").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_2").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_2").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_1").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_1").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_1").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_PILLAR_1").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_PILLAR_2").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_PILLAR_3").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_PILLAR_4").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_PILLAR_5").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_PLATFORM_LO").rotate(rotAxis))));
+	cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_PLATFORM_HI").rotate(rotAxis))));
 }
 
 void ArenaWallSObj::addEastBoxes() {
 }
 
 void ArenaWallSObj::addWestBoxes() {
+}
+
+
+void ArenaWallSObj::addUpBoxes() {
+}
+
+void ArenaWallSObj::addDownBoxes() {
 }

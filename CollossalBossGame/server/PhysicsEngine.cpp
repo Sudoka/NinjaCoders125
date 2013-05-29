@@ -41,7 +41,13 @@ PhysicsEngine::~PhysicsEngine(void)
 bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	float dt = TIMESTEP;
 
-	if(obj->getFlag(IS_STATIC)) return true;
+	if(obj->getFlag(IS_STATIC)) {
+		PhysicsModel *mdl = obj->getPhysicsModel();
+		if(mdl != NULL) {
+			mdl->lastPos = mdl->ref->getPos();
+		}
+		return true;
+	}
 
 	PhysicsModel *mdl = obj->getPhysicsModel();
 
@@ -60,7 +66,7 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 		ServerObject *obj = SOM::get()->find(mdl->surfaceId);
 		if(obj != NULL && obj->getPhysicsModel() != NULL) {
 			PhysicsModel *mdlSurf = obj->getPhysicsModel();
-			surfaceShift = mdlSurf->ref->getPos() - mdlSurf->lastPos;
+			//surfaceShift = mdlSurf->ref->getPos() - mdlSurf->lastPos;
 		}
 	}
 

@@ -22,6 +22,8 @@ private:
 	void addNorthBoxes();
 	void addSouthBoxes();
 	void addEastBoxes();
+	void addUpBoxes();
+	void addDownBoxes();
 	void addWestBoxes();
 };
 
