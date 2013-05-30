@@ -144,6 +144,7 @@ void TentacleSObj::probe() {
 void TentacleSObj::attack() {
 	// First, rotate ourselves to the player
 	if (stateCounter == 0) {
+		slamCounter = 0;
 		// If there was no player, rotate ourselves to a random angle
 		/*if (!this->playerFound) this->playerAngle = rand()%(int)(M_PI*2);
 
@@ -155,9 +156,11 @@ void TentacleSObj::attack() {
 
 	slamMotion();
 
+	slamCounter+= 1;
+
 	// we're done!
 	//if((attackCounter - attackBuffer)%CYCLE == CYCLE - 1)
-	if(stateCounter == CYCLE - 1)
+	if(stateCounter == (CYCLE+2)*2 - 1)
 	{
 		// reset our rotation
 		this->getPhysicsModel()->ref->setRot(lastRotation);
@@ -176,7 +179,10 @@ void TentacleSObj::attack() {
 void TentacleSObj::combo() {
 	// First, save our initial rotation and reset our angle
 	if (stateCounter == 0) {
+		slamCounter = 0;
 		lastRotation = this->getPhysicsModel()->ref->getRot();
+	} else {
+		slamCounter += (stateCounter % (CYCLE+2) == 0) ? -CYCLE - 1 : 1;
 	}
 
 	// Then, every new slam cycle, rotate our tentacle
@@ -190,7 +196,7 @@ void TentacleSObj::combo() {
 	slamMotion();
 
 	// We're done!
-	if (stateCounter >= CYCLE*NUM_SLAMS)
+	if (stateCounter >= (CYCLE+2)*NUM_SLAMS)
 	{
 		// reset our rotation
 		this->getPhysicsModel()->ref->setRot(lastRotation);
@@ -215,7 +221,7 @@ void TentacleSObj::slamMotion() {
 	//get the actual axis
 	Vec4f axis = this->getPhysicsModel()->ref->getRot();
 
-	if (stateCounter == 0) {		
+	if (slamCounter == 0) {
  		Box origBase = slamBoxes[0];
 		Box origMiddle = slamBoxes[1];
 		Box origTip = slamBoxes[2];
@@ -230,17 +236,30 @@ void TentacleSObj::slamMotion() {
 		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 	}
 
-	changePosB.z+=2;
+	if (slamCounter < CYCLE ) 
+	{
+		changePosB.z+=2;
 
-	changePosM.z+=6;
-	changeProportionM.z+=2;
-	changePosM.y+=3;
+		changePosM.z+=6;
+		changeProportionM.z+=2;
+		changePosM.y+=3;
 
-	changePosT.z+=14;
-	changeProportionT.z-=2;
-	changePosT.y+=4;
-	changeProportionT.y+=4;
+		changePosT.z+=14;
+		changeProportionT.z-=2;
+		changePosT.y+=4;
+		changeProportionT.y+=4;
+	} else if (slamCounter < CYCLE * 2) {
+		changePosB.z-=2;
 
+		changePosM.z-=6;
+		changeProportionM.z-=2;
+		changePosM.y-=3;
+
+		changePosT.z-=14;
+		changeProportionT.z+=2;
+		changePosT.y-=4;
+		changeProportionT.y-=4;
+	}
 	// Rotate the relative change according to where we're facing
 	base.setRelPos(axis.rotateToThisAxis(changePosB));
 	
