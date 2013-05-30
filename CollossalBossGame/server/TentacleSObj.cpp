@@ -92,12 +92,12 @@ void TentacleSObj::idle() {
 		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
 		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 	}
-	else if(stateCounter < 16) {
+	else if(stateCounter < 16*2) {
 		changePosT.y -= 2;
 		changePosT.z += 3;
 		changeProportionT.z -= 3;
 	}
-	else if (stateCounter < 24) {
+	else if (stateCounter < 31*2) {
 		changePosT.y += 2;
 		changePosT.z -= 3;
 		changeProportionT.z += 3;
@@ -109,7 +109,7 @@ void TentacleSObj::idle() {
 	}
 	
 	// we're done!
-	currStateDone = (stateCounter == 30);
+	currStateDone = (stateCounter == 61);
 
 	//idleCounter = (idleCounter + 1) % 31;
 	
