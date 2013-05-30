@@ -97,7 +97,7 @@ void TentacleSObj::idle() {
 		changePosT.z += 3;
 		changeProportionT.z -= 3;
 	}
-	else if (stateCounter < 31*2) {
+	else if (stateCounter < 47) {
 		changePosT.y += 2;
 		changePosT.z -= 3;
 		changeProportionT.z += 3;
@@ -145,12 +145,12 @@ void TentacleSObj::attack() {
 	// First, rotate ourselves to the player
 	if (stateCounter == 0) {
 		// If there was no player, rotate ourselves to a random angle
-		if (!this->playerFound) this->playerAngle = rand()%(int)(M_PI*2);
+		/*if (!this->playerFound) this->playerAngle = rand()%(int)(M_PI*2);
 
 		Vec3f rotationAxis = Vec3f(0,0,1);
 		Vec4f qAngle = Vec4f(rotationAxis, playerAngle);
 		lastRotation = this->getPhysicsModel()->ref->getRot();
-		this->getPhysicsModel()->ref->rotate(qAngle);
+		this->getPhysicsModel()->ref->rotate(qAngle);*/
 	}
 
 	slamMotion();
@@ -208,13 +208,14 @@ void TentacleSObj::slamMotion() {
 	Box base = ((AabbElement*)cm->get(0))->bx; // this->getPhysicsModel()->colBoxes.at(0);
 	Box middle = ((AabbElement*)cm->get(1))->bx;// this->getPhysicsModel()->colBoxes.at(1);
 	Box tip = ((AabbElement*)cm->get(2))->bx; // this->getPhysicsModel()->colBoxes.at(2);
-	Vec3f changePosT = Vec3f();
+	Vec3f changePosM = Vec3f(), changeProportionM = Vec3f();
+	Vec3f changePosB = Vec3f();
 
 	//get the actual axis
 	Vec4f axis = this->getPhysicsModel()->ref->getRot();
 
-	if (stateCounter%CYCLE == 0) {
-		Box origBase = slamBoxes[0];
+	if (stateCounter == 0) {		
+ 		Box origBase = slamBoxes[0];
 		Box origMiddle = slamBoxes[1];
 		Box origTip = slamBoxes[2];
 
@@ -228,16 +229,22 @@ void TentacleSObj::slamMotion() {
 		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 	}
 
-	changePosT.z+=15;
+	changePosM.z+=6;
+	changeProportionM.z+=2;
+	changePosM.y+=3;
+
+	changePosB.z+=2;
 
 	// Rotate the relative change according to where we're facing
-	tip.setRelPos(axis.rotateToThisAxis(changePosT));
+	middle.setRelPos(axis.rotateToThisAxis(changePosM));
+	middle.setRelSize(axis.rotateToThisAxis(changeProportionM));
 	
+	base.setRelPos(axis.rotateToThisAxis(changePosB));
 	// Set new collision boxes
 	((AabbElement*)cm->get(0))->bx = *(base.fix());
-	((AabbElement*)cm->get(0))->bx = *(middle.fix());
-	((AabbElement*)cm->get(0))->bx = *(tip.fix());
-
+	((AabbElement*)cm->get(1))->bx = *(middle.fix());
+	((AabbElement*)cm->get(2))->bx = *(tip.fix());
+	
 //	/* Cycle logic:
 //	 * CYCLE*1/2 = The tentacle is extended
 //	 * CYCLE = when the tentacle is back at the default position
