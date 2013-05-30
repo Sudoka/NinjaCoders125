@@ -146,12 +146,12 @@ void TentacleSObj::attack() {
 	if (stateCounter == 0) {
 		slamCounter = 0;
 		// If there was no player, rotate ourselves to a random angle
-		/*if (!this->playerFound) this->playerAngle = rand()%(int)(M_PI*2);
+		if (!this->playerFound) this->playerAngle = rand()%(int)(M_PI*2);
 
 		Vec3f rotationAxis = Vec3f(0,0,1);
 		Vec4f qAngle = Vec4f(rotationAxis, playerAngle);
 		lastRotation = this->getPhysicsModel()->ref->getRot();
-		this->getPhysicsModel()->ref->rotate(qAngle);*/
+		this->getPhysicsModel()->ref->rotate(qAngle);
 	}
 
 	slamMotion();
