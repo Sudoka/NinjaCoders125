@@ -9,30 +9,50 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 	int mass = 100;
 	this->dir = dir;
 	this->modelNum = modelNum;
+
+	CollisionModel *cm = getCollisionModel();
+
 	switch (modelNum) {
 		case MDL_TEST_CRATE:
 			mass = 20;
 		case MDL_TEST_BOX:
 			// bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-5, 0, -5, 10, 10, 10);
-			bxVol = Box( -10, -10, -10, 20, 20, 20);
+			testBoxIndex = cm->add(new AabbElement(Box( -10, -10, -10, 20, 20, 20)));
 			break;
 		case MDL_TEST_PYRAMID:
-			bxVol = CM::get()->find_config_as_box("BOX_PYRAMID");//Box(-20, 0, -20, 40, 40, 40);
+			//bxVol = CM::get()->find_config_as_box("BOX_PYRAMID");//Box(-20, 0, -20, 40, 40, 40);
+			testBoxIndex = cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_PYRAMID")));
 			//pm->setColBox(CB_LARGE);
 			break;
 		case MDL_TEST_PLANE:
 #define WALL_WIDTH 150
-			bxVol = Box(-WALL_WIDTH / 2, 0, -WALL_WIDTH / 2,
-					WALL_WIDTH, 10, WALL_WIDTH);
+			testBoxIndex = cm->add(new AabbElement(Box(-WALL_WIDTH / 2, 0, -WALL_WIDTH / 2,
+														WALL_WIDTH, 10, WALL_WIDTH)));
+			//bxVol = Box(-WALL_WIDTH / 2, 0, -WALL_WIDTH / 2,
+			//		WALL_WIDTH, 10, WALL_WIDTH);
 			//pm->setColBox(CB_FLAT);
 			break;
+		case MDL_ELEVATOR:
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_BASE").fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_LEFT").fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_RIGHT").fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_BACK").fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_TOP").fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_1").fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_2").fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_3").fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_4").fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_L").fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_R").fix())));
+		
+			setFlag(IS_STATIC, true);
+			break;
 		default:
-			bxVol = Box();
+			//bxVol = Box();
 			break;
 	}
 
 	pm = new PhysicsModel(pos, rot, (float)mass);
-	testBoxIndex = getCollisionModel()->add(new AabbElement(bxVol));
 	t = 0;
 }
 
