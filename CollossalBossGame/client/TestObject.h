@@ -15,11 +15,13 @@ public:
 	virtual RenderModel* getRenderModel() { return rm; }
 
 	virtual void deserialize(char* newState);
-
+	
+	virtual RenderModel * getBox();
 	//inputstatus istat;
 
 private:
 	RenderModel *rm;
+	RenderModel *box;
 	// XboxController *xctrl;
 };
 

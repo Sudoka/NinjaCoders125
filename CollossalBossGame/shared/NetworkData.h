@@ -2,16 +2,19 @@
 
 #include <string.h>
 #include <Windows.h>
+#include "defs.h"
 
 #define MAX_PACKET_SIZE 1000000
-#define PACKET_SIZE 1024
+#define PACKET_SIZE 256
 
 // The type of message sent between client and server.
 enum PacketTypes {
     INIT_CONNECTION = 0,
-    ACTION_EVENT = 1,
-	MESSAGE = 2,
-	COMPLETE
+    OBJECT_MANAGER = 1,
+    GAMESTATE_MANAGER = 2,
+    RESET = 3,
+    CLIENT_READY = 4,
+    COMPLETE
 };
 
 // Commands sent from the ServerObjectManager to the ClientObjectManager.
@@ -52,12 +55,27 @@ struct Packet {
  * These enumerations are used for specifying models
  */
 enum Model {
-    MDL_0,
-    MDL_1,
-    MDL_2,
-    MDL_3,
-    MDL_4,
-    MDL_5,
+    MDL_TENTACLE_1,
+    MDL_TENTACLE_2,
+    MDL_TENTACLE_3,
+    MDL_TENTACLE_4,
+    MDL_TENTACLE_5,
+	MDL_HEAD_1,
+    MDL_FLOOR,
+    MDL_CEILING,
+	MDL_EAST_WALL,
+	MDL_WEST_WALL,
+	MDL_NORTH_WALL,
+	MDL_SOUTH_WALL,
+    MDL_PLAYER_1,
+	MDL_PLAYER_2,
+	MDL_PLAYER_3,
+	MDL_PLAYER_4,
+	MDL_TEST_BOX,
+	MDL_TEST_CRATE, 
+	MDL_TEST_PYRAMID,
+	MDL_TEST_PLANE,
+	MDL_TEST_BALL,
     NUM_MDLS
 };
 
@@ -68,8 +86,98 @@ enum Model {
  */
 enum ObjectType {
 	OBJ_GENERAL,
+	OBJ_WORLD,
 	OBJ_PLAYER,
+	OBJ_MONSTER,
+	OBJ_TENTACLE,
+	OBJ_RAGE,
+	OBJ_BULLET,
+	OBJ_HARPOON,
+	OBJ_STUNGUN,
 	NUM_OBJS
+};
+
+/*
+ * These enums are used mostly for specifying sound loops
+ */
+enum PlayerSoundState {
+	SOUND_PLAYER_SLIENT,
+	SOUND_PLAYER_WALK,
+	SOUND_PLAYER_FALL, //maybe?
+	SOUND_CYBORG_CHARGE //might have to make it so you can charge and walk
+};
+
+enum TentacleSoundState {
+	SOUND_TENTACLE_SILENT,
+	SOUND_TENTACLE_IDLE,
+};
+
+enum HeadSoundState {
+	SOUND_HEAD_SILENT,
+	SOUND_HEAD_IDLE,
+	SOUND_HEAD_ROAR //might be a trigger?
+};
+
+//combine with music?
+enum ArenaSoundState {
+	SOUND_ARENA_SILENT,
+	SOUND_ARENA_IDLE
+};
+
+/* Do we need this?
+enum PropSoundState {
+	SOUND_SILENT,
+	SOUND_BOX_HUM //hum for the moving boxes?
+}
+*/
+
+/*
+ * These enums are used to trigger one shot samples
+ */
+enum PlayerSoundTrigger {
+	SOUND_PLAYER_NO_NEW_TRIG, 
+	SOUND_PLAYER_JUMP, //on impact or vocal jump like link?
+	SOUND_PLAYER_HIT, 
+	SOUND_PLAYER_HURT, //may be the same as hit, but for now keep separate
+	SOUND_CYBORG_ATTACK, //swoosh sound
+	SOUND_CYBORG_ATTACK_IMPACT, //sword clash after swoosh
+	SOUND_SHOOT_GUN, 
+	SOUND_SHOOT_GRAPPLE
+};
+
+enum TentacleSoundTrigger {
+	SOUND_TENTACLE_NO_NEW_TRIG,
+	SOUND_TENTACLE_SLAM
+};
+
+enum HeadSoundTrigger {
+	SOUND_HEAD_NO_NEW_TRIG,
+	SOUND_HEAD_SHOOT,
+	SOUND_HEAD_RAGE,
+	SOUND_HEAD_SPIKE
+};
+
+enum ArenaSoundTrigger {
+	SOUND_ARENA_NO_NEW_TRIG,
+	SOUND_DOOR_OPEN,
+	SOUND_DOOR_CLOSE
+};
+
+enum PropSoundTrigger {
+	SOUND_PROP_NO_NEW_TRIG,
+	SOUND_CRATE_CRASH //for impact on gravity change
+};
+
+/*
+ * Character Classes
+ * These tell the client which object to create.
+ */
+enum CharacterClass {
+	CHAR_CLASS_GENERAL,
+	CHAR_CLASS_CYBORG,
+	CHAR_CLASS_SHOOTER,
+	CHAR_CLASS_SCIENTIST,
+	CHAR_CLASS_MECHANIC 
 };
 
 /*
@@ -92,6 +200,7 @@ enum ObjectType {
  */
 struct CreateHeader {
 	ObjectType type;
+	CharacterClass cc;
 };
 
 /*
@@ -100,6 +209,24 @@ struct CreateHeader {
 struct PlayerState {
     Model modelNum;
 	int health;
+	int ready;
+	float charge;
+	int animationstate;
+	PlayerSoundState sState;
+	PlayerSoundTrigger sTrig;
+	Quat_t camRot;
+	float camPitch;
+	float camDist;
+};
+
+/*
+ * Stores information on the collision boxes that need to be 
+ * rendered on the client for testing
+ */
+const int maxBoxes = 5;
+struct CollisionState {
+	int totalBoxes; // so we know how many to actually draw
+	Box boxes[maxBoxes]; // to keep it simple, you can have up to 5 collision boxes
 };
 
 /*
@@ -107,4 +234,64 @@ struct PlayerState {
  */
 struct ObjectState {
     Model modelNum;
+};
+
+/*
+ * State information for the WorldObject
+ */
+struct WorldState {
+	DIRECTION gravDir;
+};
+
+/*
+ * State information for the monster not encoded by the position
+ */
+struct MonsterState {
+	//Model modelNum;
+	int health;
+};
+
+/*
+ * State information for the monster parts (heads/tentacles) not encoded by the position
+ */
+struct MonsterPartState {
+	Model modelNum;
+	int animationState;
+	int animationFrame;
+	bool fog;
+};
+
+#define IDLE_CYCLE_SIZE = 30
+#define SLAM_CYCLE_SIZE = 20
+#define DEFENSE_CYCLE_SIZE = 30
+
+enum MonsterAnimationState {
+	M_IDLE,
+	M_ATTACK, // SLAM or SHOOT
+	M_SPIKE,
+	M_RAGE,
+	M_DEATH,
+	M_EXIT,
+	M_ENTER,
+	M_PROBE,
+	NUM_M
+};
+
+/*
+ * Types of player animation states
+ */
+enum PlayerAnimationState {
+	IDLE = 0,
+	WALK = 1,
+	JUMP = 2,
+	ATK  = 3,
+	DEAD = 4
+};
+
+enum BulletColor {
+	BLUE,
+	RED,
+	GREEN,
+	PURPLE,
+	GREY
 };

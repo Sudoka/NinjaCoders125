@@ -18,33 +18,18 @@
 class Camera
 {
 public:
-	Camera(float distance);
+	Camera();
 	~Camera(void);
 
-	void viewTarget(); // View target
+	//New camera update information
+	void update(const Point_t &tarPos, const Quat_t &tarRot, float pitch, float distance);
 
-	// Relative position/rotation
-	void yaw(float angle); // Perform a yaw
-	void pitch(float angle); // Perform a pitch
-	void forward(float distance); // Move forward
-	void backward(float distance); // Move backwards
-	void left(float distance); // Move left
-	void right(float distance); // Move right
-
-	// Absolute position/rotation
-	void setYaw(float angle); // left-right rotation
-	void setPitch(float angle);
-	void setTargetPosAndRot(const Point_t &pos, const Rot_t &rot);	//Sets position and rotation of the target
+	//void setViewProps(const Point_t &tarPos, const Vec3f &tarDir, const Vec3f &up);
 
 	D3DXMATRIX* getViewMatrix() { return &viewMatrix; }
 
 private:
 	D3DXMATRIX viewMatrix;
-	// Vectors for the target and camera
-	D3DXVECTOR3 tarView, tarUp, tarRight, tarPos;
-	D3DXVECTOR3 camView, camUp, camRight, camPos;
-	// Store the pitch and distance
-	float currentPitch;
 	float viewDistance;
 };
 

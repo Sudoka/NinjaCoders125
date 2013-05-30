@@ -17,16 +17,23 @@
 
 #include <d3dx9.h>
 #include "NetworkData.h"
+#include <vector>
 
 
 class RenderModel
 {
 public:
-	RenderModel(Point_t pos, Rot_t rot, Model modelNum);
+	RenderModel(Point_t pos, Quat_t rot, Model modelNum);
 	virtual ~RenderModel(void);
 	virtual void render();
+	virtual void setModelState(int state_id);
+	virtual void setAnimationFrame(int frame);
 	Frame *getFrameOfRef() { return ref; }
+	vector<Box> colBoxes;
+
 private:
 	Frame *ref;	//The skeleton
 	int modelId;
+	int modelState;
+	int prevModelState;
 };

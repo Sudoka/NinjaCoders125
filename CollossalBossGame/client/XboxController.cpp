@@ -1,5 +1,6 @@
 #include "ClientNetworkManager.h"
 #include "ClientObjectManager.h"
+#include "RenderEngine.h"
 #include "XboxController.h"
 #include "Action.h"
 #include "defs.h"
@@ -43,7 +44,11 @@ void XboxController::sendInput() {
 		istat.jump =			(gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
 		istat.specialPower =	(gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
 		istat.quit =			(gamepad.wButtons & XINPUT_GAMEPAD_BACK) != 0;
+		istat.start =			(gamepad.wButtons & XINPUT_GAMEPAD_START) != 0;
 		istat.attack =			(gamepad.bRightTrigger) != 0;
+		istat.camLock =			(gamepad.bLeftTrigger != 0);
+		istat.zoom =            (gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
+
 
 		// Get joystick positions
 		float x = gamepad.sThumbLX,
@@ -60,7 +65,7 @@ void XboxController::sendInput() {
 			istat.forwardDist = 0;
 		}
 		// Set rotation
-		istat.rotAngle = 0;
+		istat.rotAngle = atan2(x / DEADZONE, y / DEADZONE);
 		istat.rotHoriz = 0;
 		istat.rotVert = 0;
 
@@ -88,7 +93,8 @@ void XboxController::sendInput() {
 		}*/
 	}
 	//Send the input data, zero'd if nothing is there
-	ClientNetworkManager::get()->sendData(reinterpret_cast<char*>(&istat), sizeof(inputstatus), COM::get()->player_id);
+	ClientNetworkManager::get()->sendData(OBJECT_MANAGER, reinterpret_cast<char*>(&istat), sizeof(inputstatus), COM::get()->player_id);
+	ClientNetworkManager::get()->sendData(GAMESTATE_MANAGER, reinterpret_cast<char*>(&istat), sizeof(inputstatus), COM::get()->player_id);
 }
 
 bool XboxController::isConnected()

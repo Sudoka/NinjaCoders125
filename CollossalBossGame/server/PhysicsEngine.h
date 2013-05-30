@@ -1,6 +1,14 @@
 #pragma once
-#include "PhysicsModel.h"
-#include "ServerObject.h"
+
+//Includes
+#include "defs.h"
+
+//Forward declarations
+struct PhysicsModel;
+class ServerObject;
+class CollisionElement;
+class AabbElement;
+class HMapElement;
 
 class PhysicsEngine
 {
@@ -11,6 +19,7 @@ public:
 
 	bool applyPhysics(ServerObject *obj);
 	void applyPhysics(ServerObject *obj1, ServerObject *obj2);
+	void applyPhysics(ServerObject *obj1, ServerObject *obj2, Box b1, Box b2);
 
 	void setLimits(float xNeg, float yNeg, float zNeg, float xPos, float yPos, float zPos) {
 		this->xPos = xPos;
@@ -21,18 +30,33 @@ public:
 		this->zNeg = zNeg;
 	}
 
+	void setGravDir(DIRECTION dir);
+
+	inline DIRECTION getGravDir() { return gravDir; }
+	inline const Vec3f &getGravVec() { return gravVec; }
+	inline const Quat_t &getCurGravRot() { return curGravRot; }
+	inline float getGroundFrict() { return frictGround; }
+	inline float getAirFrict() { return frictAir; }
+
 private:
 	PhysicsEngine(void);
 	virtual ~PhysicsEngine(void);
 
 	static PhysicsEngine *pe;
 
-	void flatCollision(ServerObject * theObj, Frame * flat);
-
-	bool aabbCollision(const Box &bx1, const Box &bx2);
+	//Collision-specific handlers
+	void handleCollision(ServerObject *obj1, ServerObject *obj2, AabbElement *el);
+	void handleCollision(ServerObject *obj1, ServerObject *obj2, HMapElement *el);
+	void handleCollision(ServerObject *obj1, ServerObject *obj2, const Vec3f &shift, DIRECTION dir);	//Actually move the objects
 
 	// Configuration options
-	float gravity;
+	float gravMag, constGravMag;
+	Vec3f gravVec;
+	DIRECTION gravDir;
+	Quat_t curGravRot;
+
+	float frictGround,
+		  frictAir;
 
 	//Position caps
 	float xPos, yPos, zPos,

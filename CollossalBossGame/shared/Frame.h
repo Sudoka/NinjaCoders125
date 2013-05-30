@@ -9,32 +9,34 @@
 #include <list>
 using namespace std;
 
-struct stateMessage {
+struct StateMessage {
 	Point_t pos;
-	Rot_t rot;
+	Quat_t rot;
 };
 
 class Frame {
 public:
 	Frame();
-	Frame(const Point_t &pos, const Rot_t &rot);
+	Frame(const Point_t &pos, const Quat_t &rot);
 	virtual ~Frame(void);
-	void addChild(Frame* newChild);
+	//void addChild(Frame* newChild);
 	
 	void translate(const Vec3f &dv);
-	void rotate(const Vec3f &dr);
+	void rotate(const Quat_t &dr);
 
-	void setPos(const Point_t &pt) { pos = pt; }
-	void setRot(const Rot_t &rt) { rot = rt; }
+	void setPos(const Point_t &pt) {
+		pos = pt;
+	}
+	void setRot(const Quat_t &rt) { rot = rt; }
 	Point_t getPos() { return pos; }
-	Rot_t getRot() { return rot; }
+	Quat_t getRot() { return rot; }
 
 	int serialize(char * buf);
 	void deserialize(char* newState);
-	stateMessage st;
+	//stateMessage st;
 private:
 	Point_t pos;
-	Rot_t rot;
-	list<Frame*> lsAttachedFrames;
+	Quat_t rot;
+	//list<Frame*> lsAttachedFrames;
 };
 

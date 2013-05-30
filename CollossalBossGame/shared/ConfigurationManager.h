@@ -1,5 +1,9 @@
+#pragma once
+
 #include <string>
+#include <vector>
 #include "defs.h"
+#include "Frame.h"
 
 using namespace std;
 
@@ -23,6 +27,8 @@ public:
 	bool find_config_as_bool(string key);
 	Vec3f find_config_as_point(string key);
 	Box   find_config_as_box(string key);
+	vector<Frame> find_config_as_places(string key);
+
 private:
 	void init();
 
@@ -32,5 +38,9 @@ private:
 	char valuetable[MAX_CONFIG_ITEMS][MAX_VALUE_LENGTH];	// Table of values.
 	int  keylen[MAX_CONFIG_ITEMS];							// Number of characters of each key
 	int  valuelen[MAX_CONFIG_ITEMS];						// Number of characters of each value
+
+	// Parsers
+	Vec3f parseAsPoint(string value);
+	Vec4f parseAsVec4f(string value);
 };
 typedef ConfigurationManager CM;

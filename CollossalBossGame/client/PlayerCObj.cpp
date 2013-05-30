@@ -8,19 +8,36 @@
 #include <math.h>
 #include <sstream>
 
+#define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
+
 PlayerCObj::PlayerCObj(uint id, char *data) :
-	ClientObject(id)
+	ClientObject(id, OBJ_PLAYER)
 {
-	DC::get()->print("Created new PlayerCObj %d\n", id);
-	rm = new RenderModel(Point_t(300.f, 500.f, 0.f),Rot_t(0.f, 0.f, M_PI), MDL_0);
-	cameraPitch = 0;
+	if (COM::get()->debugFlag) DC::get()->print("Created new PlayerCObj %d\n", id);
 	PlayerState *state = (PlayerState*)data;
 	this->health = state->health;
+	this->charge = state->charge;
+	rm = new RenderModel(Point_t(),Quat_t(), state->modelNum);
+	ss = new SoundSource();
+	char* s1 = CM::get()->find_config("LINK");
+	jumpsound = ss->addSound(s1);
+	camDist = 0;
+	camPitch = DEFAULT_PITCH_10;
+	ready = false;
+	chargingEffect = new ChargeEffect(10);
+	// Register with RE, SO SMART :O
+	RE::get()->addParticleEffect(chargingEffect);
+	this->camHeight = CM::get()->find_config_as_int("CAM_HEIGHT");
 }
 
 PlayerCObj::~PlayerCObj(void)
 {
 	delete rm;
+	delete ss;
+	RE::get()->removeParticleEffect(chargingEffect);
+
+	// todo, figure out what it should be then config
+	camHeight = 0;
 
 	//Quit the game
 	CE::get()->exit();
@@ -29,13 +46,8 @@ PlayerCObj::~PlayerCObj(void)
 void PlayerCObj::showStatus()
 {
 	std::stringstream status;
-	status << "Player " << getId() << "\n";
-	//std::string s1 ("[");
-	//std::string s2 (floor(health/20 + 0.5f), '~');
-	//std::string s3 ("]");
-	//status << s1 << s2 << s3;
-	if (health <= 0) status << "\nGAME OVER";
-	RE::get()->setHUDText(status.str(), health);
+	status << "Health" << "\n";
+	RE::get()->setHUDText(status.str(), health, charge);
 }
 
 bool PlayerCObj::update() {
@@ -43,29 +55,77 @@ bool PlayerCObj::update() {
 	if(COM::get()->player_id == getId()) {
 		XboxController *xctrl = CE::getController();
 		if(xctrl->isConnected()) {
-			
+			/*
 			if(xctrl->getState().Gamepad.bLeftTrigger) {
-				cameraPitch = 0.174532925f; //10
+				camPitch = DEFAULT_PITCH_10; //10
 			} else if(fabs((float)xctrl->getState().Gamepad.sThumbRY) > DEADZONE) {
-				cameraPitch += atan(((float)xctrl->getState().Gamepad.sThumbRY / (JOY_MAX * 8)));
-				if (cameraPitch > M_PI / 2.f) {
-					cameraPitch = M_PI / 2.f;
-				} else if(cameraPitch < -M_PI / 4) {
-					cameraPitch = -M_PI / 4.f;
+				camPitch += atan(((float)xctrl->getState().Gamepad.sThumbRY / (JOY_MAX * 8)));
+				if (camPitch > M_PI / 2.f) {
+					camPitch = (float)M_PI / 2.f;
+				} else if(camPitch < -M_PI / 4) {
+					camPitch = (float)-M_PI / 4.f;
 				}
 			}
+			*/
+
+			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
+			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
 		}
-		Point_t objPos = rm->getFrameOfRef()->getPos();
-		Rot_t objDir = rm->getFrameOfRef()->getRot();
-		objDir.x = cameraPitch;
-		RE::get()->updateCamera(objPos, objDir);
+
+		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;
+
+		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*(float)camHeight;
+		RE::get()->getCamera()->update(objPos, camRot, camPitch, camDist);
 		showStatus();
+		chargingEffect->setPosition(objPos, (int)charge);
+		chargingEffect->update(.33f);
 	}
+
+	if(this->sTrig == SOUND_PLAYER_JUMP)
+	{
+		ss->playOneShot(jumpsound);
+	}
+
 	return false;
 }
 
 void PlayerCObj::deserialize(char* newState) {
 	PlayerState *state = (PlayerState*)newState;
 	this->health = state->health;
-	rm->getFrameOfRef()->deserialize(newState + sizeof(PlayerState));
+	this->ready = state->ready;
+	this->charge = state->charge;
+	this->sState = state->sState;
+	this->sTrig = state->sTrig;
+	camRot = state->camRot;
+	camPitch = state->camPitch;
+	camDist = state->camDist;
+
+	if(this->ready == false) {
+		RE::get()->gamestarted = false;
+		// chargingEffect->kill();
+	}
+
+	this->getRenderModel()->setModelState(state->animationstate);
+
+	if (COM::get()->collisionMode)
+	{
+		CollisionState *collState = (CollisionState*)(newState + sizeof(PlayerState));
+
+		rm->colBoxes.clear();
+		for (int i=0; i<collState->totalBoxes; i++)
+		{
+			rm->colBoxes.push_back(collState->boxes[i]);
+		}
+
+		rm->getFrameOfRef()->deserialize(newState + sizeof(PlayerState) + sizeof(CollisionState));
+	}
+	else
+	{
+		rm->getFrameOfRef()->deserialize(newState + sizeof(PlayerState));
+	}
+}
+
+int PlayerCObj::getTypeInt()
+{
+	return -1;
 }

@@ -6,6 +6,7 @@
 #include "defs.h"
 #include "RenderEngine.h"
 #include "ClientObjectManager.h"
+#include "AudioEngine.h"
 
 //Static members
 ClientEngine *ClientEngine::ce;
@@ -21,8 +22,10 @@ ClientEngine::ClientEngine() {
 
 	//Initialize engines
 	DC::init("clientLog.txt");
+	CNM::init();
 	RE::init();
 	COM::init();
+	AE::init();
 	xctrl = new XboxController(1); // For now, we can decide later if we want to change the id
 }
 
@@ -31,9 +34,12 @@ ClientEngine::ClientEngine() {
  */
 ClientEngine::~ClientEngine() {
 	//Clean engines
-	RE::clean();
 	COM::clean();
+	AE::clean();
+	CNM::clean();
 	DC::clean();
+	RE::clean();
+
 }
 
 
@@ -55,7 +61,6 @@ void ClientEngine::run() {
 	while(!ClientNetworkManager::get()->isConnected()) { 
 		ClientNetworkManager::get()->update(); 
 	}
-	DC::get()->print("My player id is: %d\n", COM::get()->player_id);
 
 	while(isRunning) {
 		
@@ -70,10 +75,17 @@ void ClientEngine::run() {
 
 		//Render
 		RE::get()->render();
+
+		//Update Sound Events
+		AE::get()->update();
 		
 		//Poll events
 		
 
 		//Sleep(10);
 	}
+}
+
+void ClientEngine::setState(char * buf) {
+	state.deserialize(buf);
 }

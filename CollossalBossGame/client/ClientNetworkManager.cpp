@@ -1,13 +1,14 @@
 #include "ClientNetworkManager.h"
 #include "ConfigurationManager.h"
 #include "ClientObjectManager.h"
+#include "ClientEngine.h"
 #include "TestObject.h"
 #include <iostream>
 #include <string>
 #include <vector>
 #include "Action.h"
 
-ClientNetworkManager ClientNetworkManager::CNM;
+ClientNetworkManager * ClientNetworkManager::CNM;
 
 /*
 	This object handles networking for the client
@@ -24,6 +25,7 @@ ClientNetworkManager ClientNetworkManager::CNM;
 ClientNetworkManager::ClientNetworkManager(void) {
 	connected = false;
 	debugFlag = CM::get()->find_config_as_int("NETWORK_DEBUG_FLAG");
+
 	char * HOST = CM::get()->find_config("HOST");
 	char * PORT = CM::get()->find_config("PORT");
 
@@ -137,7 +139,7 @@ ClientNetworkManager::ClientNetworkManager(void) {
 }
 
 ClientNetworkManager::~ClientNetworkManager(void) {
-
+	// TODO: close socket
 }
 
 bool ClientNetworkManager::isConnected()
@@ -160,17 +162,12 @@ int ClientNetworkManager::receivePackets(char * recvbuf)
     return iResult;
 }
 
-ClientNetworkManager * ClientNetworkManager::get() {
-	return &CNM;
-}
-
 bool ClientNetworkManager::update()
 {
     Packet packet;
     int data_length = receivePackets(network_data);
 	bool ret = true;
 
-	// TODO how to make sure you get all the packets the server wants to send? O_O
     while (data_length <= 0) 
     {
         //no data recieved
@@ -186,27 +183,31 @@ bool ClientNetworkManager::update()
 		this->response_packet_number = packet.packet_number;
         i += sizeof(Packet);
 		//cout << "Iteration: " << packet.iteration << " packet_type: " << packet.packet_type << " object_id: " << packet.object_id << " packet_number: " << packet.packet_number << " command_type: " << packet.command_type << endl;
-		if(debugFlag)
-			DC::get()->print(TIMESTAMP | LOGFILE, "Iteration: %d packet_type: %d object_id: %d packet_number: %d command_type: %d\n", packet.iteration, packet.packet_type, packet.object_id, packet.packet_number, packet.command_type);
+		if(debugFlag) DC::get()->print(TIMESTAMP | LOGFILE, "Iteration: %d packet_type: %d object_id: %d packet_number: %d command_type: %d\n", packet.iteration, packet.packet_type, packet.object_id, packet.packet_number, packet.command_type);
         switch (packet.packet_type) {
 			case INIT_CONNECTION:
 				COM::get()->player_id = packet.object_id;
-				DC::get()->print("PLAYER ID RECEIVED! %d\n", COM::get()->player_id);
+				if(debugFlag) DC::get()->print("PLAYER ID RECEIVED! %d\n", COM::get()->player_id);
 				connected = true;
 				ret = false;
 				break;
-            case ACTION_EVENT:
+            case OBJECT_MANAGER:
                 //DC::get()->print("client received action event packet from server\n");
 					
 				//memcpy(&(((TestObject*)COM::get()->find(0))->istat), &packet.packet_data, sizeof(inputstatus));
 				//COM::get()->find(packet.object_id)->deserialize(packet.packet_data);
-				if(debugFlag) 
-					DC::get()->print(CONSOLE | LOGFILE, "%s %d: Action event received\n", __FILE__, __LINE__);
+				if(debugFlag) DC::get()->print(CONSOLE | LOGFILE, "%s %d: Action event received\n", __FILE__, __LINE__);
 				COM::get()->serverUpdate(packet.object_id, packet.command_type, packet.packet_data);
                 break;
+			case GAMESTATE_MANAGER:
+				ClientEngine::get()->setState(packet.packet_data);
+				break;
+			case RESET:
+				// RESET LOGIC. Like destroying everything and resetting.
+				// ClientEngine::get()->reset();
+				break;
 			case COMPLETE:
-				if(debugFlag)
-					DC::get()->print(CONSOLE | LOGFILE, "%s %d: Complete packet received\n", __FILE__, __LINE__);
+				if(debugFlag) DC::get()->print(CONSOLE | LOGFILE, "%s %d: Complete packet received\n", __FILE__, __LINE__);
 				ret = false;
 				break;
             default:
@@ -220,14 +221,14 @@ bool ClientNetworkManager::update()
 	return ret; 
 }
 
-void ClientNetworkManager::sendData(char * data, int datalen, int objectID) {
+void ClientNetworkManager::sendData(PacketTypes messagetype, char * data, int datalen, int objectID) {
 	// std::cout << data << std::endl;
 	
     char packet_data[sizeof(Packet)];
 
 	Packet packet;
 	packet.iteration = this->iteration_count;
-	packet.packet_type = ACTION_EVENT;
+	packet.packet_type = messagetype;
 	packet.object_id = objectID;
 	packet.command_type = CMD_ACTION;
 	packet.data_size = datalen;

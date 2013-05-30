@@ -11,10 +11,14 @@ config_dev.ini
 *.x
 *.bmp
 *.jpg
-./res/*
-*.dll
+CollossalBossGame/client/res/*
 *.png
+./res/*
+*.mp3
+*.ogg
 *.wav
+*.max
+*.dll
 
 # Build results
 

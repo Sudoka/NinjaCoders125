@@ -2,11 +2,16 @@
 #include "Action.h"
 #include "ServerObjectManager.h"
 #include "PlayerSObj.h"
+#include "CyborgSObj.h"
+#include "ShooterSObj.h"
+#include "ScientistSObj.h"
+#include "MechanicSObj.h"
 #include "ConfigurationManager.h"
+#include "GameServer.h"
 #include <iostream>
 
 unsigned int ServerNetworkManager::client_id;
-ServerNetworkManager ServerNetworkManager::SNM;
+ServerNetworkManager * ServerNetworkManager::SNM;
 
 /*
  *	This object handles networking for the server
@@ -20,7 +25,8 @@ ServerNetworkManager ServerNetworkManager::SNM;
  */
 ServerNetworkManager::ServerNetworkManager(void)
 {
-	debugFlag = CM::get()->find_config_as_int("NETWORK_DEBUG_FLAG");
+	debugFlag = CM::get()->find_config_as_bool("NETWORK_DEBUG_FLAG");
+
 	char * PORT = CM::get()->find_config("PORT");
 	printf("Listening at port %s\n", PORT);
 
@@ -114,11 +120,8 @@ ServerNetworkManager::ServerNetworkManager(void)
 }
 
 // Destructor - does nothing.
-ServerNetworkManager::~ServerNetworkManager(void) {}
-
-// Fetch the singleton ServerNetworkManager object.
-ServerNetworkManager * ServerNetworkManager::get() {
-	return &SNM;
+ServerNetworkManager::~ServerNetworkManager(void) {
+	// TODO: Close all open sockets
 }
 
 SOCKET ServerNetworkManager::getSocketById(int cid) {
@@ -138,7 +141,7 @@ void ServerNetworkManager::update() {
 	do {
 		unsigned int temp_c_id = client_id;
 		if(acceptNewClient(temp_c_id)) {
-			DC::get()->print("client %d has been connected to the server\n",client_id);
+			if(debugFlag) DC::get()->print("client %d has been connected to the server\n",client_id);
 			PlayerSObj * o;
 			if(temp_c_id == client_id) {
 				// Create a Test Server Object for them (for now)
@@ -146,7 +149,20 @@ void ServerNetworkManager::update() {
 				// Ok, since we should only have one object on both sides, the id's will match
 				// but how do we get them matching later? maybe the server should send
 				// the client the id back or something?
-				o = new PlayerSObj(som->genId());
+				switch(/*client_id*/1) {
+					case 0:
+						o = new CyborgSObj(som->genId(), client_id);
+						break;
+					case 3:
+						o = new ShooterSObj(som->genId(), client_id);
+						break;
+					case 1:
+						o = new MechanicSObj(som->genId(), client_id);
+						break;
+					case 2:
+						o = new ScientistSObj(som->genId(), client_id);
+						break;
+				}
 				som->add(o);
 				sessionsobjid.insert( pair<unsigned int, unsigned int>(temp_c_id, o->getId()) );
 			} else {
@@ -156,10 +172,11 @@ void ServerNetworkManager::update() {
 			this->getSendBuffer();	// Need to call this before each send, regardless of whether or not you have a message.
 			this->sendToClient(sessions[temp_c_id], INIT_CONNECTION, o->getId(), 0);			
 
-			DC::get()->print("client %d has been assigned client_id... Moving onto the rest of the loop.\n",client_id);
+			if(debugFlag) DC::get()->print("client %d has been assigned client_id... Moving onto the rest of the loop.\n",client_id);
 			if(temp_c_id == client_id) {
 				client_id++;
 			}
+			GameServer::get()->event_connection(o->getId());
 		}
 	} while (sessions.empty());
 	// Collect data from clients
@@ -198,21 +215,25 @@ void ServerNetworkManager::receiveFromClients() {
 			// </Log Packet>
             switch (packet.packet_type) {
 				ServerObject* destObject;
+				PlayerSObj * plyr;
                 case INIT_CONNECTION:
-					if(debugFlag)
-						DC::get()->print("server received init packet from client %d\n", iter->first);
+                    if(debugFlag) DC::get()->print("server received init packet from client %d\n", iter->first);
                     break;
-                case ACTION_EVENT:
-					if(debugFlag)
-						DC::get()->print("server received action event packet from client %d (player id %d)\n", iter->first, packet.object_id);
-
+                case OBJECT_MANAGER:
+					if(debugFlag) DC::get()->print("server received action event packet from client %d (player id %d)\n", iter->first, packet.object_id);
 					destObject = SOM::get()->find(packet.object_id);
 
 					if (destObject != NULL) {
 						destObject->deserialize(packet.packet_data);
 					}
-
                     break;
+				case GAMESTATE_MANAGER:
+					plyr = (PlayerSObj *)SOM::get()->find(packet.object_id);
+					GameServer::get()->recieveInput(packet.packet_data, plyr->clientId);
+					break;
+				case CLIENT_READY:
+					// GameServer::get()->state.clientready(packet.object_id);
+					break;
                 default:
                     DC::get()->print("error in packet types\n");
                     break;
@@ -311,6 +332,7 @@ int ServerNetworkManager::sendToClient(SOCKET sock_id, unsigned int packet_type,
 	return sendToClient(sock_id, iteration, packet_type, object_id, command_type, data_size);
 }
 int ServerNetworkManager::sendToClient(SOCKET sock_id, unsigned int iteration, unsigned int packet_type, unsigned int object_id, CommandTypes command_type, unsigned int data_size) {
+	assert(data_size <= PACKET_SIZE && "Increase the PACKETSIZE in NetworkData.h");
 	initPacketBuffer(iteration, packet_type, object_id, command_type, data_size);
 
     SOCKET client_socket = sock_id;
@@ -361,6 +383,7 @@ void ServerNetworkManager::sendToAll(unsigned int iteration, unsigned int packet
 
     for (iter = sessions.begin(); iter != sessions.end(); iter++) {
         currentSocket = iter->second;
+
 		iSendResult = sendToClient(currentSocket, iteration, packet_type, object_id, command_type, data_size);
     }
 }

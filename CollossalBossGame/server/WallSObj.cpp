@@ -1,61 +1,94 @@
 #include "WallSObj.h"
+#include "ServerObjectManager.h"
+#include "ConfigurationManager.h"
 #include "defs.h"
 #include <math.h>
 
-#define WALL_WIDTH 200 //150; increased size to reduce edge-case collision errors
-#define WALL_THICKNESS 20
+#define WALL_WIDTH 2000 //150; increased size to reduce edge-case collision errors
+#define WALL_THICKNESS 200
 
-WallSObj::WallSObj(uint id, Model modelNum, Point_t pos, WallDir dir) : ServerObject(id) {
-	DC::get()->print("Created new WallSObj %d ", id);
-	Box bxVol;
-	Rot_t rot;
+WallSObj::WallSObj(uint id, Model modelNum, Point_t pos, DIRECTION dir) : ServerObject(id) {
+	if(SOM::get()->debugFlag) DC::get()->print("Created new WallSObj %d ", id);
+	vector<Box> bxVols;
+	Quat_t rot = Quat_t();
+	Quat_t rotAxis = Quat_t();
+
+	// Determine collision normal, add plane collision box
 	switch(dir) {
-	case WALL_NORTH:
+	case NORTH:
 		DC::get()->print("(north)\n");
-		bxVol = Box(-WALL_WIDTH / 2, -WALL_WIDTH / 2, -WALL_THICKNESS,
-			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS);
-		normal = Vec3f( 0, 0, 1);
-		rot = Rot_t(M_PI / 2,0,0);
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_LEFT_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_TOP_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_LEFT_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_TOP_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_LEFT_1"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_1"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_FRAME_TOP_1"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_1"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_2"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_3"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_4"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PILLAR_5"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PLATFORM_LO"));
+		bxVols.push_back(CM::get()->find_config_as_box("BOX_PLATFORM_HI"));
+		bxVols.push_back(Box((-WALL_WIDTH / 2), -WALL_WIDTH / 2, -WALL_THICKNESS + 5,
+			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS));
 		break;
-	case WALL_SOUTH:
+	case SOUTH:
 		DC::get()->print("(south)\n");
-		bxVol = Box(-WALL_WIDTH / 2, -WALL_WIDTH / 2, 0,
-			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS);
-		normal = Vec3f( 0, 0, -1);
-		rot = Rot_t(-M_PI / 2,0,0);
+		rotAxis = Quat_t(Vec3f(0,1,0), (float)-M_PI);
+
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_LEFT_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_RIGHT_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_FRAME_TOP_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_1").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_2").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_3").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_4").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PILLAR_5").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PLATFORM_LO").rotate(rotAxis)));
+		bxVols.push_back(*(CM::get()->find_config_as_box("BOX_PLATFORM_HI").rotate(rotAxis)));
+		bxVols.push_back(Box((-WALL_WIDTH / 2), -WALL_WIDTH / 2, 0 - 5 ,
+			WALL_WIDTH, WALL_WIDTH, WALL_THICKNESS));
 		break;
-	case WALL_EAST:
+	case EAST:
 		DC::get()->print("(east)\n");
-		bxVol = Box(0, -WALL_WIDTH / 2, -WALL_WIDTH / 2,
-			WALL_THICKNESS, WALL_WIDTH, WALL_WIDTH);
-		normal = Vec3f(-1, 0, 0);
-		rot = Rot_t(0,0,M_PI / 2);
+		bxVols.push_back(Box(0 - 5, -WALL_WIDTH / 2, -WALL_WIDTH / 2,
+			WALL_THICKNESS, WALL_WIDTH, WALL_WIDTH));
 		break;
-	case WALL_WEST:
+	case WEST:
 		DC::get()->print("(west)\n");
-		bxVol = Box(-WALL_THICKNESS, -WALL_WIDTH / 2, -WALL_WIDTH / 2,
-			WALL_THICKNESS, WALL_WIDTH, WALL_WIDTH);
-		normal = Vec3f( 1, 0, 0);
-		rot = Rot_t(0,0,-M_PI / 2);
+		bxVols.push_back(Box(-WALL_THICKNESS, -WALL_WIDTH / 2, -WALL_WIDTH / 2,
+			WALL_THICKNESS, WALL_WIDTH, WALL_WIDTH));
 		break;
-	case WALL_UP:
+	case UP:
 		DC::get()->print("(ceiling)\n");
-		bxVol = Box(-WALL_WIDTH / 2, 0, -WALL_WIDTH / 2,
-			WALL_WIDTH, WALL_THICKNESS, WALL_WIDTH);
-		normal = Vec3f( 0,-1, 0);
-		rot = Rot_t(0,0,M_PI);
+		bxVols.push_back(Box(-WALL_WIDTH / 2, 0, -WALL_WIDTH / 2,
+			WALL_WIDTH, WALL_THICKNESS, WALL_WIDTH));
 		break;
 	default:
 		DC::get()->print("(floor)\n");
-		bxVol = Box(-WALL_WIDTH / 2, -WALL_THICKNESS, -WALL_WIDTH / 2,
-			WALL_WIDTH, WALL_THICKNESS, WALL_WIDTH);
-		normal = Vec3f( 0, 1, 0);
-		rot = Rot_t(0,0,0);
+		bxVols.push_back(Box(-WALL_WIDTH / 2, -WALL_THICKNESS + 5, -WALL_WIDTH / 2,
+			WALL_WIDTH, WALL_THICKNESS, WALL_WIDTH));
+		rot = Quat_t();
 		break;
 	}
-	pm = new PhysicsModel(pos, rot, 500, bxVol, true);
+
+	pm = new PhysicsModel(pos, rot, 500);
+
+	vector<Box>::iterator i;
+	for(i = bxVols.begin(); i != bxVols.end(); i++) getCollisionModel()->add(new AabbElement(*i));
+
 	this->modelNum = modelNum;
-	pm->setColBox(CB_FLAT);
+	//pm->setColBox(CB_FLAT);
 	t = 0;
 	this->setFlag(IS_STATIC, true);
 	this->setFlag(IS_WALL, true);
@@ -72,5 +105,25 @@ bool WallSObj::update() {
 int WallSObj::serialize(char * buf) {
 	ObjectState *state = (ObjectState*)buf;
 	state->modelNum = modelNum;
-	return pm->ref->serialize(buf + sizeof(ObjectState)) + sizeof(ObjectState);
+
+	if (SOM::get()->collisionMode)
+	{
+		CollisionState *collState = (CollisionState*)(buf + sizeof(ObjectState));
+
+		vector<CollisionElement*>::iterator cur = getCollisionModel()->getStart(),
+			end = getCollisionModel()->getEnd();
+
+		collState->totalBoxes = min(end - cur, maxBoxes);
+
+		for(int i=0; i < collState->totalBoxes; i++, cur++) {
+			//The collision box is relative to the object's frame-of-ref.  Get the non-relative collision box
+			collState->boxes[i] = ((AabbElement*)(*cur))->bx + pm->ref->getPos();
+		}
+
+		return pm->ref->serialize(buf + sizeof(ObjectState) + sizeof(CollisionState)) + sizeof(ObjectState) + sizeof(CollisionState);
+	}
+	else
+	{
+		return pm->ref->serialize(buf + sizeof(ObjectState)) + sizeof(ObjectState);
+	}
 }

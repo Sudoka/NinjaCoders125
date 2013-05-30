@@ -5,8 +5,8 @@
 |                               -=< README >=-                                |
 |                                                                             |
 |                    AUTHORS: Ninja Coders                                    |
-|                             |-Haro Miller                                   |
-|                             |-Suman Melani                                  |
+|                             |-Haronid Moncivais                             |
+|                             |-Suman Malani                                  |
 |                             |-Franklin Zhou                                 |
 |                             |-Bryan Ransil                                  |
 |                             |-Justina Lange                                 |

@@ -11,14 +11,14 @@
 
 class TestSObj : public ServerObject {
 public:
-	TestSObj(uint id, Model modelNum, Point_t pos, Rot_t rot, int dir = TEST_STILL);
+	TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir = TEST_STILL);
 	virtual ~TestSObj(void);
 
 	virtual bool update();
 	virtual PhysicsModel *getPhysicsModel() { return pm; }
 	virtual int serialize(char * buf);
 	virtual ObjectType getType() { return OBJ_GENERAL; }
-	virtual void onCollision(ServerObject *obj) {}
+	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal) {}
 
 	char serialbuffer[100];
 
@@ -27,5 +27,7 @@ private:
 	Model modelNum;
 	int dir;
 	int t;
+	Box bxVol;
+	uint testBoxIndex;
 };
 

@@ -1,0 +1,28 @@
+if ((attackCounter - attackBuffer)%CYCLE < CYCLE * 1/2) {
+			base.w = base.w + 1;
+			/*
+			*/
+			middle.z = middle.z + 9;
+			middle.x = middle.x - 9;
+			middle.l = middle.l - 8;
+			middle.w = middle.w + 9;
+			/*
+			*/
+			tip.z = tip.z + 17;
+			tip.x = tip.x - 18;
+			tip.l = tip.l - 7;
+			tip.w = tip.w + 3;
+		} else {
+			base.w = base.w - 1;
+			/*
+			*/
+			middle.z = middle.z - 9;
+			middle.x = middle.x + 9;
+			middle.l = middle.l + 8;
+			middle.w = middle.w - 9;
+			/**/
+			tip.z = tip.z - 17;
+			tip.x = tip.x + 18;
+			tip.l = tip.l + 7;
+			tip.w = tip.w - 3;
+		} 

@@ -1,6 +1,14 @@
 #pragma once
 #include "RenderModel.h"
+#include "ChargeEffect.h"
 #include "ClientObject.h"
+#include "SoundSource.h"
+
+#define HMAP_TEST 0
+#if HMAP_TEST
+#include "HMap.h"
+#endif
+
 
 class PlayerCObj : public ClientObject
 {
@@ -8,7 +16,7 @@ public:
 	PlayerCObj(uint id, char *data);
 	virtual ~PlayerCObj(void);
 
-	void showStatus();
+	virtual void showStatus();
 
 	virtual bool update();
 
@@ -16,9 +24,31 @@ public:
 
 	virtual void deserialize(char* newState);
 
+	virtual int getTypeInt();
+
+	int ready;
+
 private:
+	RenderModel * box;
+	int camHeight;
 	int health;
+	float charge;
 	RenderModel *rm;
-	float cameraPitch;
+	SoundSource *ss;
+	float camPitch;
+	float camDist;
+	Quat_t camRot;
+	ChargeEffect* chargingEffect;
+
+	//sounds
+	uint jumpsound;
+	PlayerSoundState sState;
+	PlayerSoundTrigger sTrig;
+#if HMAP_TEST
+	///////////////////////////////////////////////////////////////
+	//TEST
+	vector<Point_t> hmapPts;
+	///////////////////////////////////////////////////////////////
+#endif
 };
 
