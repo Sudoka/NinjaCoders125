@@ -31,9 +31,12 @@ public:
 	Frame *getFrameOfRef() { return ref; }
 	vector<Box> colBoxes;
 
+	void setInvisible(bool invis) { isInvisible = invis; }
+
 private:
 	Frame *ref;	//The skeleton
 	int modelId;
 	int modelState;
 	int prevModelState;
+	bool isInvisible;
 };

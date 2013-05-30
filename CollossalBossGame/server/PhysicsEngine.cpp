@@ -66,7 +66,7 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 		ServerObject *obj = SOM::get()->find(mdl->surfaceId);
 		if(obj != NULL && obj->getPhysicsModel() != NULL) {
 			PhysicsModel *mdlSurf = obj->getPhysicsModel();
-			//surfaceShift = mdlSurf->ref->getPos() - mdlSurf->lastPos;
+			surfaceShift = mdlSurf->ref->getPos() - mdlSurf->lastPos;
 		}
 	}
 

@@ -16,7 +16,7 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 	char *filename = NULL;
 	Vec3f scale;
 	Vec3f initRot;
-	bool isInvisible = false;
+	isInvisible = false;
 	modelState = IDLE;
 	switch(modelNum) {
 	case -1: 
@@ -165,6 +165,9 @@ RenderModel::~RenderModel(void)
 }
 
 void RenderModel::render() {
+	//Don't render if invisible
+	if(isInvisible) return;
+
 	// negative id are for invisible/container objects
 	if(modelId >= 0)
 	{
