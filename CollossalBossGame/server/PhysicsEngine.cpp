@@ -190,7 +190,7 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, HMap
 			}
 			break;
 		case CMDL_HMAP:
-			DC::get()->print("WARNING: HMap on HMap collision- skipping\n");
+			//DC::get()->print("WARNING: HMap on HMap collision- skipping\n");
 			break;
 		default:
 			//Unrecognized collision type
