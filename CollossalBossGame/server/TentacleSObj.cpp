@@ -27,7 +27,6 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 	idleBoxes[1] = CM::get()->find_config_as_box("BOX_TENT_MID");
 	idleBoxes[2] = CM::get()->find_config_as_box("BOX_TENT_TIP");
 
-
 	slamBoxes[0] = CM::get()->find_config_as_box("BOX_TENT_BASE_SLAM"); 
 	slamBoxes[1] = CM::get()->find_config_as_box("BOX_TENT_MID_SLAM");
 	slamBoxes[2] = CM::get()->find_config_as_box("BOX_TENT_TIP_SLAM");
