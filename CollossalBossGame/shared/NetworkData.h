@@ -215,6 +215,8 @@ struct PlayerState {
 	PlayerSoundState sState;
 	PlayerSoundTrigger sTrig;
 	Quat_t camRot;
+	float camPitch;
+	float camDist;
 };
 
 /*

@@ -6,6 +6,9 @@
 #include "defs.h"
 #include "PhysicsEngine.h"
 
+
+#define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
+
 PlayerSObj::PlayerSObj(uint id, uint clientId, CharacterClass cc) : ServerObject(id) {
 	// Save parameters here
 	this->clientId = clientId;
@@ -84,10 +87,12 @@ void PlayerSObj::initialize() {
 	initUpRot = Quat_t();
 	finalUpRot = Quat_t();
 	camYaw = 0;
-	camPitch = 0;
+	camPitch = DEFAULT_PITCH_10;
 	camKpSlow = CM::get()->find_config_as_float("CAM_KP_SLOW");
 	camKpFast = CM::get()->find_config_as_float("CAM_KP_FAST");
 	camKp = camKpSlow;
+	camDistMin = CM::get()->find_config_as_float("CAM_FIRST_PERSON_DIST");
+	camDistMax = camDist = CM::get()->find_config_as_float("CAM_DIST");
 
 	scientistBuffCounter = 0;
 	scientistBuffDecreasing = false;
@@ -134,6 +139,12 @@ bool PlayerSObj::update() {
 			this->targetlockon = -1;
 		}
 
+		if(istat.zoom) {
+			camDist = camDistMin;
+		} else {
+			camDist = camDistMax;
+		}
+
 		// Jumping can happen in two cases
 		// 1. Collisions
 		// 2. In the air
@@ -161,7 +172,7 @@ bool PlayerSObj::update() {
 			yaw = camYaw + istat.rotAngle;
 		}
 		if(istat.camLock) {
-			camPitch = 0.f;
+			camPitch = DEFAULT_PITCH_10;
 		} else {
 			camPitch += istat.rotVert;
 		}
@@ -324,6 +335,8 @@ int PlayerSObj::serialize(char * buf) {
 	state->sState = this->sState;
 	state->sTrig = this->sTrig;
 	state->camRot = this->camRot;
+	state->camPitch = this->camPitch;
+	state->camDist = this->camDist;
 
 	if (SOM::get()->collisionMode)
 	{

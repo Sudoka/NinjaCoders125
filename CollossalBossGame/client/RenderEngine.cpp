@@ -189,7 +189,6 @@ void RenderEngine::gamestartdisplaylogic() {
  */
 RenderEngine::RenderEngine() {
 	// Set configuration options
-	cameraDist = CM::get()->find_config_as_float("CAM_DIST");
 	debugFlag = CM::get()->find_config_as_bool("RENDER_DEBUG_FLAG");
 
 	startWindow();
@@ -200,7 +199,7 @@ RenderEngine::RenderEngine() {
 	colBxPts = new CollisionBoxPoints();
 	this->addParticleEffect(colBxPts);
 
-	cam = new Camera(cameraDist);
+	cam = new Camera();
 	hud = new HeadsUpDisplay(direct3dDevice, &gamestarted);
 	hudText = "DEFAULT";
 	monsterHUDText = "DEFAULT";

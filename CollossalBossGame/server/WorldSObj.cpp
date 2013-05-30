@@ -65,13 +65,6 @@ bool WorldSObj::update() {
 		} else {
 			gravityTimer++;
 		}
-	} else {
-		if(gravityTimer == gravityInterval) {
-			PE::get()->setGravDir(SOUTH);
-			gravityTimer++;
-		} else if(gravityTimer < gravityInterval) {
-			gravityTimer++;
-		}
 	}
 
 	return false;
