@@ -10,6 +10,7 @@ struct PhysicsModel
 {
 	PhysicsModel(Point_t pos, Quat_t rot, float mass) {
 		ref = new Frame(pos,rot);
+		lastPos = pos;
 		vel = Vec3f();
 		accel = Vec3f();
 		this->mass = mass;

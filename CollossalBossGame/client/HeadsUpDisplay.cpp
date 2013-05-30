@@ -253,7 +253,7 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 		if (charge > 100) charge = 100;
 
 		//charge bar
-		D3DXVECTOR2 clines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40), D3DXVECTOR2(healthBarPos[0]+charge/100.0*healthBarSize , healthBarPos[1]+40)};
+		D3DXVECTOR2 clines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40.f), D3DXVECTOR2(healthBarPos[0]+charge/100.0f*healthBarSize , healthBarPos[1]+40.f)};
 		chargeLine->SetWidth(15.0f);
 		chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(0), (int)(255.0 * (charge) / 100.0), (int)(255.0 * charge / 100.0)));
 

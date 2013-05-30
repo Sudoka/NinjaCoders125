@@ -121,7 +121,7 @@ bool MonsterPartSObj::update() {
 		}
 
 		///////////////////// State logic ///////////////////////
-		actionState = MOVE_ACTION;
+		//actionState = ATTACK_ACTION;
 
 		switch(actionState)
 		{
@@ -302,7 +302,7 @@ void MonsterPartSObj::findPlayer()
 	vector<ServerObject *> players;
 	SOM::get()->findObjects(OBJ_PLAYER, &players);
 
-	float minDist = this->targettingDist;
+	float minDist = (float)this->targettingDist;
 	float currDist;
 	Vec3f difference, playerPos;
 

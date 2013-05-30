@@ -35,7 +35,8 @@ private:
 	float charge;
 	RenderModel *rm;
 	SoundSource *ss;
-	float cameraPitch;
+	float camPitch;
+	float camDist;
 	Quat_t camRot;
 	ChargeEffect* chargingEffect;
 

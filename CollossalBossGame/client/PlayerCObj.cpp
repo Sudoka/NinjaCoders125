@@ -8,7 +8,7 @@
 #include <math.h>
 #include <sstream>
 
-#define DEFAULT_PITCH 0.174532925f	//10 degrees or stg like that
+#define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
 
 PlayerCObj::PlayerCObj(uint id, char *data) :
 	ClientObject(id, OBJ_PLAYER)
@@ -21,33 +21,13 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	ss = new SoundSource();
 	char* s1 = CM::get()->find_config("LINK");
 	jumpsound = ss->addSound(s1);
-	cameraPitch = DEFAULT_PITCH;
+	camDist = 0;
+	camPitch = DEFAULT_PITCH_10;
 	ready = false;
 	chargingEffect = new ChargeEffect(10);
 	// Register with RE, SO SMART :O
 	RE::get()->addParticleEffect(chargingEffect);
-	this->camHeight = 0;
-
-#if HMAP_TEST
-	///////////////////////////////////////////////////////////////
-	//TEST
-	HMap *hmap = new HMap("../floor_hmap.bmp", 6, 5.0f / 255);
-	const float fxo = -CM::get()->find_config_as_float("ROOM_WIDTH") / 2,
-				fyo = 0,//CM::get()->find_config_as_float("ROOM_HEIGHT") / 2,
-				fzo = -CM::get()->find_config_as_float("ROOM_DEPTH") / 2;
-	int skip = 10;
-	Point_t pos = Point_t();
-	for(int x = 0; x < hmap->getWidth(); x += skip) {
-		pos.x = x * hmap->getUnitLength() + fxo;
-		for(int z = 0; z < hmap->getLength(); z += skip) {
-			pos.y = hmap->getHeightAt(x, z) + fyo;
-			pos.z = z * hmap->getUnitLength() + fzo;
-			hmapPts.push_back(pos);
-		}
-	}
-	delete hmap;
-	///////////////////////////////////////////////////////////////
-#endif
+	this->camHeight = CM::get()->find_config_as_int("CAM_HEIGHT");
 }
 
 PlayerCObj::~PlayerCObj(void)
@@ -75,16 +55,18 @@ bool PlayerCObj::update() {
 	if(COM::get()->player_id == getId()) {
 		XboxController *xctrl = CE::getController();
 		if(xctrl->isConnected()) {
+			/*
 			if(xctrl->getState().Gamepad.bLeftTrigger) {
-				cameraPitch = DEFAULT_PITCH; //10
+				camPitch = DEFAULT_PITCH_10; //10
 			} else if(fabs((float)xctrl->getState().Gamepad.sThumbRY) > DEADZONE) {
-				cameraPitch += atan(((float)xctrl->getState().Gamepad.sThumbRY / (JOY_MAX * 8)));
-				if (cameraPitch > M_PI / 2.f) {
-					cameraPitch = (float)M_PI / 2.f;
-				} else if(cameraPitch < -M_PI / 4) {
-					cameraPitch = (float)-M_PI / 4.f;
+				camPitch += atan(((float)xctrl->getState().Gamepad.sThumbRY / (JOY_MAX * 8)));
+				if (camPitch > M_PI / 2.f) {
+					camPitch = (float)M_PI / 2.f;
+				} else if(camPitch < -M_PI / 4) {
+					camPitch = (float)-M_PI / 4.f;
 				}
 			}
+			*/
 
 			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
 			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
@@ -92,19 +74,11 @@ bool PlayerCObj::update() {
 
 		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;
 
-		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*camHeight;
-		RE::get()->getCamera()->update(objPos, camRot, cameraPitch);
+		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*(float)camHeight;
+		RE::get()->getCamera()->update(objPos, camRot, camPitch, camDist);
 		showStatus();
-		chargingEffect->setPosition(objPos, charge);
-		chargingEffect->update(.33);
-
-
-#if HMAP_TEST
-		///////////////////////////////////////////////////////////////
-		//TEST
-		RE::get()->getColBxPts()->addParticles(hmapPts);
-		///////////////////////////////////////////////////////////////
-#endif
+		chargingEffect->setPosition(objPos, (int)charge);
+		chargingEffect->update(.33f);
 	}
 
 	if(this->sTrig == SOUND_PLAYER_JUMP)
@@ -123,6 +97,8 @@ void PlayerCObj::deserialize(char* newState) {
 	this->sState = state->sState;
 	this->sTrig = state->sTrig;
 	camRot = state->camRot;
+	camPitch = state->camPitch;
+	camDist = state->camDist;
 
 	if(this->ready == false) {
 		RE::get()->gamestarted = false;

@@ -32,7 +32,7 @@ void MechanicSObj::actionCharge(bool buttondown) {
 	if(buttondown) {
 		if(delaytrigger && !charging && (this->harpoon == -1 || so == NULL)) {
 			Vec3f mechpos = this->pm->ref->getPos();
-			Vec3f force = rotate(Vec3f(0, -sin(camPitch) * 30, cos(camPitch) * 30), pm->ref->getRot());
+			Vec3f force;// = rotate(Vec3f(0, -sin(camPitch) * 30, cos(camPitch) * 30), pm->ref->getRot());
 			if(this->targetlockon != -1) {
 				ServerObject * nil = SOM::get()->find(this->targetlockon);
 				if(nil != NULL) {
@@ -41,6 +41,8 @@ void MechanicSObj::actionCharge(bool buttondown) {
 					force.normalize();
 					force *= 30;
 				}	
+			} else {
+				force = rotate(Vec3f(0, -sin(camPitch) * 30, cos(camPitch) * 30), pm->ref->getRot());
 			}
 			Vec3f position = Vec3f(mechpos.x, mechpos.y + 15, mechpos.z) + force;
 			this->harpoon = SOM::get()->genId();

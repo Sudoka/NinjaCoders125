@@ -189,7 +189,6 @@ void RenderEngine::gamestartdisplaylogic() {
  */
 RenderEngine::RenderEngine() {
 	// Set configuration options
-	cameraDist = CM::get()->find_config_as_float("CAM_DIST");
 	debugFlag = CM::get()->find_config_as_bool("RENDER_DEBUG_FLAG");
 
 	startWindow();
@@ -200,7 +199,7 @@ RenderEngine::RenderEngine() {
 	colBxPts = new CollisionBoxPoints();
 	this->addParticleEffect(colBxPts);
 
-	cam = new Camera(cameraDist);
+	cam = new Camera();
 	hud = new HeadsUpDisplay(direct3dDevice, &gamestarted);
 	hudText = "DEFAULT";
 	monsterHUDText = "DEFAULT";
@@ -262,7 +261,7 @@ void RenderEngine::renderThis(ClientObject *obj) {
 * Bryan
 */
 void RenderEngine::render() {
-	this->colBxPts->update(.33);
+	this->colBxPts->update(.33f);
 	direct3dDevice->SetTransform(D3DTS_VIEW, cam->getViewMatrix()); // Update view
 	direct3dDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_COLORVALUE(0.0f, 0.0f, 0.0, 0.0f), 1.0f, 0);
 
@@ -283,7 +282,7 @@ void RenderEngine::render() {
 	direct3dDevice->Present(0, 0, 0, 0); // displays the created frame
 
 	//Clear collision-box particles
-	this->colBxPts->update(.33);
+	this->colBxPts->update(.33f);
 }
 
 // todo take time

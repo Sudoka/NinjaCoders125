@@ -66,6 +66,7 @@ enum Model {
 	MDL_EAST_WALL,
 	MDL_WEST_WALL,
 	MDL_NORTH_WALL,
+	MDL_ELEVATOR,
 	MDL_SOUTH_WALL,
     MDL_PLAYER_1,
 	MDL_PLAYER_2,
@@ -210,11 +211,13 @@ struct PlayerState {
     Model modelNum;
 	int health;
 	int ready;
-	int charge;
+	float charge;
 	int animationstate;
 	PlayerSoundState sState;
 	PlayerSoundTrigger sTrig;
 	Quat_t camRot;
+	float camPitch;
+	float camDist;
 };
 
 /*

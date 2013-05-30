@@ -103,7 +103,6 @@ private:
 	list<ParticleSystem*> particleSystems;
 	CollisionBoxPoints* colBxPts;
 	//Configuration fields
-	float cameraDist;
 	bool fogging;
 };
 typedef RenderEngine RE;

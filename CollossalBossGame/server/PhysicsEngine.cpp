@@ -41,7 +41,13 @@ PhysicsEngine::~PhysicsEngine(void)
 bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	float dt = TIMESTEP;
 
-	if(obj->getFlag(IS_STATIC)) return true;
+	if(obj->getFlag(IS_STATIC)) {
+		PhysicsModel *mdl = obj->getPhysicsModel();
+		if(mdl != NULL) {
+			mdl->lastPos = mdl->ref->getPos();
+		}
+		return true;
+	}
 
 	PhysicsModel *mdl = obj->getPhysicsModel();
 
@@ -56,9 +62,10 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	}
 	
 	Vec3f surfaceShift = Vec3f();
+
 	if(!obj->getFlag(IS_FALLING) && !obj->getFlag(IS_FLOATING)) {
 		ServerObject *obj = SOM::get()->find(mdl->surfaceId);
-		if(obj != NULL) {
+		if(obj != NULL && obj->getPhysicsModel() != NULL) {
 			PhysicsModel *mdlSurf = obj->getPhysicsModel();
 			surfaceShift = mdlSurf->ref->getPos() - mdlSurf->lastPos;
 		}
@@ -236,6 +243,13 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	//Move the objects by the specified amount
 	mdl1->ref->translate(shift1);
 	mdl2->ref->translate(shift2);
+
+#define floatingConstant 2
+
+	if(this->gravMag == 0.0f) {
+		mdl1->applyForce(dirVec(dir) * floatingConstant);
+		mdl2->applyForce(dirVec(flip(dir)) * floatingConstant);
+	}
 
 	//Inform the logic module of the collision event
 	obj1->onCollision(obj2, dirVec(dir));

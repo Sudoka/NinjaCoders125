@@ -42,12 +42,13 @@ bool TentacleCObj::update() {
 		smoking->fogging = true;
 		startedFogging = true;
 
-		float change = .00002;
-		if(densityCounter < .00004)//.01)
+		float change = .00002f;
+		// NOTE: to make fog super quick change .01 to .00004
+		if(densityCounter < .01)
 		{
 			RE::get()->startFog(density);
 			smoking->setPosition(rm->getFrameOfRef()->getPos());
-			smoking->update(.33); 
+			smoking->update(.33f); 
 			density += change;
 		}
 		else
