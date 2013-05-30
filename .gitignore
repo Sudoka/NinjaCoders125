@@ -12,6 +12,7 @@ config_dev.ini
 *.bmp
 *.jpg
 ./res/*
+*.dll
 
 # Build results
 
