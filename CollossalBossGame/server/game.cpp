@@ -48,7 +48,8 @@ void buildRoom() {
 	east    = new WallSObj(som->genId(), MDL_EAST_WALL, Point_t((float)width/2.f, (float)height/2.f, 0.f), EAST);
 	west    = new WallSObj(som->genId(), MDL_WEST_WALL, Point_t((float)-width/2.f, (float)height/2.f, 0.f), WEST);
 	
-	TestSObj *elevator = new TestSObj(som->genId(), MDL_ELEVATOR, Point_t(-318.5f, 2.153f,  depth/2.f + 30), Quat_t());
+	TestSObj *elevatorS = new TestSObj(som->genId(), MDL_ELEVATOR, Point_t(-318.5f, 2.153f,  depth/2.f + 30), Quat_t());
+	TestSObj *elevatorN = new TestSObj(som->genId(), MDL_ELEVATOR, Point_t(318.5f, 2.153f,  -depth/2.f - 30), Quat_t(Vec3f(0,1,0), (float)-M_PI));
 
 	som->add(floor);
 	som->add(ceiling);
@@ -56,7 +57,8 @@ void buildRoom() {
 	som->add(west);
 	som->add(north);
 	som->add(south);
-	som->add(elevator);
+	som->add(elevatorS);
+	som->add(elevatorN);
 }
 
 void addPlatforms()

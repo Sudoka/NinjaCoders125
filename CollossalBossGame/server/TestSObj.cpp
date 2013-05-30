@@ -33,17 +33,17 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 			//pm->setColBox(CB_FLAT);
 			break;
 		case MDL_ELEVATOR:
-			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_BASE").fix())));
-			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_LEFT").fix())));
-			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_RIGHT").fix())));
-			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_BACK").fix())));
-			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_TOP").fix())));
-			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_1").fix())));
-			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_2").fix())));
-			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_3").fix())));
-			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_4").fix())));
-			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_L").fix())));
-			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_R").fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_BASE").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_LEFT").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_RIGHT").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_BACK").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_TOP").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_1").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_2").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_3").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_4").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_L").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_R").rotate(rot)->fix())));
 		
 			setFlag(IS_STATIC, true);
 			break;
