@@ -170,7 +170,10 @@ bool PlayerSObj::update() {
 		//Update the yaw rotation of the player (about the default up vector)
 		if(fabs(istat.forwardDist) > 0.0f || fabs(istat.rightDist) > 0.0f) {
 			yaw = camYaw + istat.rotAngle;
+		} else if(istat.zoom) {
+			yaw = camYaw;
 		}
+
 		if(istat.camLock) {
 			camPitch = DEFAULT_PITCH_10;
 		} else {
@@ -274,7 +277,7 @@ void PlayerSObj::controlCamera(const Quat_t &upRot) {
 		}
 
 		//Update the camera-lock state: Locked to or unlocked from the player
-		if(istat.camLock) {
+		if(istat.camLock && !istat.zoom) {
 			camLocked = true;
 		} else if(camLocked && fabs(istat.rotHoriz) > 0) {
 			camLocked = false;
