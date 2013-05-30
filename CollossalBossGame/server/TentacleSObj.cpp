@@ -27,7 +27,6 @@ TentacleSObj::TentacleSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, Mon
 	idleBoxes[1] = CM::get()->find_config_as_box("BOX_TENT_MID");
 	idleBoxes[2] = CM::get()->find_config_as_box("BOX_TENT_TIP");
 
-
 	slamBoxes[0] = CM::get()->find_config_as_box("BOX_TENT_BASE_SLAM"); 
 	slamBoxes[1] = CM::get()->find_config_as_box("BOX_TENT_MID_SLAM");
 	slamBoxes[2] = CM::get()->find_config_as_box("BOX_TENT_TIP_SLAM");
@@ -92,12 +91,12 @@ void TentacleSObj::idle() {
 		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
 		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 	}
-	else if(stateCounter < 16) {
+	else if(stateCounter < 16*2) {
 		changePosT.y -= 2;
 		changePosT.z += 3;
 		changeProportionT.z -= 3;
 	}
-	else if (stateCounter < 24) {
+	else if (stateCounter < 47) {
 		changePosT.y += 2;
 		changePosT.z -= 3;
 		changeProportionT.z += 3;
@@ -109,7 +108,7 @@ void TentacleSObj::idle() {
 	}
 	
 	// we're done!
-	currStateDone = (stateCounter == 30);
+	currStateDone = (stateCounter == 61);
 
 	//idleCounter = (idleCounter + 1) % 31;
 	
@@ -135,6 +134,7 @@ void TentacleSObj::idle() {
 // TODO PROBE!!!
 void TentacleSObj::probe() {
 	idle();
+	modelAnimationState = M_PROBE;
 }
 
 /*
@@ -143,6 +143,7 @@ void TentacleSObj::probe() {
 void TentacleSObj::attack() {
 	// First, rotate ourselves to the player
 	if (stateCounter == 0) {
+		slamCounter = 0;
 		// If there was no player, rotate ourselves to a random angle
 		if (!this->playerFound) this->playerAngle = (float)(rand()%(int)(M_PI*2));
 
@@ -154,9 +155,11 @@ void TentacleSObj::attack() {
 
 	slamMotion();
 
+	slamCounter+= 1;
+
 	// we're done!
 	//if((attackCounter - attackBuffer)%CYCLE == CYCLE - 1)
-	if(stateCounter == CYCLE - 1)
+	if(stateCounter == (CYCLE+2)*2 - 1)
 	{
 		// reset our rotation
 		this->getPhysicsModel()->ref->setRot(lastRotation);
@@ -175,7 +178,10 @@ void TentacleSObj::attack() {
 void TentacleSObj::combo() {
 	// First, save our initial rotation and reset our angle
 	if (stateCounter == 0) {
+		slamCounter = 0;
 		lastRotation = this->getPhysicsModel()->ref->getRot();
+	} else {
+		slamCounter += (stateCounter % (CYCLE+2) == 0) ? -CYCLE - 1 : 1;
 	}
 
 	// Then, every new slam cycle, rotate our tentacle
@@ -189,7 +195,7 @@ void TentacleSObj::combo() {
 	slamMotion();
 
 	// We're done!
-	if (stateCounter >= CYCLE*NUM_SLAMS)
+	if (stateCounter >= (CYCLE+2)*NUM_SLAMS)
 	{
 		// reset our rotation
 		this->getPhysicsModel()->ref->setRot(lastRotation);
@@ -207,13 +213,15 @@ void TentacleSObj::slamMotion() {
 	Box base = ((AabbElement*)cm->get(0))->bx; // this->getPhysicsModel()->colBoxes.at(0);
 	Box middle = ((AabbElement*)cm->get(1))->bx;// this->getPhysicsModel()->colBoxes.at(1);
 	Box tip = ((AabbElement*)cm->get(2))->bx; // this->getPhysicsModel()->colBoxes.at(2);
-	Vec3f changePosT = Vec3f();
+	Vec3f changePosM = Vec3f(), changeProportionM = Vec3f();
+	Vec3f changePosB = Vec3f();
+	Vec3f changePosT = Vec3f(), changeProportionT = Vec3f();
 
 	//get the actual axis
 	Vec4f axis = this->getPhysicsModel()->ref->getRot();
 
-	if (stateCounter%CYCLE == 0) {
-		Box origBase = slamBoxes[0];
+	if (slamCounter == 0) {
+ 		Box origBase = slamBoxes[0];
 		Box origMiddle = slamBoxes[1];
 		Box origTip = slamBoxes[2];
 
@@ -227,16 +235,43 @@ void TentacleSObj::slamMotion() {
 		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 	}
 
-	changePosT.z+=15;
+	if (slamCounter < CYCLE ) 
+	{
+		changePosB.z+=2;
 
+		changePosM.z+=6;
+		changeProportionM.z+=2;
+		changePosM.y+=3;
+
+		changePosT.z+=14;
+		changeProportionT.z-=2;
+		changePosT.y+=4;
+		changeProportionT.y+=4;
+	} else if (slamCounter < CYCLE * 2) {
+		changePosB.z-=2;
+
+		changePosM.z-=6;
+		changeProportionM.z-=2;
+		changePosM.y-=3;
+
+		changePosT.z-=14;
+		changeProportionT.z+=2;
+		changePosT.y-=4;
+		changeProportionT.y-=4;
+	}
 	// Rotate the relative change according to where we're facing
-	tip.setRelPos(axis.rotateToThisAxis(changePosT));
+	base.setRelPos(axis.rotateToThisAxis(changePosB));
 	
+	middle.setRelPos(axis.rotateToThisAxis(changePosM));
+	middle.setRelSize(axis.rotateToThisAxis(changeProportionM));
+
+	tip.setRelPos(axis.rotateToThisAxis(changePosT));
+	tip.setRelSize(axis.rotateToThisAxis(changeProportionT));
 	// Set new collision boxes
 	((AabbElement*)cm->get(0))->bx = *(base.fix());
-	((AabbElement*)cm->get(0))->bx = *(middle.fix());
-	((AabbElement*)cm->get(0))->bx = *(tip.fix());
-
+	((AabbElement*)cm->get(1))->bx = *(middle.fix());
+	((AabbElement*)cm->get(2))->bx = *(tip.fix());
+	
 //	/* Cycle logic:
 //	 * CYCLE*1/2 = The tentacle is extended
 //	 * CYCLE = when the tentacle is back at the default position

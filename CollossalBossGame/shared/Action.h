@@ -21,6 +21,7 @@ struct inputstatus {
 	bool quit; // Back
 	bool start; // Start
 	bool camLock;
+	bool zoom;	//right joy button
 	float rightDist, forwardDist; // Left Joystick
 	float rotAngle; // Right Joystick
 	float rotVert, rotHoriz;

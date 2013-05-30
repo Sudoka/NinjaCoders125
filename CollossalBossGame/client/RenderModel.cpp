@@ -84,6 +84,11 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 		scale = CM::get()->find_config_as_point("MODEL_SOUTH_WALL_SCALE");
 		initRot = CM::get()->find_config_as_point("MODEL_SOUTH_WALL_ROTATION");
 		break;
+	case MDL_ELEVATOR:
+		filename = CM::get()->find_config("MODEL_ELEVATOR");
+		scale = CM::get()->find_config_as_point("MODEL_ELEVATOR_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_ELEVATOR_ROTATION");
+		break;
 	case MDL_PLAYER_1:
 		filename = CM::get()->find_config("MODEL_PLAYER1");
 		scale = CM::get()->find_config_as_point("MODEL_PLAYER1_SCALE");

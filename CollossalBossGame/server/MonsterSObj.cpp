@@ -47,33 +47,35 @@ MonsterSObj::~MonsterSObj(void)
 void MonsterSObj::setupAvailablePlacements()
 {
 	// Floor
-	availablePlacements.push_back(Frame(Vec3f(-265.f, 45.f, 120.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI/2)));
-	availablePlacements.push_back(Frame(Vec3f(370.f, 45.f, -220.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI/2)));
-	availablePlacements.push_back(Frame(Vec3f(75.f, 45.f, -20.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI/2)));
-
+	int adjustment = 60;
+	availablePlacements.push_back(Frame(Vec3f(-265, 45+adjustment, 120), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
+	availablePlacements.push_back(Frame(Vec3f(370, 45+adjustment, -220), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
+	availablePlacements.push_back(Frame(Vec3f(75, 45+adjustment, -20), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
+	
 	// East Wall (non-window)
-	availablePlacements.push_back(Frame(Vec3f(585.5f, 85.f, 75.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/2)));
-	availablePlacements.push_back(Frame(Vec3f(585.5f, 220.f, -160.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/2)));
+	availablePlacements.push_back(Frame(Vec3f(585.5-adjustment, 85, 75), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
+	availablePlacements.push_back(Frame(Vec3f(585.5-adjustment, 220, -160), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
 
 	// North Wall
-	availablePlacements.push_back(Frame(Vec3f(525.5f, 147.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(505.5f, 258.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(135.25f, 260.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(-532.5f, 250.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(-318.75f, 147.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(106.25f, 50.f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(-106.25f, 50.f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(-140.25f, 157.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-
-	//// South Wall
-	availablePlacements.push_back(Frame(Vec3f(-525.5f, 147.5f, 300.f), Quat_t()));
-	availablePlacements.push_back(Frame(Vec3f(-505.5f, 258.15f, 300.f), Quat_t()));
-	availablePlacements.push_back(Frame(Vec3f(-135.25f, 260.15f, 300.f), Quat_t()));
-	availablePlacements.push_back(Frame(Vec3f(532.5f, 250.15f, 300.f), Quat_t()));
-	availablePlacements.push_back(Frame(Vec3f(318.75f, 147.5f, 300.f), Quat_t()));
-	availablePlacements.push_back(Frame(Vec3f(-106.25f, 50.f, 300.f), Quat_t()));
-	availablePlacements.push_back(Frame(Vec3f(106.25f, 50.f, 300.f), Quat_t()));
-	availablePlacements.push_back(Frame(Vec3f(140.25f, 157.5f, 300.f), Quat_t()));
+	availablePlacements.push_back(Frame(Vec3f(140.25, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(106.25, 50, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(-106.25, 50, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(318.75, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(532.5, 250.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(-73.25, 245.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(-570.5, 258.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(-553.5, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	
+	// South Wall
+	
+	availablePlacements.push_back(Frame(Vec3f(553.5, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availablePlacements.push_back(Frame(Vec3f(570.5, 258.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availablePlacements.push_back(Frame(Vec3f(73.25, 245.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availablePlacements.push_back(Frame(Vec3f(-532.5, 250.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availablePlacements.push_back(Frame(Vec3f(-318.75, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availablePlacements.push_back(Frame(Vec3f(106.25, 50, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availablePlacements.push_back(Frame(Vec3f(-106.25, 50, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availablePlacements.push_back(Frame(Vec3f(-140.25, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
 }
 
 void MonsterSObj::removePart(MonsterPartSObj* t)

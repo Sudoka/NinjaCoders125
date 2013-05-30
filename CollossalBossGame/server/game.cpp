@@ -25,31 +25,40 @@
  */
 void buildRoom() {
 	// Get config measurements
-	int width = CM::get()->find_config_as_int("ROOM_WIDTH");
-	int height = CM::get()->find_config_as_int("ROOM_HEIGHT");
-	int depth = CM::get()->find_config_as_int("ROOM_DEPTH");
+	float width = CM::get()->find_config_as_float("ROOM_WIDTH");
+	float height = CM::get()->find_config_as_float("ROOM_HEIGHT");
+	float depth = CM::get()->find_config_as_float("ROOM_DEPTH");
 
 	ServerObjectManager *som = SOM::get();
 
 	WallSObj //*floor,
 			 *ceiling,
-			 *north, *south,
-			 *east, *west;
-	ArenaWallSObj *floor;
-	floor = new ArenaWallSObj(som->genId(), "../floor_hmap.bmp", MDL_FLOOR, Point_t());
+			 //*north,
+			 //*south,
+			 *east,
+			 *west;
+	ArenaWallSObj *floor, *north, *south;
+	floor = new ArenaWallSObj(som->genId(), CM::get()->find_config_as_string("HMAP_FLOOR").c_str(), MDL_FLOOR, Point_t(), UP);
+	north = new ArenaWallSObj(som->genId(), CM::get()->find_config_as_string("HMAP_WALL").c_str(), MDL_NORTH_WALL, Point_t(0.f, height/2.f, -depth/2.f), NORTH);
+	south = new ArenaWallSObj(som->genId(), CM::get()->find_config_as_string("HMAP_WALL").c_str(), MDL_SOUTH_WALL, Point_t(0.f, height/2.f,  depth/2.f), SOUTH);
 	//floor   = new WallSObj(som->genId(), MDL_FLOOR, Point_t(), DOWN);
 	ceiling = new WallSObj(som->genId(), MDL_CEILING, Point_t(0.f, (float)height, 0.f), UP);
-	north   = new WallSObj(som->genId(), MDL_NORTH_WALL, Point_t(0.f, (float)height/2.f, (float)-depth/2.f), NORTH);
-	south   = new WallSObj(som->genId(), MDL_SOUTH_WALL, Point_t(0.f, (float)height/2.f, (float)depth/2.f), SOUTH);
+	//north   = new WallSObj(som->genId(), MDL_NORTH_WALL, pos, NORTH);
+	//south   = new WallSObj(som->genId(), MDL_SOUTH_WALL, Point_t(0.f, (float)height/2.f, (float)depth/2.f), SOUTH);
 	east    = new WallSObj(som->genId(), MDL_EAST_WALL, Point_t((float)width/2.f, (float)height/2.f, 0.f), EAST);
 	west    = new WallSObj(som->genId(), MDL_WEST_WALL, Point_t((float)-width/2.f, (float)height/2.f, 0.f), WEST);
 	
+	TestSObj *elevatorS = new TestSObj(som->genId(), MDL_ELEVATOR, Point_t(-318.5f, 2.153f,  depth/2.f + 30), Quat_t());
+	TestSObj *elevatorN = new TestSObj(som->genId(), MDL_ELEVATOR, Point_t(318.5f, 2.153f,  -depth/2.f - 30), Quat_t(Vec3f(0,1,0), (float)-M_PI));
+
 	som->add(floor);
 	som->add(ceiling);
 	som->add(east);
 	som->add(west);
 	som->add(north);
 	som->add(south);
+	som->add(elevatorS);
+	som->add(elevatorN);
 }
 
 void addPlatforms()
@@ -128,6 +137,7 @@ void addPlatforms()
 		TestSObj * crate = new TestSObj(som->genId(), MDL_TEST_CRATE, static_box_placements[i+1], Quat_t(), TEST_STILL);
 		som->add(crate);
 	}
+
 }
 
 void gameInit() {
@@ -141,6 +151,8 @@ void gameInit() {
 	WorldSObj *wobj = new WorldSObj(som->genId());
 	som->add(wobj);
 	wobj->setGravitySwitch(CM::get()->find_config_as_bool("ENABLE_GRAVITY"));
+
+	//PE::get()->setGravDir(NORTH);
 
 	//MonsterSObj* monster = new MonsterSObj(som->genId(), 2);
 	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4

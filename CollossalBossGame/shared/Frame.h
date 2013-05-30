@@ -24,7 +24,9 @@ public:
 	void translate(const Vec3f &dv);
 	void rotate(const Quat_t &dr);
 
-	void setPos(const Point_t &pt) { pos = pt; }
+	void setPos(const Point_t &pt) {
+		pos = pt;
+	}
 	void setRot(const Quat_t &rt) { rot = rt; }
 	Point_t getPos() { return pos; }
 	Quat_t getRot() { return rot; }

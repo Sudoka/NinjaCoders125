@@ -65,43 +65,6 @@ bool WorldSObj::update() {
 		} else {
 			gravityTimer++;
 		}
-
-
-		/*
-		gravityTimer++;
-
-		//Initial gravity-switching test
-		static char cdir = '?';
-		if(gravityTimer == gravityInterval * GRAV_ORDER_N) {
-			PE::get()->setGravDir(NORTH);
-			gravDir = NORTH;
-			cdir = 'N';
-		} else if(gravityTimer == gravityInterval * GRAV_ORDER_E) {
-			PE::get()->setGravDir(EAST);
-			gravDir = EAST;
-			cdir = 'E';
-		} else if(gravityTimer == gravityInterval * GRAV_ORDER_U) {
-			PE::get()->setGravDir(UP);
-			gravDir = UP;
-			cdir = 'U';
-		} else if(gravityTimer == gravityInterval * GRAV_ORDER_S) {
-			PE::get()->setGravDir(SOUTH);
-			gravDir = SOUTH;
-			cdir = 'S';
-		} else if(gravityTimer == gravityInterval * GRAV_ORDER_W) {
-			PE::get()->setGravDir(WEST);
-			gravDir = WEST;
-			cdir = 'W';
-		} else if(gravityTimer == gravityInterval * GRAV_ORDER_D) {
-			PE::get()->setGravDir(DOWN);
-			gravDir = DOWN;
-			cdir = 'D';
-		}
-		if(gravityTimer >= gravityInterval * (GRAV_ORDER_END - 1)) {
-			gravityTimer = 0;
-		}
-		DC::get()->print(CONSOLE, "%c Gravity timer = %d     \r", cdir, gravityTimer);
-		*/
 	}
 
 	return false;

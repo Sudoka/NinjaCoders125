@@ -6,6 +6,9 @@
 #include "defs.h"
 #include "PhysicsEngine.h"
 
+
+#define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
+
 PlayerSObj::PlayerSObj(uint id, uint clientId, CharacterClass cc) : ServerObject(id) {
 	// Save parameters here
 	this->clientId = clientId;
@@ -84,10 +87,12 @@ void PlayerSObj::initialize() {
 	initUpRot = Quat_t();
 	finalUpRot = Quat_t();
 	camYaw = 0;
-	camPitch = 0;
+	camPitch = DEFAULT_PITCH_10;
 	camKpSlow = CM::get()->find_config_as_float("CAM_KP_SLOW");
 	camKpFast = CM::get()->find_config_as_float("CAM_KP_FAST");
 	camKp = camKpSlow;
+	camDistMin = CM::get()->find_config_as_float("CAM_FIRST_PERSON_DIST");
+	camDistMax = camDist = CM::get()->find_config_as_float("CAM_DIST");
 
 	scientistBuffCounter = 0;
 	scientistBuffDecreasing = false;
@@ -134,6 +139,12 @@ bool PlayerSObj::update() {
 			this->targetlockon = -1;
 		}
 
+		if(istat.zoom) {
+			camDist = camDistMin;
+		} else {
+			camDist = camDistMax;
+		}
+
 		// Jumping can happen in two cases
 		// 1. Collisions
 		// 2. In the air
@@ -159,9 +170,12 @@ bool PlayerSObj::update() {
 		//Update the yaw rotation of the player (about the default up vector)
 		if(fabs(istat.forwardDist) > 0.0f || fabs(istat.rightDist) > 0.0f) {
 			yaw = camYaw + istat.rotAngle;
+		} else if(istat.zoom) {
+			yaw = camYaw;
 		}
+
 		if(istat.camLock) {
-			camPitch = 0.f;
+			camPitch = DEFAULT_PITCH_10;
 		} else {
 			camPitch += istat.rotVert;
 		}
@@ -263,7 +277,7 @@ void PlayerSObj::controlCamera(const Quat_t &upRot) {
 		}
 
 		//Update the camera-lock state: Locked to or unlocked from the player
-		if(istat.camLock) {
+		if(istat.camLock && !istat.zoom) {
 			camLocked = true;
 		} else if(camLocked && fabs(istat.rotHoriz) > 0) {
 			camLocked = false;
@@ -324,6 +338,8 @@ int PlayerSObj::serialize(char * buf) {
 	state->sState = this->sState;
 	state->sTrig = this->sTrig;
 	state->camRot = this->camRot;
+	state->camPitch = this->camPitch;
+	state->camDist = this->camDist;
 
 	if (SOM::get()->collisionMode)
 	{
@@ -351,6 +367,7 @@ void PlayerSObj::deserialize(char* newInput)
 {
 	inputstatus* newStatus = reinterpret_cast<inputstatus*>(newInput);
 	istat = *newStatus;
+
 	if(istat.start) {
 		this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 		this->pm->ref->setPos(Point_t());
@@ -390,33 +407,6 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 
 		//play jump sound
 		sTrig = SOUND_PLAYER_JUMP;
-#if 0
-		// surface bouncing
-		// Get the collNorm from the surface
-		float bounceDamp = 0.05f;
-
-		Vec3f incident = pm->ref->getPos() - lastCollision;
-
-		// incident is zero, so we just jump upwards
-		// this happens when you jump of the same surface
-		// you were at before (so the floor, or when you
-		// slide off the wall and then jump)
-		if ((incident.x < .01 && incident.x > -.01)
-			|| (incident.y < .01 && incident.y > -.01)
-			|| (incident.z < .01 && incident.z > -.01))
-		{
-			Vec3f force = (PE::get()->getGravVec() * -1) + collNorm;
-			pm->vel = Vec3f();
-			pm->applyForce(force*jumpDist);
-		}
-		// we have incident! so we bounce
-		else
-		{
-			// http://www.3dkingdoms.com/weekly/weekly.php?a=2
-			// optimize: *= ^= better!
-			pm->vel = (collNorm * (((incident ^ collNorm) * -2.f )) + incident) * bounceDamp;
-		}
-#endif
 		appliedJumpForce = true;
 	}
 

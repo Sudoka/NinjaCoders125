@@ -104,6 +104,8 @@ void Vec3f::operator/= (float s) {
 }
 void Vec3f::normalize() {
 	float mag = sqrt(x * x + y * y + z * z);
+	if(mag == 0.0f)
+		mag = 1.0f;
 	x /= mag;
 	y /= mag;
 	z /= mag;

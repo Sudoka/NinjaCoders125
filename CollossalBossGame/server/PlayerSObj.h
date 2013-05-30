@@ -62,6 +62,7 @@ protected:
 	float yaw;
 	float camYaw;
 	float camPitch;
+	float camDist, camDistMin, camDistMax;
 	Quat_t camRot;
 	Quat_t initUpRot;
 	Quat_t finalUpRot;
