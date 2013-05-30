@@ -147,11 +147,11 @@ void gameInit() {
 	som->add(wobj);
 	wobj->setGravitySwitch(CM::get()->find_config_as_bool("ENABLE_GRAVITY"));
 
-	PE::get()->setGravDir(NORTH);
+	//PE::get()->setGravDir(NORTH);
 
-	//MonsterSObj* monster = new MonsterSObj(som->genId(), 4); // 4
-	//som->add(monster);
-
+	//MonsterSObj* monster = new MonsterSObj(som->genId(), 2);
+	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
+	som->add(monster);
 	//addPlatforms();
 
 /*
