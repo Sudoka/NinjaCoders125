@@ -18,11 +18,11 @@
 class Camera
 {
 public:
-	Camera(float distance);
+	Camera();
 	~Camera(void);
 
 	//New camera update information
-	void update(const Point_t &tarPos, const Quat_t &tarRot, float pitch);
+	void update(const Point_t &tarPos, const Quat_t &tarRot, float pitch, float distance);
 
 	//void setViewProps(const Point_t &tarPos, const Vec3f &tarDir, const Vec3f &up);
 
