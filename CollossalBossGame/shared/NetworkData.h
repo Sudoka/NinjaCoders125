@@ -210,7 +210,7 @@ struct PlayerState {
     Model modelNum;
 	int health;
 	int ready;
-	int charge;
+	float charge;
 	int animationstate;
 	PlayerSoundState sState;
 	PlayerSoundTrigger sTrig;

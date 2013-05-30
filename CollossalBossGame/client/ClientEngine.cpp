@@ -85,3 +85,7 @@ void ClientEngine::run() {
 		//Sleep(10);
 	}
 }
+
+void ClientEngine::setState(char * buf) {
+	state.deserialize(buf);
+}

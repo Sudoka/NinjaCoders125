@@ -226,8 +226,12 @@ RenderEngine::~RenderEngine() {
 
 void RenderEngine::drawHUD() {
 	if(gamestarted) {
-		hud->displayText(this->hudText,this->monsterHUDText);
-		hud->displayHealthBars(this->healthPts, this->monsterHealthPts, this->charge);
+		if(CE::get()->getState().gameover) {
+			hud->displayGameStats();
+		} else {
+			hud->displayText(this->hudText,this->monsterHUDText);
+			hud->displayHealthBars(this->healthPts, this->monsterHealthPts, this->charge);
+		}
 	}
 	else
 	{
@@ -258,7 +262,7 @@ void RenderEngine::renderThis(ClientObject *obj) {
 * Bryan
 */
 void RenderEngine::render() {
-	this->colBxPts->update(.33);
+	this->colBxPts->update(.33f);
 	direct3dDevice->SetTransform(D3DTS_VIEW, cam->getViewMatrix()); // Update view
 	direct3dDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_COLORVALUE(0.0f, 0.0f, 0.0, 0.0f), 1.0f, 0);
 
@@ -279,7 +283,7 @@ void RenderEngine::render() {
 	direct3dDevice->Present(0, 0, 0, 0); // displays the created frame
 
 	//Clear collision-box particles
-	this->colBxPts->update(.33);
+	this->colBxPts->update(.33f);
 }
 
 // todo take time

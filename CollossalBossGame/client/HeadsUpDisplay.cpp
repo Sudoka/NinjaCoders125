@@ -1,5 +1,8 @@
 #include "HeadsUpDisplay.h"
 #include "ConfigurationManager.h"
+#include "ClientEngine.h"
+#include <sstream>
+#include <string> 
 
 HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 {
@@ -74,6 +77,7 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateTextureFromFile(direct3dDevice, "res/pressstart.png", &pressstarttxt);
 	D3DXCreateTextureFromFile(direct3dDevice, "res/playerready.png", &playerreadytxt);
 	D3DXCreateTextureFromFile(direct3dDevice, "res/startMenu.png", &blackbackgroundtxt);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/blackbackground.png", &blackscreentxt);
 	D3DXCreateTextureFromFile(direct3dDevice, "res/youwin.png", &youwintxt);
 	
 	//D3DXCreateTextureFromFile(direct3dDevice, "res/particle.bmp", &p);
@@ -89,6 +93,7 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateSprite(direct3dDevice,&pressstart);
 	D3DXCreateSprite(direct3dDevice,&playerready);
 	D3DXCreateSprite(direct3dDevice,&blackbackground);
+	D3DXCreateSprite(direct3dDevice,&blackscreen);
 	D3DXCreateSprite(direct3dDevice,&youwin);
 
 	initTime = clock();
@@ -202,9 +207,9 @@ void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
 
 void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, float charge)
 {
-	// if(playerHealth == 0) displayGameOver();
-	// else if(monsterHealth == 0) displayVictory(); // todo Franklin fix so that we only Victory on last phase
-	if(1) { // Work on how the infinite business is going to work.
+	if (playerHealth == 0) {
+		displayGameOver();
+	} else { // Work on how the infinite business is going to work.
 		//display GUI
 		HeadsUpDisplay::displayMonsterHealth(monsterHealth);
 
@@ -248,7 +253,7 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 		if (charge > 100) charge = 100;
 
 		//charge bar
-		D3DXVECTOR2 clines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40), D3DXVECTOR2(healthBarPos[0]+charge/100.0*healthBarSize , healthBarPos[1]+40)};
+		D3DXVECTOR2 clines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40.f), D3DXVECTOR2(healthBarPos[0]+charge/100.0f*healthBarSize , healthBarPos[1]+40.f)};
 		chargeLine->SetWidth(15.0f);
 		chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(0), (int)(255.0 * (charge) / 100.0), (int)(255.0 * charge / 100.0)));
 
@@ -527,6 +532,29 @@ void HeadsUpDisplay::displayLoadingScreen() {
 	SetRect(&middleofscreen, hudTopX+300, hudTopY+300, 1024, 768);
 	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
     direct3dText->DrawText(sprite1, "WE'RE LOADING", -1, &middleofscreen, DT_LEFT|DT_NOCLIP, 0xFFFFFFFF);
+	sprite1->End();
+}
+
+void HeadsUpDisplay::displayGameStats() {
+	D3DXVECTOR3 blk(0,0,0.5);
+	displaytexture(&blackscreen, &blk, &blackscreentxt);
+
+	RECT middleofscreen;
+	SetRect(&middleofscreen, hudTopX+300, hudTopY+300, 1024, 768);
+	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
+	ostringstream ss;
+	ss << "Death by Player:\nPlayer 1: " << CE::get()->getState().playerdeathstat[0] << "\n";
+	if(CE::get()->getState().totalPlayerCount > 1) {
+		ss << "Player 2: " << CE::get()->getState().playerdeathstat[1] << "\n";
+	}
+	if(CE::get()->getState().totalPlayerCount > 2) {
+		ss << "Player 3: " << CE::get()->getState().playerdeathstat[2] << "\n";
+	}
+	if(CE::get()->getState().totalPlayerCount > 3) {
+		ss << "Player 4: " << CE::get()->getState().playerdeathstat[3] << "\n";
+	}
+	ss << "Monster Killed: " << CE::get()->getState().monsterDeathCount;
+    direct3dText->DrawText(sprite1, ss.str().c_str(), -1, &middleofscreen, DT_LEFT|DT_NOCLIP, 0xFFFFFFFF);
 	sprite1->End();
 }
 

@@ -25,11 +25,6 @@ public:
 	void playerready(int playerid);
 	void clientready(int playerid);
 
-	void classselect(int playerid, bool inc, bool dec);
-
-	// World States
-	int currentState;
-
 	// World Statistics
 	int totalMonsterCount;
 	int totalPlayerCount;
@@ -39,17 +34,8 @@ public:
 	int playersconnected[4];
 	bool clientsready[4];
 	bool playersready[4];
-
-	int classselection[4];
-	int sceneselection;
-};
-
-enum GameStates {
-	GAME_CONNECTING = 0,
-	GAME_SCENE_SELECT, //1
-	GAME_LOADING, //2
-	GAME_CLASS_SELECT, //3
-	GAME_START, //4
-	GAME_RUNNING, //5
-	GAME_END //6
+	int playerdeathstat[4];
+	bool playersallready;
+	bool clientsallready;
+	int gameover;
 };

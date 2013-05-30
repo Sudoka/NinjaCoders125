@@ -276,7 +276,7 @@ void AudioEngine::playLoop(uint SoundId) {
 uint AudioEngine::getFileHash(char* filename)
 {
 	uint hash = 0;
-	for(int i = 0; i < strlen(filename); i++)
+	for(unsigned int i = 0; i < strlen(filename); i++)
 		hash = 65599 * hash + filename[i];
 	return hash ^ (hash >> 16);
 }

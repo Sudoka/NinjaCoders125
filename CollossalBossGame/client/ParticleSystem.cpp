@@ -21,7 +21,7 @@ const DWORD Particle::FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE;
 ParticleSystem::ParticleSystem()
 {
 	this->pointSize = 10.0f;
-	srand (time(NULL));
+	srand ((unsigned int)time(NULL));
 	filename = "res/particle.bmp";
 	this->fogging = false;
 }

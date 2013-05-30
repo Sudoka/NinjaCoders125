@@ -23,6 +23,8 @@ public:
 	virtual void spike();
 	virtual void rage();
 
+	virtual void fastForward();
+
 private:
 	//Box updatableBox;
 	//int attackBuffer; // how many frames pass before we're harmful again

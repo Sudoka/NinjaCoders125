@@ -6,7 +6,7 @@
 #include "ServerObjectManager.h"
 #include <math.h>
 
-MechanicSObj::MechanicSObj(uint id, uint clientId) : PlayerSObj(id, clientId, CHAR_CLASS_SHOOTER)
+MechanicSObj::MechanicSObj(uint id, uint clientId) : PlayerSObj(id, clientId, CHAR_CLASS_MECHANIC)
 {
 	this->initialize();
 }
