@@ -13,6 +13,8 @@ config_dev.ini
 *.jpg
 ./res/*
 *.dll
+*.png
+*.wav
 
 # Build results
 
