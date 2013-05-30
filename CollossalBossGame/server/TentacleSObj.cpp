@@ -407,8 +407,8 @@ void TentacleSObj::spike() {
 	// Set new collision boxes
 	CollisionModel *cm = getCollisionModel();	
 	((AabbElement*)cm->get(0))->bx = *(spike.fix());
-	((AabbElement*)cm->get(0))->bx = Box();
-	((AabbElement*)cm->get(0))->bx = Box();
+	((AabbElement*)cm->get(1))->bx = Box();
+	((AabbElement*)cm->get(2))->bx = Box();
 
 	// I'm randomly making spike last 51 cycles, feel free to change this xD
 	currStateDone = (stateCounter == 50);
