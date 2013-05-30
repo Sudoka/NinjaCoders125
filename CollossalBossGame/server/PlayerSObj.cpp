@@ -97,6 +97,7 @@ void PlayerSObj::initialize() {
 	scientistBuffCounter = 0;
 	scientistBuffDecreasing = false;
 	zoomed = false;
+	setFlag(IS_DIRTY, true);
 }
 
 PlayerSObj::~PlayerSObj(void) {
@@ -239,6 +240,8 @@ bool PlayerSObj::update() {
 			this->attacking = false;
 		}
 	}
+	
+	setFlag(IS_DIRTY, true);	//This is probably a safe assumption
 
 	return false;
 }
