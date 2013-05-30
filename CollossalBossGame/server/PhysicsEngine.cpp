@@ -237,6 +237,13 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	mdl1->ref->translate(shift1);
 	mdl2->ref->translate(shift2);
 
+#define floatingConstant 2
+
+	if(this->gravMag == 0.0f) {
+		mdl1->applyForce(dirVec(dir) * floatingConstant);
+		mdl2->applyForce(dirVec(flip(dir)) * floatingConstant);
+	}
+
 	//Inform the logic module of the collision event
 	obj1->onCollision(obj2, dirVec(dir));
 	obj2->onCollision(obj1, dirVec(flip(dir)));

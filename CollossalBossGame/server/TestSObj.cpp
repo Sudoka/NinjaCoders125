@@ -11,7 +11,7 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 	this->modelNum = modelNum;
 	switch (modelNum) {
 		case MDL_TEST_CRATE:
-			mass = 20;
+			mass = (rand() % 20) + 10;
 		case MDL_TEST_BOX:
 			// bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-5, 0, -5, 10, 10, 10);
 			bxVol = Box( -10, -10, -10, 20, 20, 20);
@@ -52,6 +52,7 @@ bool TestSObj::update() {
 	 */
 	switch(dir) {
 	case TEST_STILL:
+		setFlag(IS_FALLING,true);
 		break;
 	case TEST_NORTH:
 		pm->applyForce(Vec3f(0, 0, MOVE_AMT * sin((float)t / DIV)));

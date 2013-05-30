@@ -106,7 +106,7 @@ void addPlatforms()
 	static_box_placements.push_back(Point_t(420,80,-250));
 	static_box_placements.push_back(Point_t(560,90,-110));
 	static_box_placements.push_back(Point_t(610,110,260));
-	static_box_placements.push_back(Point_t(510,180,-270));
+	static_box_placements.push_back(Point_t(510,180,-250));
 	static_box_placements.push_back(Point_t(-520,240,-240));
 	static_box_placements.push_back(Point_t(-160,190,-210));
 	static_box_placements.push_back(Point_t(-10,140,-250));
@@ -145,7 +145,7 @@ void gameInit() {
 	//MonsterSObj* monster = new MonsterSObj(som->genId(), 2);
 	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
 	som->add(monster);
-	//addPlatforms();
+	addPlatforms();
 
 /*
 	Point_t pos = Point_t(0, 10, 15);
