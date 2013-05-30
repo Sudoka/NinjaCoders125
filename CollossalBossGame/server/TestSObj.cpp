@@ -3,7 +3,7 @@
 #include <math.h>
 #include "ConfigurationManager.h"
 
-TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : ServerObject(id) {
+TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir, bool floating) : ServerObject(id) {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new TestSObj %d\n", id);
 	setFlag(IS_FALLING,1);
 	int mass = 100;
@@ -34,6 +34,7 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 	pm = new PhysicsModel(pos, rot, (float)mass);
 	testBoxIndex = getCollisionModel()->add(new AabbElement(bxVol));
 	t = 0;
+	this->floating = floating;
 }
 
 
@@ -79,7 +80,7 @@ bool TestSObj::update() {
 	//bxVol.y--;
 	//pm->updateBox(testBoxIndex, bxVol);
 
-
+	if(floating) setFlag(IS_FLOATING, true);
 
 	return false;
 }
