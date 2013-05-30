@@ -8,7 +8,7 @@
 #include <math.h>
 #include <sstream>
 
-#define DEFAULT_PITCH 0.174532925f	//10 degrees or stg like that
+#define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
 
 PlayerCObj::PlayerCObj(uint id, char *data) :
 	ClientObject(id, OBJ_PLAYER)
@@ -21,7 +21,7 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	ss = new SoundSource();
 	char* s1 = CM::get()->find_config("LINK");
 	jumpsound = ss->addSound(s1);
-	cameraPitch = DEFAULT_PITCH;
+	cameraPitch = DEFAULT_PITCH_10;
 	ready = false;
 	chargingEffect = new ChargeEffect(10);
 	// Register with RE, SO SMART :O
@@ -76,7 +76,7 @@ bool PlayerCObj::update() {
 		XboxController *xctrl = CE::getController();
 		if(xctrl->isConnected()) {
 			if(xctrl->getState().Gamepad.bLeftTrigger) {
-				cameraPitch = DEFAULT_PITCH; //10
+				cameraPitch = DEFAULT_PITCH_10; //10
 			} else if(fabs((float)xctrl->getState().Gamepad.sThumbRY) > DEADZONE) {
 				cameraPitch += atan(((float)xctrl->getState().Gamepad.sThumbRY / (JOY_MAX * 8)));
 				if (cameraPitch > M_PI / 2.f) {
@@ -92,11 +92,11 @@ bool PlayerCObj::update() {
 
 		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;
 
-		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*camHeight;
+		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*(float)camHeight;
 		RE::get()->getCamera()->update(objPos, camRot, cameraPitch);
 		showStatus();
-		chargingEffect->setPosition(objPos, charge);
-		chargingEffect->update(.33);
+		chargingEffect->setPosition(objPos, (int)charge);
+		chargingEffect->update(.33f);
 
 
 #if HMAP_TEST

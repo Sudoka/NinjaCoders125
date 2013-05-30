@@ -29,7 +29,7 @@ void PlayerSObj::initialize() {
 	swordDamage = CM::get()->find_config_as_int("SWORD_DAMAGE");
 	chargeDamage = CM::get()->find_config_as_int("CHARGE_DAMAGE");
 	chargeUpdate = CM::get()->find_config_as_float("CHARGE_UPDATE");
-	this->health = CM::get()->find_config_as_int("INIT_HEALTH");
+	this->health = 1; //CM::get()->find_config_as_int("INIT_HEALTH");
 
 
 	if(SOM::get()->debugFlag) DC::get()->print("Initialized new PlayerSObj %d\n", this->getId());
@@ -37,8 +37,10 @@ void PlayerSObj::initialize() {
 	Point_t pos = Point_t(0, 5, 10);
 	bxStaticVol = CM::get()->find_config_as_box("BOX_PLAYER");//Box(-10, 0, -10, 20, 20, 20);
 
-	if(pm != NULL)
+	if(pm != NULL) {
 		delete pm;
+		getCollisionModel()->clean();
+	}
 
 	pm = new PhysicsModel(pos, Quat_t(), CM::get()->find_config_as_float("PLAYER_MASS"));
 	getCollisionModel()->add(new AabbElement(bxStaticVol));
@@ -86,12 +88,14 @@ void PlayerSObj::initialize() {
 	camKpSlow = CM::get()->find_config_as_float("CAM_KP_SLOW");
 	camKpFast = CM::get()->find_config_as_float("CAM_KP_FAST");
 	camKp = camKpSlow;
+
+	scientistBuffCounter = 0;
+	scientistBuffDecreasing = false;
 }
 
 PlayerSObj::~PlayerSObj(void) {
 	delete pm;
 }
-
 
 bool PlayerSObj::update() {
 
@@ -99,7 +103,7 @@ bool PlayerSObj::update() {
 		ready = true;
 	}
 
-	if (istat.quit) {
+	if (istat.start && istat.quit) {
 		return true; // delete me!
 	}
 	Point_t myPos = pm->ref->getPos();
@@ -113,11 +117,7 @@ bool PlayerSObj::update() {
 	sState = SOUND_PLAYER_SLIENT;
 	sTrig = SOUND_PLAYER_NO_NEW_TRIG;
 
-	bool f = this->getFlag(IS_STATIC);
-	bool g = this->getFlag(IS_FLOATING);
-	bool h = this->getFlag(IS_FALLING);
-
-	if(this->health > 0)
+	if(this->health > 0 && !GameServer::get()->state.gameover)
 	{
 		firedeath = false;
 
@@ -192,17 +192,34 @@ bool PlayerSObj::update() {
 		} else {
 			this->setAnimationState(WALK);
 		}
-	} else {
+	} else if (!GameServer::get()->state.gameover) {
 		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
 		pm->ref->setRot(qRot);
 
 		damage = 0; // you can't kill things if you're dead xD
 
-		// TODO Franklin: THE PLAYER IS DEAD. WHAT DO?
-		// NOTE: Player should probably be also getting their client id.
 		if(!firedeath) {
 			firedeath = true;
-			GameServer::get()->event_player_death(this->getId());
+			GameServer::get()->event_player_death(this->clientId);
+			deathtimer = 0;
+		}
+		
+		deathtimer++;
+		if(deathtimer == 50) {
+			firedeath = false;
+			this->PlayerSObj::initialize();
+			this->initialize();
+			this->ready = true;
+		}
+	}
+
+	if (this->scientistBuffDecreasing)
+	{
+		this->attacking = true;
+		this->scientistBuffCounter -= 1;
+		if (this->scientistBuffCounter == 0) {
+			this->scientistBuffDecreasing = false;
+			this->attacking = false;
 		}
 	}
 
@@ -301,7 +318,7 @@ int PlayerSObj::serialize(char * buf) {
 	}
 	state->health = health;
 	state->ready = ready;
-	state->charge = (int)charge;
+	state->charge = charge;
 	if (SOM::get()->debugFlag) DC::get()->print("CURRENT MODEL STATE %d\n",this->modelAnimationState);
 	state->animationstate = this->modelAnimationState;
 	state->sState = this->sState;
@@ -334,6 +351,7 @@ void PlayerSObj::deserialize(char* newInput)
 {
 	inputstatus* newStatus = reinterpret_cast<inputstatus*>(newInput);
 	istat = *newStatus;
+
 	if(istat.start) {
 		this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 		this->pm->ref->setPos(Point_t());
@@ -393,7 +411,7 @@ void PlayerSObj::acquireTarget() {
 		if((ObjectType)i == OBJ_WORLD || (ObjectType)i == OBJ_MONSTER) continue;
 		SOM::get()->findObjects((ObjectType)i, &allobjs);
 	}
-	for(int i = 0; i < allobjs.size(); i++) {
+	for(unsigned int i = 0; i < allobjs.size(); i++) {
 		Vec3f temppos = allobjs[i]->getPhysicsModel()->ref->getPos();
 		Vec3f tempdir = temppos - currpos;
 		tempdir.normalize();

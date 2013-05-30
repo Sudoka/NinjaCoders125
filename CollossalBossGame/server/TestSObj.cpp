@@ -31,7 +31,7 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : 
 			break;
 	}
 
-	pm = new PhysicsModel(pos, rot, mass);
+	pm = new PhysicsModel(pos, rot, (float)mass);
 	testBoxIndex = getCollisionModel()->add(new AabbElement(bxVol));
 	t = 0;
 }
@@ -70,7 +70,7 @@ bool TestSObj::update() {
 		break;
 	}
 	++t;
-	pm->frictCoeff = 1.3;
+	pm->frictCoeff = 1.3f;
 	// update box randomly
 	//bxVol.w++;
 	//bxVol.l++;

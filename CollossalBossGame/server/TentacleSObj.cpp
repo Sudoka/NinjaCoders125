@@ -60,12 +60,12 @@ TentacleSObj::~TentacleSObj(void)
 
 void TentacleSObj::idle() {
 	modelAnimationState = M_IDLE;
-
+	
 	/* Cycle logic:
 	 * CYCLE*1/2 = The tentacle is extended
 	 * CYCLE = when the tentacle is back at the default position
 	 */
-
+	
 	CollisionModel *cm = getCollisionModel();
 	Box base =	 ((AabbElement*)cm->get(0))->bx; //this->getPhysicsModel()->colBoxes.at(0);
 	Box middle = ((AabbElement*)cm->get(1))->bx; //this->getPhysicsModel()->colBoxes.at(1);
@@ -79,7 +79,7 @@ void TentacleSObj::idle() {
 
 	// reset your state
 	if (stateCounter == 0) {
-		Box origBase = idleBoxes[0];
+ 		Box origBase = idleBoxes[0];
 		Box origMiddle = idleBoxes[1];
 		Box origTip = idleBoxes[2];
 
@@ -92,17 +92,22 @@ void TentacleSObj::idle() {
 		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
 		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 	}
-	else if(stateCounter < 15) {
-		changeProportionM.y+=7;
-		changePosM.y--;
-		changePosT.y++;
+	else if(stateCounter < 16) {
+		changePosT.y -= 2;
+		changePosT.z += 3;
+		changeProportionT.z -= 3;
+	}
+	else if (stateCounter < 24) {
+		changePosT.y += 2;
+		changePosT.z -= 3;
+		changeProportionT.z += 3;
 	}
 	else {
-		changeProportionM.y-=7;
-		changePosM.y++;
-		changePosT.y--;
+		changePosT.y += 2;
+		changePosT.z += 3;
+		changeProportionT.z -= 3;
 	}
-
+	
 	// we're done!
 	currStateDone = (stateCounter == 30);
 
@@ -124,6 +129,7 @@ void TentacleSObj::idle() {
 	((AabbElement*)cm->get(0))->bx = *(base.fix());		//pm->colBoxes[0] = *(base.fix());
 	((AabbElement*)cm->get(1))->bx = *(middle.fix());	//pm->colBoxes[1] = *(middle.fix());
 	((AabbElement*)cm->get(2))->bx = *(tip.fix());		//pm->colBoxes[2] = *(tip.fix());
+	
 }
 
 // TODO PROBE!!!
@@ -138,7 +144,7 @@ void TentacleSObj::attack() {
 	// First, rotate ourselves to the player
 	if (stateCounter == 0) {
 		// If there was no player, rotate ourselves to a random angle
-		if (!this->playerFound) this->playerAngle = rand()%(int)(M_PI*2);
+		if (!this->playerFound) this->playerAngle = (float)(rand()%(int)(M_PI*2));
 
 		Vec3f rotationAxis = Vec3f(0,0,1);
 		Vec4f qAngle = Vec4f(rotationAxis, playerAngle);
@@ -176,7 +182,7 @@ void TentacleSObj::combo() {
 	//if (stateCounter%CYCLE == 0) {
 		Vec3f rotationAxis = Vec3f(0,0,1);
 		//Vec4f qAngle = Vec4f(rotationAxis, SLAM_ANGLE);
-		Vec4f qAngle = Vec4f(rotationAxis, SLAM_ANGLE/CYCLE);
+		Vec4f qAngle = Vec4f(rotationAxis, (float)(SLAM_ANGLE/CYCLE));
 		this->getPhysicsModel()->ref->rotate(qAngle);
 	//}
 
@@ -410,3 +416,19 @@ void TentacleSObj::rage() {
 	currStateDone = stateCounter >= RageSObj::lifetime;
 }
 
+/*fastForwardAnimation
+ *	We have gotten a collision with a static object, so to make sure we don't 
+ *    make the collision box go through the object we need to fast forward by calculating
+ *    the frame we want to go to and sending that to the client side object.
+ *
+ *  Author: Bryan
+ */
+
+void TentacleSObj::fastForward()
+{
+	//1. Get the current animation frame
+	//2. Get the amount of frames the current animation takes
+	//3. If we are in the first half of the animation, go to the opposite side
+	//4. Otherwise, go to half way to the last frame?
+
+}

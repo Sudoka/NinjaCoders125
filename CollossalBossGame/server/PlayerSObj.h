@@ -34,9 +34,15 @@ public:
 	bool ready;
 	CharacterClass charclass;
 	bool jumping;
-protected:
+	
+	//For the scientist buff
+	int scientistBuffCounter;
+	bool scientistBuffDecreasing;
 
 	uint clientId;
+
+protected:
+	int deathtimer;
 	PhysicsModel *pm;
 	inputstatus istat;
 	Point_t lastCollision;

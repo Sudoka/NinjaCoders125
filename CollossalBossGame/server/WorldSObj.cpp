@@ -13,7 +13,7 @@ WorldSObj::WorldSObj(uint id) : ServerObject(id) {
 	gravityInterval = CM::get()->find_config_as_int("GRAVITY_SWITCH_INTERVAL");
 	nullInterval = CM::get()->find_config_as_int("GRAVITY_NULL_INTERVAL");
 	gravityTimer = 0;
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 	gravSwitchEnabled = true;
 }
 

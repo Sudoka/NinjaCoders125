@@ -33,8 +33,8 @@ void PortalEffect::update(float timeDelta)
 	for(i = particles.begin(); i != particles.end(); i++)
 	{
 		resetParticle(&(*i));
-		i->pos.x += (cos(2 * M_PI * moved / res)) * radius;
-		i->pos.y += (sin(2 * M_PI * moved / res))* radius;
+		i->pos.x += (float)(cos(2 * M_PI * moved / res)) * radius;
+		i->pos.y += (float)(sin(2 * M_PI * moved / res)) * radius;
 		moved = moved++ % res;
 	}
 }
