@@ -56,13 +56,13 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	}
 	
 	Vec3f surfaceShift = Vec3f();
-	if(!obj->getFlag(IS_FALLING) && !obj->getFlag(IS_FLOATING)) {
-		ServerObject *obj = SOM::get()->find(mdl->surfaceId);
-		if(obj != NULL) {
-			PhysicsModel *mdlSurf = obj->getPhysicsModel();
-			surfaceShift = mdlSurf->ref->getPos() - mdlSurf->lastPos;
-		}
-	}
+	//if(!obj->getFlag(IS_FALLING) && !obj->getFlag(IS_FLOATING)) {
+	//	ServerObject *obj = SOM::get()->find(mdl->surfaceId);
+	//	if(obj != NULL) {
+	//		PhysicsModel *mdlSurf = obj->getPhysicsModel();
+	//		surfaceShift = mdlSurf->ref->getPos() - mdlSurf->lastPos;
+	//	}
+	//}
 
 	//Update position
 	//if(mdl->ref->getPos().y <= 0) mdl->lastPosOnGround = mdl->ref->getPos();

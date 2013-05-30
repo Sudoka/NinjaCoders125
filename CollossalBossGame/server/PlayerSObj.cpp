@@ -334,9 +334,7 @@ void PlayerSObj::deserialize(char* newInput)
 {
 	inputstatus* newStatus = reinterpret_cast<inputstatus*>(newInput);
 	istat = *newStatus;
-	if (istat.start && this->health > 0) {
-		GameServer::get()->event_reset(this->getId());
-	} else if(istat.start) {
+	if(istat.start) {
 		this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 		this->pm->ref->setPos(Point_t());
 	}
