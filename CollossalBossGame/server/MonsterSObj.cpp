@@ -56,24 +56,24 @@ void MonsterSObj::setupAvailablePlacements()
 	availablePlacements.push_back(Frame(Vec3f(585.5f, 220.f, -160.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/2)));
 
 	// North Wall
-	availablePlacements.push_back(Frame(Vec3f(140.25f, 147.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(525.5f, 147.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(505.5f, 258.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(135.25f, 260.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(-532.5f, 250.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(-318.75f, 147.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
 	availablePlacements.push_back(Frame(Vec3f(106.25f, 50.f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
 	availablePlacements.push_back(Frame(Vec3f(-106.25f, 50.f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(318.75f, 147.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(532.5f, 250.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(-73.25f, 245.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(-570.5f, 258.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availablePlacements.push_back(Frame(Vec3f(-553.5f, 147.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+	availablePlacements.push_back(Frame(Vec3f(-140.25f, 157.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
 
-	// South Wall
-	availablePlacements.push_back(Frame(Vec3f(553.5f, 147.5f, 300.f), Quat_t(Vec3f(0, 0, 0), 0)));
-	availablePlacements.push_back(Frame(Vec3f(570.5f, 258.15f, 300.f), Quat_t(Vec3f(0, 0, 0), 0)));
-	availablePlacements.push_back(Frame(Vec3f(73.25f, 245.15f, 300.f), Quat_t(Vec3f(0, 0, 0), 0)));
-	availablePlacements.push_back(Frame(Vec3f(-532.5f, 250.15f, 300.f), Quat_t(Vec3f(0, 0, 0), 0)));
-	availablePlacements.push_back(Frame(Vec3f(-318.75f, 147.5f, 300.f), Quat_t(Vec3f(0, 0, 0), 0)));
-	availablePlacements.push_back(Frame(Vec3f(106.25f, 50.f, 300.f), Quat_t(Vec3f(0, 0, 0), 0)));
-	availablePlacements.push_back(Frame(Vec3f(-106.25f, 50.f, 300.f), Quat_t(Vec3f(0, 0, 0), 0)));
-	availablePlacements.push_back(Frame(Vec3f(-140.25f, 147.5f, 300.f), Quat_t(Vec3f(0, 0, 0), 0)));
+	//// South Wall
+	availablePlacements.push_back(Frame(Vec3f(-525.5f, 147.5f, 300.f), Quat_t()));
+	availablePlacements.push_back(Frame(Vec3f(-505.5f, 258.15f, 300.f), Quat_t()));
+	availablePlacements.push_back(Frame(Vec3f(-135.25f, 260.15f, 300.f), Quat_t()));
+	availablePlacements.push_back(Frame(Vec3f(532.5f, 250.15f, 300.f), Quat_t()));
+	availablePlacements.push_back(Frame(Vec3f(318.75f, 147.5f, 300.f), Quat_t()));
+	availablePlacements.push_back(Frame(Vec3f(-106.25f, 50.f, 300.f), Quat_t()));
+	availablePlacements.push_back(Frame(Vec3f(106.25f, 50.f, 300.f), Quat_t()));
+	availablePlacements.push_back(Frame(Vec3f(140.25f, 157.5f, 300.f), Quat_t()));
 }
 
 void MonsterSObj::removePart(MonsterPartSObj* t)
@@ -147,6 +147,7 @@ bool MonsterSObj::update() {
 			switch (phase)
 			{
 			case 0:
+				//newPart = new HeadSObj(SOM::get()->genId(), MDL_HEAD_1, currPlace.getPos(), currPlace.getRot(), this);
 				newPart = new TentacleSObj(SOM::get()->genId(), (Model)i, currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			case 1:
