@@ -144,7 +144,7 @@ void TentacleSObj::attack() {
 	// First, rotate ourselves to the player
 	if (stateCounter == 0) {
 		// If there was no player, rotate ourselves to a random angle
-		if (!this->playerFound) this->playerAngle = rand()%(int)(M_PI*2);
+		if (!this->playerFound) this->playerAngle = (float)(rand()%(int)(M_PI*2));
 
 		Vec3f rotationAxis = Vec3f(0,0,1);
 		Vec4f qAngle = Vec4f(rotationAxis, playerAngle);
@@ -182,7 +182,7 @@ void TentacleSObj::combo() {
 	//if (stateCounter%CYCLE == 0) {
 		Vec3f rotationAxis = Vec3f(0,0,1);
 		//Vec4f qAngle = Vec4f(rotationAxis, SLAM_ANGLE);
-		Vec4f qAngle = Vec4f(rotationAxis, SLAM_ANGLE/CYCLE);
+		Vec4f qAngle = Vec4f(rotationAxis, (float)(SLAM_ANGLE/CYCLE));
 		this->getPhysicsModel()->ref->rotate(qAngle);
 	//}
 

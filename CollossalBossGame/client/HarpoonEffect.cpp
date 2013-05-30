@@ -30,14 +30,14 @@ void HarpoonEffect::resetParticle(ParticleAttributes* a)
 		a->lifetime = 1;
 		a->color = D3DXCOLOR(1.0f,0.0f,1.0f,1.0f);
 	}*/
-	static int i = 1;
+	static unsigned int i = 1;
 	a->isAlive = true;
 	//a->age = 0.f;
 	//a->lifetime = 1;
 	a->color = D3DXCOLOR(1.0f,0.0f,1.0f,1.0f);
 	// determine position
-	D3DXVECTOR3 dist = (pos - origin) / particles.size();
-	a->pos = origin + dist * i;
+	D3DXVECTOR3 dist = (pos - origin) / (float)particles.size();
+	a->pos = origin + dist * (float)i;
 	i++;
 	if(particles.size() != 0 && i % particles.size() == 0) i = 1;
 }
@@ -61,7 +61,7 @@ void HarpoonEffect::setPosition(Vec3f pos, Vec3f origin, int size)
 {
 //	this->prevPos = this->pos;
 	this->origin = D3DXVECTOR3(origin.x, origin.y, origin.z);
-	this->pointSize = size;
+	this->pointSize = (float)size;
 	this->pos = D3DXVECTOR3(pos.x, pos.y, pos.z);
 	if(particles.size() < 10) addParticle();
 }

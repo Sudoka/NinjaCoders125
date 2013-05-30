@@ -23,7 +23,7 @@ RageCObj::~RageCObj(void)
 
 bool RageCObj::update() {
 	push->setPosition(rm->getFrameOfRef()->getPos());
-	push->update(.33);
+	push->update(.33f);
 	return false;
 }
 

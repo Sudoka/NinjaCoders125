@@ -97,19 +97,19 @@ void HeadSObj::shootFireball() {
 	Vec3f headPos = headBox.getPos() + this->getPhysicsModel()->ref->getPos();
 
 	// If there was no player, pick a random target
-	if (!this->playerFound) this->playerPos = Vec3f(-100 + rand()%200,-100 + rand()%200,-100 + rand()%200) + headPos;
+	if (!this->playerFound) this->playerPos = Vec3f(-100.f + rand()%200,-100.f + rand()%200,-100.f + rand()%200) + headPos;
 
 	// Determine our bullet path
 	Vec3f bulletPath = this->playerPos - headPos;
 	bulletPath.normalize();
 
 	// move the bullet a little bit along our path, just enough so it clears the head
-	Vec3f offset = bulletPath * this->headBoxSize * 1.5; // 1.5 is sqrt(2), ask franklin for the math behind it
+	Vec3f offset = bulletPath * ((float)this->headBoxSize * 1.5f); // 1.5 is sqrt(2), ask franklin for the math behind it
 	Vec3f bulletPos = headPos + offset;
 
 	FireBallSObj * fbso = new FireBallSObj(	SOM::get()->genId(), 
 											(Model)-1, bulletPos, 
-											bulletPath * this->fireballForce, 
+											bulletPath * (float)this->fireballForce, 
 											this->fireballDamage, 
 											this->fireballDiameter);
 	SOM::get()->add(fbso);

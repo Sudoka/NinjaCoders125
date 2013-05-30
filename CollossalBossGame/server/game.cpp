@@ -75,7 +75,7 @@ void addPlatforms()
 	//moving_box_placements.push_back(Point_t(260,290,-210));
 	//moving_box_placements.push_back(Point_t(360,290,-310));
 
-	for(int i = 0; i < moving_box_placements.size(); i+=5)
+	for(unsigned int i = 0; i < moving_box_placements.size(); i+=5)
 	{
 		TestSObj * platform_east = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i], Quat_t(), TEST_EAST);
 		platform_east->setFlag(IS_FLOATING, true);
@@ -119,7 +119,7 @@ void addPlatforms()
 	//static_box_placements.push_back(Point_t(-260,190,-280));
 	//static_box_placements.push_back(Point_t(260,190,280));
 
-	for(int i = 0; i < static_box_placements.size() - 1; i++)
+	for(unsigned int i = 0; i < static_box_placements.size() - 1; i++)
 	{
 		TestSObj * platform = new TestSObj(som->genId(), MDL_TEST_BOX, static_box_placements[i], Quat_t(), TEST_STILL);
 		platform->setFlag(IS_STATIC, true);
