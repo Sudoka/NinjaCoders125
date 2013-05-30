@@ -7,7 +7,7 @@
 ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Point_t pos, DIRECTION dir) : ServerObject(id) {
 	Quat_t rot = Quat_t();
 	pm = new PhysicsModel(pos, rot, 500);
-	DC::get()->print("New ArenaWallSObj created with id %d and direction ", id);
+	DC::get()->print("New ArenaWallSObj created with id %d and collision direction ", id);
 
 	float fxo, fyo, fzo;
 	const float roomWidth = CM::get()->find_config_as_float("ROOM_WIDTH"),
@@ -24,8 +24,40 @@ ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Poin
 		scale = 110.0f / 255.0f;
 		div = 5;
 		break;
-	default:
-		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "UP\n");
+	case SOUTH:
+		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "SOUTH\n");
+		fxo = -roomWidth / 2;
+		fyo = -85.f;
+		fzo = -roomHeight / 2;
+		scale = 110.0f / 255.0f;
+		div = 5;
+		break;
+	case EAST:
+		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "EAST\n");
+		fxo = -roomWidth / 2;
+		fyo = -85.f;
+		fzo = -roomHeight / 2;
+		scale = 110.0f / 255.0f;
+		div = 5;
+		break;
+	case WEST:
+		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "WEST\n");
+		fxo = -roomWidth / 2;
+		fyo = -85.f;
+		fzo = -roomHeight / 2;
+		scale = 110.0f / 255.0f;
+		div = 5;
+		break;
+	case DOWN:	//ceiling
+		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "DOWN (ceiling)\n");
+		fxo = -roomWidth / 2;
+		fyo = -85.f;
+		fzo = -roomHeight / 2;
+		scale = 110.0f / 255.0f;
+		div = 5;
+		break;
+	default:	//floor
+		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "UP (floor)\n");
 		fxo = -roomWidth / 2;
 		fyo = 0;
 		fzo = -roomLength / 2;
@@ -40,6 +72,15 @@ ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Poin
 	switch(dir) {
 	case NORTH:
 		addNorthBoxes();
+		break;
+	case SOUTH:
+		addSouthBoxes();
+		break;
+	case EAST:
+		addEastBoxes();
+		break;
+	case WEST:
+		addWestBoxes();
 		break;
 	default:
 		addUpBoxes();
