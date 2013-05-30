@@ -210,6 +210,7 @@ void TentacleSObj::slamMotion() {
 	Box tip = ((AabbElement*)cm->get(2))->bx; // this->getPhysicsModel()->colBoxes.at(2);
 	Vec3f changePosM = Vec3f(), changeProportionM = Vec3f();
 	Vec3f changePosB = Vec3f();
+	Vec3f changePosT = Vec3f(), changeProportionT = Vec3f();
 
 	//get the actual axis
 	Vec4f axis = this->getPhysicsModel()->ref->getRot();
@@ -229,17 +230,25 @@ void TentacleSObj::slamMotion() {
 		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 	}
 
+	changePosB.z+=2;
+
 	changePosM.z+=6;
 	changeProportionM.z+=2;
 	changePosM.y+=3;
 
-	changePosB.z+=2;
+	changePosT.z+=14;
+	changeProportionT.z-=2;
+	changePosT.y+=4;
+	changeProportionT.y+=4;
 
 	// Rotate the relative change according to where we're facing
+	base.setRelPos(axis.rotateToThisAxis(changePosB));
+	
 	middle.setRelPos(axis.rotateToThisAxis(changePosM));
 	middle.setRelSize(axis.rotateToThisAxis(changeProportionM));
-	
-	base.setRelPos(axis.rotateToThisAxis(changePosB));
+
+	tip.setRelPos(axis.rotateToThisAxis(changePosT));
+	tip.setRelSize(axis.rotateToThisAxis(changeProportionT));
 	// Set new collision boxes
 	((AabbElement*)cm->get(0))->bx = *(base.fix());
 	((AabbElement*)cm->get(1))->bx = *(middle.fix());
