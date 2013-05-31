@@ -122,7 +122,7 @@ bool MonsterPartSObj::update() {
 		}
 
 		///////////////////// State logic ///////////////////////
-		//actionState = PROBE_ACTION;
+		//actionState = MOVE_ACTION;
 		switch(actionState)
 		{
 		case IDLE_ACTION:
