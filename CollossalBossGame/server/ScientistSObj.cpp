@@ -42,6 +42,7 @@ void ScientistSObj::actionCharge(bool buttondown) {
 		transformduration--;
 		if(transformduration < 0) {
 			transformclass = CHAR_CLASS_SCIENTIST;
+			this->currenttarget = -1;
 			clearAccessory();
 		}
 	}

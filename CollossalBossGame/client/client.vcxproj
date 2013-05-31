@@ -82,6 +82,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AudioEngine.cpp" />
+    <ClCompile Include="BeamEffect.cpp" />
     <ClCompile Include="BulletCObj.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ChargeEffect.cpp" />
@@ -116,6 +117,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioEngine.h" />
+    <ClInclude Include="BeamEffect.h" />
     <ClInclude Include="BulletCObj.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ChargeEffect.h" />
