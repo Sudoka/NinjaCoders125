@@ -20,6 +20,7 @@ int ScientistCObj::getTypeInt()
 void ScientistCObj::deserialize(char * newState) {
 	this->transformdelay = *(int *)newState; newState += 4;
 	this->transformduration = *(int *)newState; newState += 4;
+	this->transformtargetid = *(int *)newState; newState += 4;
 	this->transformedclass = (CharacterClass)*(int *)newState; newState += 4;
 	PlayerCObj::deserialize(newState);
 }

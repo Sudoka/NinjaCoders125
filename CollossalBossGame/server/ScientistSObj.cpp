@@ -20,6 +20,9 @@ ScientistSObj::~ScientistSObj(void)
 void ScientistSObj::initialize() {
 	charge = 0.0f;
 	chargeUpdate = 13.0f/50.0f;
+	if(harpoon != -1) {
+		this->clearAccessory();
+	}
 	this->harpoon = -1;
 	this->chargeUpdate = 13.0f/50.0f;
 	this->charge = 0.0f;
@@ -180,7 +183,6 @@ void ScientistSObj::ScientistActionCharge(bool buttondown) {
 		if(currenttarget == -1) {
 			currenttarget = selectplayertarget(this, this->pm->ref->getPos(), rotate(Vec3f(0, -sin(camPitch), cos(camPitch)), pm->ref->getRot()));
 			transformdelay = 60;
-			
 		}
 		transformdelay--;
 		if(transformdelay == 0) {
@@ -224,6 +226,7 @@ void ScientistSObj::clearScientistAccessory() { }
 int ScientistSObj::serialize(char * buf) {
 	*(int *)buf = this->transformdelay; buf += 4;
 	*(int *)buf = this->transformduration; buf += 4;
+	*(int *)buf = this->currenttarget; buf += 4;
 	*(int *)buf = (int)this->transformclass; buf += 4;
 	return PlayerSObj::serialize(buf) + 12;
 }

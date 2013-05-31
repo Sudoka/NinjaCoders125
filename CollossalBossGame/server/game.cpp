@@ -18,7 +18,6 @@
 #include "TentacleSObj.h"
 #include "ConfigurationManager.h"
 #include "ArenaWallSObj.h"
-#include "CyborgSObj.h"
 
 /*
  * buildRoom()

@@ -14,5 +14,6 @@ public:
 private:
 	int transformdelay;
 	int transformduration;
+	int transformtargetid;
 	CharacterClass transformedclass;
 };

@@ -17,6 +17,9 @@ MechanicSObj::~MechanicSObj(void)
 }
 
 void MechanicSObj::initialize() {
+	if(harpoon != -1) {
+		this->clearAccessory();
+	}
 	this->harpoon = -1;
 	this->chargeUpdate = 13.0f/50.0f;
 	this->charge = 0.0f;

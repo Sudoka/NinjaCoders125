@@ -215,6 +215,7 @@ void ServerNetworkManager::receiveFromClients() {
 			// </Log Packet>
             switch (packet.packet_type) {
 				ServerObject* destObject;
+				PlayerSObj * plyr;
                 case INIT_CONNECTION:
                     if(debugFlag) DC::get()->print("server received init packet from client %d\n", iter->first);
                     break;
