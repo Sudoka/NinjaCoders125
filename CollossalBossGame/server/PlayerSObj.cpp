@@ -32,7 +32,7 @@ void PlayerSObj::initialize() {
 	swordDamage = CM::get()->find_config_as_int("SWORD_DAMAGE");
 	chargeDamage = CM::get()->find_config_as_int("CHARGE_DAMAGE");
 	chargeUpdate = CM::get()->find_config_as_float("CHARGE_UPDATE");
-	this->health = 1; //CM::get()->find_config_as_int("INIT_HEALTH");
+	this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 
 
 	if(SOM::get()->debugFlag) DC::get()->print("Initialized new PlayerSObj %d\n", this->getId());

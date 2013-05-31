@@ -223,6 +223,8 @@ struct PlayerState {
 	int health;
 	int ready;
 	float charge;
+	int scientisttransformdelay;
+	int scientisttransformduration;
 	int animationstate;
 	PlayerSoundState sState;
 	PlayerSoundTrigger sTrig;
