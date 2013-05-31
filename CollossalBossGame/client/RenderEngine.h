@@ -25,9 +25,7 @@
 #include "HeadsUpDisplay.h"
 #include "ParticleSystem.h"
 #include <time.h>
-#include "Snow.h"
 #include "CollisionBoxPoints.h"
-#include "ChargeEffect.h"
 
 using namespace std;
 

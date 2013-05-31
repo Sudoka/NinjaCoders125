@@ -28,7 +28,7 @@ public:
 
 	int ready;
 
-private:
+protected:
 	RenderModel * box;
 	int camHeight;
 	int health;
@@ -39,7 +39,6 @@ private:
 	float camPitch;
 	float camDist;
 	Quat_t camRot;
-	ChargeEffect* chargingEffect;
 
 	//sounds
 	uint jumpsound;
