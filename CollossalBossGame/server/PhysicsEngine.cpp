@@ -100,9 +100,10 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	if(fabs(dx) > 0 || fabs(dy) > 0 || fabs(dz) > 0) {
 		obj->setFlag(IS_FALLING, true);
 		mdl->frictCoeff = frictAir;
+		return true;
 	}
 
-	return true;	//We'll add a detection for has-moved later
+	return false;
 }
 
 void PhysicsEngine::applyPhysics(ServerObject *obj1, ServerObject *obj2) {
@@ -191,7 +192,7 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, HMap
 			}
 			break;
 		case CMDL_HMAP:
-			DC::get()->print("WARNING: HMap on HMap collision- skipping\n");
+			//DC::get()->print("WARNING: HMap on HMap collision- skipping\n");
 			break;
 		default:
 			//Unrecognized collision type

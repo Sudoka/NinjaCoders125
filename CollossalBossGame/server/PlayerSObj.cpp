@@ -96,6 +96,8 @@ void PlayerSObj::initialize() {
 
 	scientistBuffCounter = 0;
 	scientistBuffDecreasing = false;
+	zoomed = false;
+	setFlag(IS_DIRTY, true);
 }
 
 PlayerSObj::~PlayerSObj(void) {
@@ -139,7 +141,9 @@ bool PlayerSObj::update() {
 			this->targetlockon = -1;
 		}
 
-		if(istat.zoom) {
+
+		zoomed = istat.zoom;	//this logic may or may not change
+		if(zoomed) {
 			camDist = camDistMin;
 		} else {
 			camDist = camDistMax;
@@ -170,7 +174,7 @@ bool PlayerSObj::update() {
 		//Update the yaw rotation of the player (about the default up vector)
 		if(fabs(istat.forwardDist) > 0.0f || fabs(istat.rightDist) > 0.0f) {
 			yaw = camYaw + istat.rotAngle;
-		} else if(istat.zoom) {
+		} else if(zoomed) {
 			yaw = camYaw;
 		}
 
@@ -236,6 +240,8 @@ bool PlayerSObj::update() {
 			this->attacking = false;
 		}
 	}
+	
+	setFlag(IS_DIRTY, true);	//This is probably a safe assumption
 
 	return false;
 }
@@ -277,7 +283,7 @@ void PlayerSObj::controlCamera(const Quat_t &upRot) {
 		}
 
 		//Update the camera-lock state: Locked to or unlocked from the player
-		if(istat.camLock && !istat.zoom) {
+		if(istat.camLock && !zoomed) {
 			camLocked = true;
 		} else if(camLocked && fabs(istat.rotHoriz) > 0) {
 			camLocked = false;
@@ -340,6 +346,12 @@ int PlayerSObj::serialize(char * buf) {
 	state->camRot = this->camRot;
 	state->camPitch = this->camPitch;
 	state->camDist = this->camDist;
+
+	//'or together any boolean states
+	state->bStates = PLAYER_NONE;
+	if(zoomed) {
+		state->bStates |= PLAYER_ZOOM;
+	}
 
 	if (SOM::get()->collisionMode)
 	{

@@ -34,6 +34,7 @@ public:
 	bool ready;
 	CharacterClass charclass;
 	bool jumping;
+	bool zoomed;
 	
 	//For the scientist buff
 	int scientistBuffCounter;

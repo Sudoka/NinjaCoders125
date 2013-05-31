@@ -207,6 +207,12 @@ struct CreateHeader {
 /*
  * State information for the player not encoded by the position
  */
+enum PlayerBooleanStates {
+	PLAYER_NONE = 0x0,
+	PLAYER_ZOOM = 0x1,
+	PLAYER_NUM_STATES
+};
+
 struct PlayerState {
     Model modelNum;
 	int health;
@@ -218,6 +224,7 @@ struct PlayerState {
 	Quat_t camRot;
 	float camPitch;
 	float camDist;
+	int bStates;	//General state variable where different booleans can be concatenated
 };
 
 /*
