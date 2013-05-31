@@ -150,16 +150,16 @@ void ServerNetworkManager::update() {
 				// but how do we get them matching later? maybe the server should send
 				// the client the id back or something?
 				switch(client_id) {
-					case 1:
+					case 0:
 						o = new CyborgSObj(som->genId(), client_id);
 						break;
-					case 3:
+					case 1:
 						o = new ShooterSObj(som->genId(), client_id);
 						break;
 					case 2:
 						o = new MechanicSObj(som->genId(), client_id);
 						break;
-					case 0:
+					case 3:
 						o = new ScientistSObj(som->genId(), client_id);
 						break;
 				}
@@ -213,6 +213,7 @@ void ServerNetworkManager::receiveFromClients() {
 			if(debugFlag)
 				DC::get()->print(TIMESTAMP | LOGFILE, "Iteration: %d packet_type: %d object_id: %d packet_number: %d command_type: %d\n", packet.iteration, packet.packet_type, packet.object_id, packet.packet_number, packet.command_type);
 			// </Log Packet>
+			PlayerSObj* plyr; // silly c++ compiler...
             switch (packet.packet_type) {
 				ServerObject* destObject;
                 case INIT_CONNECTION:
