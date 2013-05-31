@@ -111,6 +111,7 @@ void GameServer::recieveInput(char * buf, int pid) {
 				PlayerSObj * p = reinterpret_cast<PlayerSObj *>(rawr[i]);
 				if(p) { p->ready = false; }
 			}
+			state.gameover = false;
 		}
 		state.playerready(pid);
 	}
