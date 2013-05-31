@@ -99,6 +99,9 @@ void PlayerCObj::deserialize(char* newState) {
 	camRot = state->camRot;
 	camPitch = state->camPitch;
 	camDist = state->camDist;
+	bStates = state->bStates;
+
+	rm->setInvisible(bStates & PLAYER_ZOOM);
 
 	if(this->ready == false) {
 		RE::get()->gamestarted = false;

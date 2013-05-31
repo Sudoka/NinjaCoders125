@@ -62,6 +62,7 @@ bool WorldSObj::update() {
 				PE::get()->setGravDir(DOWN);
 				break;
 			}
+			setFlag(IS_DIRTY, true);
 		} else {
 			gravityTimer++;
 		}

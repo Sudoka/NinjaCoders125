@@ -32,6 +32,7 @@ private:
 	RenderModel * box;
 	int camHeight;
 	int health;
+	int bStates;
 	float charge;
 	RenderModel *rm;
 	SoundSource *ss;
