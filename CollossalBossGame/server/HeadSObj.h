@@ -2,7 +2,7 @@
 #include "MonsterPartSObj.h"
 #include "MonsterSObj.h"
 
-#define SHOOT_CYCLE 30
+#define SHOOT_CYCLE 50
 
 class HeadSObj : public MonsterPartSObj
 {
