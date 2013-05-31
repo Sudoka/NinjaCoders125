@@ -34,7 +34,6 @@ public:
 	virtual int serialize(char * buf);
 	virtual bool update();
 
-	virtual ObjectType getType() { return OBJ_TENTACLE; }
 
 	char serialbuffer[100];
 
@@ -43,17 +42,18 @@ public:
 
 	//////////////////// ACTIONS /////////////////////
 
-	// These are the same
-	virtual void move();
-	virtual void death();
-
-	// These are different (should be implemented)
+	// Should be implemented in the children
 	virtual void idle() = 0;
 	virtual void probe() = 0;
 	virtual void attack() = 0;
 	virtual void combo() = 0;
 	virtual void spike() = 0;
-	virtual void rage() = 0; // this might be the same...?
+	virtual void rage() = 0;
+	virtual void move() = 0;
+	virtual void death() = 0;
+
+
+	virtual ObjectType getType() = 0;
 
 protected:
 	int health;
