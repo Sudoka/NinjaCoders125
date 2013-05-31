@@ -149,6 +149,9 @@ void ClientObjectManager::create(uint id, char *data) {
 	case OBJ_TENTACLE:
 		obj = new TentacleCObj(id, data + sizeof(CreateHeader));
 		break;
+	case OBJ_HEAD: // same as tentacles for now, but could be changed?
+		obj = new TentacleCObj(id, data + sizeof(CreateHeader));
+		break;
 	case OBJ_RAGE:
 		obj = new RageCObj(id, data + sizeof(CreateHeader));
 		break;

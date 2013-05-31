@@ -36,6 +36,8 @@ HeadSObj::~HeadSObj(void)
 }
 
 void HeadSObj::idle() {
+	modelAnimationState = M_IDLE;
+
 	// Keep initial idle boxes
 	Box origBase = idleBoxes[0];
 	Box origMiddle = idleBoxes[1];
@@ -52,10 +54,12 @@ void HeadSObj::idle() {
 	((AabbElement*)cm->get(1))->bx = origMiddle;
 	((AabbElement*)cm->get(2))->bx = origTip;
 
-	currStateDone = true;
+	currStateDone = (stateCounter == 73);
 }
 
 void HeadSObj::probe() {
+	modelAnimationState = M_PROBE;
+
 	// Keep initial idle boxes
 	Box origBase = idleBoxes[0];
 	Box origMiddle = idleBoxes[1];
@@ -72,10 +76,12 @@ void HeadSObj::probe() {
 	((AabbElement*)cm->get(1))->bx = origMiddle;
 	((AabbElement*)cm->get(2))->bx = origTip;
 
-	currStateDone = true;
+	currStateDone = (stateCounter == 45);
 }
 
 void HeadSObj::shootFireball() {
+	modelAnimationState = M_ENTER; // M_ATTACK;
+
 	// For now, keep initial idle boxes
 	Box origBase = idleBoxes[0];
 	Box origMiddle = idleBoxes[1];
@@ -137,6 +143,8 @@ void HeadSObj::combo() {
 }
 
 void HeadSObj::spike() {
+	modelAnimationState = M_EXIT; // M_SPIKE;
+
 	// Keep initial idle boxes
 	Box origBase = idleBoxes[0];
 	Box origMiddle = idleBoxes[1];
@@ -158,7 +166,7 @@ void HeadSObj::spike() {
 
 // FOR NOW this is the same as in the tentacle
 void HeadSObj::rage() {
-	//modelAnimationState = M_RAGE;
+	modelAnimationState = M_DEATH; // M_RAGE;
 
 	// First, we create the wave object
 	if (stateCounter == 0) {
@@ -192,4 +200,45 @@ void HeadSObj::rage() {
 
 	// when the object dies we're done raging
 	currStateDone = stateCounter >= RageSObj::lifetime;
+}
+
+void HeadSObj::move() {
+	// move in 16
+	// move out 18
+
+	// Wriggle out
+	if (stateCounter < 16)
+	{
+		modelAnimationState = M_SPIKE; // M_EXIT;
+	}
+	// Switch positions
+	else if (stateCounter == 16)
+	{
+		Frame* currFrame = this->getPhysicsModel()->ref;
+		Frame newFrame = this->overlord->updatePosition(*currFrame, this->getType());
+		currFrame->setPos(newFrame.getPos());
+		currFrame->setRot(newFrame.getRot());
+	}
+	// Wriggle back in
+	else
+	{
+		modelAnimationState = M_ATTACK; // M_ENTER;
+	}
+
+	currStateDone = (stateCounter == 33);
+}
+
+void HeadSObj::death() {
+	modelAnimationState = M_RAGE; // M_DEATH;
+
+	// No collision boxes in death
+	if (stateCounter == 0)
+	{
+		CollisionModel *cm = getCollisionModel();
+		((AabbElement*)cm->get(0))->bx = Box();
+		((AabbElement*)cm->get(1))->bx = Box();
+		((AabbElement*)cm->get(2))->bx = Box();
+	}
+
+	currStateDone = (stateCounter == 20);
 }
