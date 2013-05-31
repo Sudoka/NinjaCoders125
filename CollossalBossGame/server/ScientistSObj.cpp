@@ -24,6 +24,7 @@ void ScientistSObj::initialize() {
 		this->clearAccessory();
 	}
 	this->harpoon = -1;
+	this->currenttarget = -1;
 	this->chargeUpdate = 13.0f/50.0f;
 	this->charge = 0.0f;
 	delay = 50;
@@ -180,24 +181,18 @@ int selectplayertarget(PlayerSObj * caller, Vec3f currentposition, Vec3f current
 
 void ScientistSObj::ScientistActionCharge(bool buttondown) {
 	if(buttondown) {
-		if(currenttarget == -1) {
-			currenttarget = selectplayertarget(this, this->pm->ref->getPos(), rotate(Vec3f(0, -sin(camPitch), cos(camPitch)), pm->ref->getRot()));
-			transformdelay = 60;
-		}
-		transformdelay--;
-		if(transformdelay == 0) {
-			transformduration = 200;
-			ServerObject * s = SOM::get()->find(currenttarget);
-			if(s != NULL && s->getType() == OBJ_PLAYER) {
-				PlayerSObj * p = (PlayerSObj *)s;
-				transformclass = p->getCharacterClass();
-			} else {
-				assert(false && "What. - ScientistClass Transform");
-			}
+		currenttarget = selectplayertarget(this, this->pm->ref->getPos(), rotate(Vec3f(0, -sin(camPitch), cos(camPitch)), pm->ref->getRot()));
+	} else if(currenttarget != -1) {
+		transformduration = 330;
+		ServerObject * s = SOM::get()->find(currenttarget);
+		if(s != NULL && s->getType() == OBJ_PLAYER) {
+			PlayerSObj * p = (PlayerSObj *)s;
+			transformclass = p->getCharacterClass();
+		} else {
+			assert(false && "What. - ScientistClass Transform");
 		}
 	} else {
 		currenttarget = -1;
-		transformdelay = 0;
 		transformduration = 0;
 		charge = 0;
 	}
