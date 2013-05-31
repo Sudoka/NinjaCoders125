@@ -149,7 +149,7 @@ void ServerNetworkManager::update() {
 				// Ok, since we should only have one object on both sides, the id's will match
 				// but how do we get them matching later? maybe the server should send
 				// the client the id back or something?
-				switch(/*client_id*/1) {
+				switch(client_id) {
 					case 0:
 						o = new CyborgSObj(som->genId(), client_id);
 						break;
@@ -228,8 +228,8 @@ void ServerNetworkManager::receiveFromClients() {
 					}
                     break;
 				case GAMESTATE_MANAGER:
-					plyr = (PlayerSObj *)SOM::get()->find(packet.object_id);
-					GameServer::get()->recieveInput(packet.packet_data, plyr->clientId);
+					plyr = reinterpret_cast<PlayerSObj*>(SOM::get()->find(packet.object_id));
+					if (plyr != NULL) GameServer::get()->recieveInput(packet.packet_data, plyr->clientId);
 					break;
 				case CLIENT_READY:
 					// GameServer::get()->state.clientready(packet.object_id);
