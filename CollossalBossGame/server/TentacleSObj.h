@@ -22,8 +22,12 @@ public:
 	virtual void combo();
 	virtual void spike();
 	virtual void rage();
+	virtual void move();
+	virtual void death();
 
 	virtual void fastForward();
+
+	virtual ObjectType getType() { return OBJ_TENTACLE; }
 
 private:
 	//Box updatableBox;
