@@ -228,5 +228,5 @@ int ScientistSObj::serialize(char * buf) {
 	*(int *)buf = this->transformduration; buf += 4;
 	*(int *)buf = this->currenttarget; buf += 4;
 	*(int *)buf = (int)this->transformclass; buf += 4;
-	return PlayerSObj::serialize(buf) + 12;
+	return PlayerSObj::serialize(buf) + 16;
 }

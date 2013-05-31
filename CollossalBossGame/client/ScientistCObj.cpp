@@ -2,9 +2,12 @@
 
 
 
-ScientistCObj::ScientistCObj(uint id, char *data) : PlayerCObj(id, data)
+ScientistCObj::ScientistCObj(uint id, char *data) : PlayerCObj(id, data+16)
 {
-	
+	this->transformdelay = *(int *)data; data += 4;
+	this->transformduration = *(int *)data; data += 4;
+	this->transformtargetid = *(int *)data; data += 4;
+	this->transformedclass = (CharacterClass)*(int *)data; data += 4;
 }
 
 
