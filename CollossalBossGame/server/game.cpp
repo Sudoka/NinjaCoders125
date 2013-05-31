@@ -18,6 +18,7 @@
 #include "TentacleSObj.h"
 #include "ConfigurationManager.h"
 #include "ArenaWallSObj.h"
+#include "CyborgSObj.h"
 
 /*
  * buildRoom()
@@ -158,6 +159,7 @@ void gameInit() {
 	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
 	som->add(monster);
 	addPlatforms();
+
 
 /*
 	Point_t pos = Point_t(0, 10, 15);

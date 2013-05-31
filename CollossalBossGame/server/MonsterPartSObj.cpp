@@ -22,6 +22,7 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 	stateCounter = 0;
 	attacked = false; // haven't been attacked yet
 	currStateDone = true; // no states have started yet
+	modelAnimationState = M_IDLE;
 
 	GameServer::get()->state.monsterspawn();
 }
@@ -121,7 +122,7 @@ bool MonsterPartSObj::update() {
 		}
 
 		///////////////////// State logic ///////////////////////
-		//actionState = ATTACK_ACTION;
+		//actionState = SPIKE_ACTION;
 		switch(actionState)
 		{
 		case IDLE_ACTION:

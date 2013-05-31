@@ -221,6 +221,7 @@ RenderEngine::~RenderEngine() {
 	delete this->xAnimator;
 	delete hud;
 	delete cam;
+	delete xAnimator;
 }
 
 void RenderEngine::drawHUD() {

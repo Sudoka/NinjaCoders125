@@ -1,7 +1,6 @@
 #pragma once
 
 #include "PlayerSObj.h"
-#include "HarpoonSObj.h"
 
 class ScientistSObj : public PlayerSObj
 {
@@ -11,12 +10,28 @@ public:
 
 	virtual void initialize();
 	virtual void clearAccessory();
-	HarpoonSObj * hso;
+	virtual int serialize(char * buf);
+	int harpoon;
 
 protected:
 	virtual void actionCharge(bool buttondown);
+	virtual void CyborgActionCharge(bool buttondown);
+	virtual void ShooterActionCharge(bool buttondown);
+	virtual void MechanicActionCharge(bool buttondown);
+	virtual void ScientistActionCharge(bool buttondown);
+
+	virtual void clearScientistAccessory();
+	virtual void clearMechanicAccessory();
+
 	virtual void actionAttack();
-	PlayerSObj * currentTarget;
-	CharacterClass whichOne;
+
+	// Mechanic Variables
+	int delay, delaycounter;
+	bool delaytrigger;
+
+	CharacterClass transformclass;
+	int currenttarget;
+	int transformdelay;
+	int transformduration;
 };
 

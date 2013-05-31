@@ -149,17 +149,17 @@ void ServerNetworkManager::update() {
 				// Ok, since we should only have one object on both sides, the id's will match
 				// but how do we get them matching later? maybe the server should send
 				// the client the id back or something?
-				switch(/*client_id*/3) {
+				switch(client_id) {
 					case 0:
 						o = new CyborgSObj(som->genId(), client_id);
 						break;
-					case 3:
+					case 1:
 						o = new ShooterSObj(som->genId(), client_id);
 						break;
-					case 1:
+					case 2:
 						o = new MechanicSObj(som->genId(), client_id);
 						break;
-					case 2:
+					case 3:
 						o = new ScientistSObj(som->genId(), client_id);
 						break;
 				}
@@ -213,9 +213,9 @@ void ServerNetworkManager::receiveFromClients() {
 			if(debugFlag)
 				DC::get()->print(TIMESTAMP | LOGFILE, "Iteration: %d packet_type: %d object_id: %d packet_number: %d command_type: %d\n", packet.iteration, packet.packet_type, packet.object_id, packet.packet_number, packet.command_type);
 			// </Log Packet>
+			PlayerSObj* plyr;
             switch (packet.packet_type) {
 				ServerObject* destObject;
-				PlayerSObj * plyr;
                 case INIT_CONNECTION:
                     if(debugFlag) DC::get()->print("server received init packet from client %d\n", iter->first);
                     break;
@@ -228,8 +228,8 @@ void ServerNetworkManager::receiveFromClients() {
 					}
                     break;
 				case GAMESTATE_MANAGER:
-					plyr = (PlayerSObj *)SOM::get()->find(packet.object_id);
-					GameServer::get()->recieveInput(packet.packet_data, plyr->clientId);
+					plyr = reinterpret_cast<PlayerSObj*>(SOM::get()->find(packet.object_id));
+					if (plyr != NULL) GameServer::get()->recieveInput(packet.packet_data, plyr->clientId);
 					break;
 				case CLIENT_READY:
 					// GameServer::get()->state.clientready(packet.object_id);
