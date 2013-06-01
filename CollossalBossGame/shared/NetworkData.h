@@ -61,6 +61,10 @@ enum Model {
     MDL_TENTACLE_4,
     MDL_TENTACLE_5,
 	MDL_HEAD_1,
+	MDL_HEAD_2,
+	MDL_HEAD_3,
+	MDL_HEAD_4,
+	MDL_HEAD_5,
     MDL_FLOOR,
     MDL_CEILING,
 	MDL_EAST_WALL,
@@ -91,8 +95,10 @@ enum ObjectType {
 	OBJ_PLAYER,
 	OBJ_MONSTER,
 	OBJ_TENTACLE,
+	OBJ_HEAD,
 	OBJ_RAGE,
 	OBJ_BULLET,
+	OBJ_FIREBALL,
 	OBJ_HARPOON,
 	OBJ_STUNGUN,
 	NUM_OBJS
@@ -207,17 +213,26 @@ struct CreateHeader {
 /*
  * State information for the player not encoded by the position
  */
+enum PlayerBooleanStates {
+	PLAYER_NONE = 0x0,
+	PLAYER_ZOOM = 0x1,
+	PLAYER_NUM_STATES
+};
+
 struct PlayerState {
     Model modelNum;
 	int health;
 	int ready;
 	float charge;
+	int scientisttransformdelay;
+	int scientisttransformduration;
 	int animationstate;
 	PlayerSoundState sState;
 	PlayerSoundTrigger sTrig;
 	Quat_t camRot;
 	float camPitch;
 	float camDist;
+	int bStates;	//General state variable where different booleans can be concatenated
 };
 
 /*

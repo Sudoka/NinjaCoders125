@@ -378,7 +378,7 @@ void TentacleSObj::move() {
 	else if (stateCounter == 16)
 	{
 		Frame* currFrame = this->getPhysicsModel()->ref;
-		Frame newFrame = this->overlord->updatePosition(*currFrame);
+		Frame newFrame = this->overlord->updatePosition(*currFrame, this->getType());
 		currFrame->setPos(newFrame.getPos());
 		currFrame->setRot(newFrame.getRot());
 		
@@ -441,7 +441,6 @@ void TentacleSObj::death() {
 
 	currStateDone = (stateCounter == 20);
 }
-
 
 /*fastForwardAnimation
  *	We have gotten a collision with a static object, so to make sure we don't 

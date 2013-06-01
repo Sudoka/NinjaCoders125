@@ -25,8 +25,9 @@ public:
 	virtual void move();
 	virtual void death();
 
-
 	virtual void fastForward();
+
+	virtual ObjectType getType() { return OBJ_TENTACLE; }
 
 private:
 	//Box updatableBox;

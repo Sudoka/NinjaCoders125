@@ -2,7 +2,7 @@
 #include "MonsterPartSObj.h"
 #include "MonsterSObj.h"
 
-#define SHOOT_CYCLE 30
+#define SHOOT_CYCLE 50
 
 class HeadSObj : public MonsterPartSObj
 {
@@ -19,6 +19,8 @@ public:
 	virtual void rage();
 	virtual void move();
 	virtual void death();
+
+	virtual ObjectType getType() { return OBJ_HEAD; }
 
 private:
 	int fireballForce;

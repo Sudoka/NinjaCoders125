@@ -28,17 +28,17 @@ public:
 
 	int ready;
 
-private:
+protected:
 	RenderModel * box;
 	int camHeight;
 	int health;
+	int bStates;
 	float charge;
 	RenderModel *rm;
 	SoundSource *ss;
 	float camPitch;
 	float camDist;
 	Quat_t camRot;
-	ChargeEffect* chargingEffect;
 
 	//sounds
 	uint jumpsound;

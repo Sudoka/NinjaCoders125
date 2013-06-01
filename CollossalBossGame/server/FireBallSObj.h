@@ -11,7 +11,7 @@ public:
 	virtual bool update();
 	virtual PhysicsModel *getPhysicsModel() { return pm; }
 	virtual int serialize(char * buf);
-	virtual ObjectType getType() { return OBJ_BULLET; }
+	virtual ObjectType getType() { return OBJ_FIREBALL; }
 	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal);
 	Vec3f getNormal() { return normal; }
 	char serialbuffer[100];

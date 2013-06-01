@@ -32,7 +32,7 @@ void PlayerSObj::initialize() {
 	swordDamage = CM::get()->find_config_as_int("SWORD_DAMAGE");
 	chargeDamage = CM::get()->find_config_as_int("CHARGE_DAMAGE");
 	chargeUpdate = CM::get()->find_config_as_float("CHARGE_UPDATE");
-	this->health = 1; //CM::get()->find_config_as_int("INIT_HEALTH");
+	this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 
 
 	if(SOM::get()->debugFlag) DC::get()->print("Initialized new PlayerSObj %d\n", this->getId());
@@ -96,6 +96,8 @@ void PlayerSObj::initialize() {
 
 	scientistBuffCounter = 0;
 	scientistBuffDecreasing = false;
+	zoomed = false;
+	setFlag(IS_DIRTY, true);
 }
 
 PlayerSObj::~PlayerSObj(void) {
@@ -139,7 +141,9 @@ bool PlayerSObj::update() {
 			this->targetlockon = -1;
 		}
 
-		if(istat.zoom) {
+
+		zoomed = istat.zoom;	//this logic may or may not change
+		if(zoomed) {
 			camDist = camDistMin;
 		} else {
 			camDist = camDistMax;
@@ -170,7 +174,7 @@ bool PlayerSObj::update() {
 		//Update the yaw rotation of the player (about the default up vector)
 		if(fabs(istat.forwardDist) > 0.0f || fabs(istat.rightDist) > 0.0f) {
 			yaw = camYaw + istat.rotAngle;
-		} else if(istat.zoom) {
+		} else if(zoomed) {
 			yaw = camYaw;
 		}
 
@@ -236,6 +240,8 @@ bool PlayerSObj::update() {
 			this->attacking = false;
 		}
 	}
+	
+	setFlag(IS_DIRTY, true);	//This is probably a safe assumption
 
 	return false;
 }
@@ -277,7 +283,7 @@ void PlayerSObj::controlCamera(const Quat_t &upRot) {
 		}
 
 		//Update the camera-lock state: Locked to or unlocked from the player
-		if(istat.camLock && !istat.zoom) {
+		if(istat.camLock && !zoomed) {
 			camLocked = true;
 		} else if(camLocked && fabs(istat.rotHoriz) > 0) {
 			camLocked = false;
@@ -341,6 +347,12 @@ int PlayerSObj::serialize(char * buf) {
 	state->camPitch = this->camPitch;
 	state->camDist = this->camDist;
 
+	//'or together any boolean states
+	state->bStates = PLAYER_NONE;
+	if(zoomed) {
+		state->bStates |= PLAYER_ZOOM;
+	}
+
 	if (SOM::get()->collisionMode)
 	{
 		CollisionState *collState = (CollisionState*)(buf + sizeof(PlayerState));
@@ -375,7 +387,7 @@ void PlayerSObj::deserialize(char* newInput)
 }
 
 void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
-	if(obj->getType() == OBJ_BULLET) {
+	if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_FIREBALL) {
 		this->health-=3;
 		if(this->health < 0) health = 0;
 		if(this->health > 100) health = 100;

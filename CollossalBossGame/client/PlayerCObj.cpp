@@ -1,5 +1,4 @@
 #include "PlayerCObj.h"
-#include "RenderEngine.h"
 #include "NetworkData.h"
 #include "ClientObjectManager.h"
 #include "ClientEngine.h"
@@ -7,6 +6,7 @@
 #include "defs.h"
 #include <math.h>
 #include <sstream>
+#include "RenderEngine.h"
 
 #define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
 
@@ -24,9 +24,6 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	camDist = 0;
 	camPitch = DEFAULT_PITCH_10;
 	ready = false;
-	chargingEffect = new ChargeEffect(10);
-	// Register with RE, SO SMART :O
-	RE::get()->addParticleEffect(chargingEffect);
 	this->camHeight = CM::get()->find_config_as_int("CAM_HEIGHT");
 }
 
@@ -34,7 +31,6 @@ PlayerCObj::~PlayerCObj(void)
 {
 	delete rm;
 	delete ss;
-	RE::get()->removeParticleEffect(chargingEffect);
 
 	// todo, figure out what it should be then config
 	camHeight = 0;
@@ -53,6 +49,7 @@ void PlayerCObj::showStatus()
 bool PlayerCObj::update() {
 	//Move the camera to follow the player
 	if(COM::get()->player_id == getId()) {
+		rm->setInvisible(bStates & PLAYER_ZOOM);
 		XboxController *xctrl = CE::getController();
 		if(xctrl->isConnected()) {
 			/*
@@ -77,8 +74,6 @@ bool PlayerCObj::update() {
 		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*(float)camHeight;
 		RE::get()->getCamera()->update(objPos, camRot, camPitch, camDist);
 		showStatus();
-		chargingEffect->setPosition(objPos, (int)charge);
-		chargingEffect->update(.33f);
 	}
 
 	if(this->sTrig == SOUND_PLAYER_JUMP)
@@ -99,6 +94,7 @@ void PlayerCObj::deserialize(char* newState) {
 	camRot = state->camRot;
 	camPitch = state->camPitch;
 	camDist = state->camDist;
+	bStates = state->bStates;
 
 	if(this->ready == false) {
 		RE::get()->gamestarted = false;

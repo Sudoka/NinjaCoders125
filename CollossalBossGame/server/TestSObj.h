@@ -11,7 +11,7 @@
 
 class TestSObj : public ServerObject {
 public:
-	TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir = TEST_STILL);
+	TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir = TEST_STILL, bool floating = false);
 	virtual ~TestSObj(void);
 
 	virtual bool update();
@@ -29,5 +29,6 @@ private:
 	int t;
 	Box bxVol;
 	uint testBoxIndex;
+	bool floating;
 };
 

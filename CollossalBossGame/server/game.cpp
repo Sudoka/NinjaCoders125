@@ -86,23 +86,23 @@ void addPlatforms()
 
 	for(unsigned int i = 0; i < moving_box_placements.size(); i+=5)
 	{
-		TestSObj * platform_east = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i], Quat_t(), TEST_EAST);
+		TestSObj * platform_east = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i], Quat_t(), TEST_EAST, true);
 		platform_east->setFlag(IS_FLOATING, true);
 		som->add(platform_east);
 
-		TestSObj * platform_north = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+1], Quat_t(), TEST_NORTH);
+		TestSObj * platform_north = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+1], Quat_t(), TEST_NORTH, true);
 		platform_north->setFlag(IS_FLOATING, true);
 		som->add(platform_north);
 
-		TestSObj * platform_west = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+2], Quat_t(), TEST_WEST);
+		TestSObj * platform_west = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+2], Quat_t(), TEST_WEST, true);
 		platform_west->setFlag(IS_FLOATING, true);
 		som->add(platform_west);
 
-		TestSObj * platform_south = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+3], Quat_t(), TEST_SOUTH);
+		TestSObj * platform_south = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+3], Quat_t(), TEST_SOUTH, true);
 		platform_south->setFlag(IS_FLOATING, true);
 		som->add(platform_south);
 
-		TestSObj * platform = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+4], Quat_t());
+		TestSObj * platform = new TestSObj(som->genId(), MDL_TEST_BOX, moving_box_placements[i+4], Quat_t(), true);
 		platform->setFlag(IS_FLOATING, true);
 		som->add(platform);
 
@@ -158,6 +158,7 @@ void gameInit() {
 	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
 	som->add(monster);
 	addPlatforms();
+
 
 /*
 	Point_t pos = Point_t(0, 10, 15);

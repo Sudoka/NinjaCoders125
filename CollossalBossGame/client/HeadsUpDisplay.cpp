@@ -50,16 +50,16 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 
 
 	D3DXCreateFont(	direct3dDevice,     //D3D Device
-				    22,                       //Font height
+				    64,                       //Font height
 					0,					      //Font width
-					FW_NORMAL,                //Font Weight
+					FW_BOLD,                 //Font Weight
 					1,                        //MipLevels
 					false,                    //Italic
 					DEFAULT_CHARSET,          //CharSet
 					OUT_DEFAULT_PRECIS,       //OutputPrecision
 					ANTIALIASED_QUALITY,      //Quality
-					DEFAULT_PITCH|FF_DONTCARE,//PitchAndFamily
-					"Georgia",                //pFacename,
+					DEFAULT_PITCH|FF_MODERN,//PitchAndFamily
+					"Courier New",            //pFacename,
 					&direct3dText);     //ppFont
 	D3DXCreateLine(direct3dDevice, &healthLine);
 	D3DXCreateLine(direct3dDevice, &monsterLine);
@@ -540,21 +540,32 @@ void HeadsUpDisplay::displayGameStats() {
 	displaytexture(&blackscreen, &blk, &blackscreentxt);
 
 	RECT middleofscreen;
-	SetRect(&middleofscreen, hudTopX+300, hudTopY+300, 1024, 768);
+	SetRect(&middleofscreen, hudTopX+150, hudTopY+250, 1024, 768);
+	RECT middleofscreen2;
+	SetRect(&middleofscreen2, hudTopX+900, hudTopY+250, 1024, 768);
+	RECT middleofscreen3;
+	SetRect(&middleofscreen3, hudTopX+150, hudTopY+100, 1024, 768);
 	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
 	ostringstream ss;
-	ss << "Death by Player:\nPlayer 1: " << CE::get()->getState().playerdeathstat[0] << "\n";
+	ostringstream ss1;
+	ostringstream ss2;
+	ss2 << "Whack-a-Hydra!\n";
+	ss << "Player 1 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[0] << "\n";
 	if(CE::get()->getState().totalPlayerCount > 1) {
-		ss << "Player 2: " << CE::get()->getState().playerdeathstat[1] << "\n";
+		ss << "Player 2 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[1] << "\n";
 	}
 	if(CE::get()->getState().totalPlayerCount > 2) {
-		ss << "Player 3: " << CE::get()->getState().playerdeathstat[2] << "\n";
+		ss << "Player 3 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[2] << "\n";
 	}
 	if(CE::get()->getState().totalPlayerCount > 3) {
-		ss << "Player 4: " << CE::get()->getState().playerdeathstat[3] << "\n";
+		ss << "Player 4 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[3] << "\n";
 	}
-	ss << "Monster Killed: " << CE::get()->getState().monsterDeathCount;
-    direct3dText->DrawText(sprite1, ss.str().c_str(), -1, &middleofscreen, DT_LEFT|DT_NOCLIP, 0xFFFFFFFF);
+	ss << "\nMonster Kills: \n"; ss1 << "\n" << CE::get()->getState().monsterDeathCount;
+	//DT_NOCLIP
+    direct3dText->DrawText(sprite1, ss.str().c_str(), -1, &middleofscreen, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(100, 100, 100));//0xFFFFFFFF);
+    direct3dText->DrawText(sprite1, ss2.str().c_str(), -1, &middleofscreen3, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(255, 255, 255));//0xFFFFFFFF);
+//    direct3dText->DrawText(sprite1, ss1.str().c_str(), -1, &middleofscreen2, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(0, 100, 0));//0xFFFFFFFF);
+    direct3dText->DrawText(sprite1, ss1.str().c_str(), -1, &middleofscreen2, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(175, 0, 0));//0xFFFFFFFF);
 	sprite1->End();
 }
 

@@ -30,7 +30,7 @@ public:
 	void addPart(MonsterPartSObj* t) { parts.insert(t); }
 	void removePart(MonsterPartSObj* t);
 
-	Frame updatePosition(Frame oldPos);
+	Frame updatePosition(Frame oldPos, ObjectType childType);
 
 	char serialbuffer[100];
 
@@ -40,7 +40,8 @@ private:
 	int phase; // what phase of the monster you're in
 
 	set<MonsterPartSObj*> parts;
-	vector<Frame> availablePlacements;
+	vector<Frame> availTentaclePlacements;
+	vector<Frame> availHeadPlacements;
 	//vector<Point_t> placements;
 	uint numParts;
 

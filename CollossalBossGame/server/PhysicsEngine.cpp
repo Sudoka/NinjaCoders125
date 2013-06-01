@@ -100,15 +100,17 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	if(fabs(dx) > 0 || fabs(dy) > 0 || fabs(dz) > 0) {
 		obj->setFlag(IS_FALLING, true);
 		mdl->frictCoeff = frictAir;
+		return true;
 	}
 
-	return true;	//We'll add a detection for has-moved later
+	return false;
 }
 
 void PhysicsEngine::applyPhysics(ServerObject *obj1, ServerObject *obj2) {
 	CollisionModel *cmdl1 = obj1->getCollisionModel();
 	if( obj1->getPhysicsModel() == NULL ||
-		obj2->getPhysicsModel() == NULL) {
+		obj2->getPhysicsModel() == NULL ||
+		(obj1->getFlag(IS_STATIC) && obj2->getFlag(IS_STATIC))) {
 			return;
 	}
 
@@ -191,7 +193,7 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, HMap
 			}
 			break;
 		case CMDL_HMAP:
-			DC::get()->print("WARNING: HMap on HMap collision- skipping\n");
+			//DC::get()->print("WARNING: HMap on HMap collision- skipping\n");
 			break;
 		default:
 			//Unrecognized collision type
@@ -210,10 +212,9 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	Vec3f shift1, shift2, axis;
 
 	//Passable or static collision objects should not be moved because of a collision
-	if((obj1->getFlag(IS_PASSABLE) || obj2->getFlag(IS_PASSABLE)) ||
-			(obj1->getFlag(IS_STATIC) && obj2->getFlag(IS_STATIC))) {
-					obj1->onCollision(obj2, Vec3f());
-					obj2->onCollision(obj1, Vec3f());
+	if((obj1->getFlag(IS_PASSABLE) || obj2->getFlag(IS_PASSABLE))) {
+		obj1->onCollision(obj2, Vec3f());
+		obj2->onCollision(obj1, Vec3f());
 		return;
 	}
 
