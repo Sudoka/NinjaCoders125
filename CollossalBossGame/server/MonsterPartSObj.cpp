@@ -122,8 +122,7 @@ bool MonsterPartSObj::update() {
 
 		///////////////////// State logic ///////////////////////
 		//actionState = ATTACK_ACTION;
-		move();
-		/*
+		
 		switch(actionState)
 		{
 		case IDLE_ACTION:
@@ -154,7 +153,7 @@ bool MonsterPartSObj::update() {
 			if(actionState > NUM_MONSTER_ACTIONS) DC::get()->print("ERROR: Monster state %d not known\n", actionState);
 			break;
 		}
-		*/
+		
 		// Reset attack every update loop, onCollision re-sets it
 		attacked = false;
 	}
