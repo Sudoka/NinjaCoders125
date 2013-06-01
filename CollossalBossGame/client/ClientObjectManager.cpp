@@ -140,6 +140,9 @@ void ClientObjectManager::create(uint id, char *data) {
 	case OBJ_BULLET:
 		obj = new BulletCObj(id, data + sizeof(CreateHeader));
 		break;
+	case OBJ_FIREBALL:
+		obj = new BulletCObj(id, data + sizeof(CreateHeader));
+		break;
 	case OBJ_HARPOON:
 		obj = new HarpoonCObj(id, data + sizeof(CreateHeader));
 		break;

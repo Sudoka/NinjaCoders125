@@ -387,7 +387,7 @@ void PlayerSObj::deserialize(char* newInput)
 }
 
 void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
-	if(obj->getType() == OBJ_BULLET) {
+	if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_FIREBALL) {
 		this->health-=3;
 		if(this->health < 0) health = 0;
 		if(this->health > 100) health = 100;

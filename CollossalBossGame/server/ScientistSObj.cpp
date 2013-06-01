@@ -44,6 +44,7 @@ void ScientistSObj::actionCharge(bool buttondown) {
 			transformclass = CHAR_CLASS_SCIENTIST;
 			this->currenttarget = -1;
 			clearAccessory();
+			damage = 0;
 		}
 	}
 	switch(transformclass) {
@@ -118,12 +119,13 @@ void ScientistSObj::CyborgActionCharge(bool buttondown) {
 		if(charge > 13.0f) charge = 13.0f;
 	} else {
 		// reset charge
-		if(charging) {
+		if(charging && charge > 0.0f) {
 			float anglepi = (fabs(camPitch*1.5f) > (M_PI/4.f)) ? camPitch : camPitch*1.5f;
 			float upforce = -sin(anglepi);
 			float forwardforce = cos(anglepi);
 			Vec3f force = rotate(Vec3f(0, upforce * chargeForce * charge, forwardforce * chargeForce * charge), pm->ref->getRot());
 			pm->applyForce(force);
+			damage = this->chargeDamage;
 		}
 		charge = 0.0f;
 		charging = false;
@@ -225,4 +227,19 @@ int ScientistSObj::serialize(char * buf) {
 	*(int *)buf = this->currenttarget; buf += 4;
 	*(int *)buf = (int)this->transformclass; buf += 4;
 	return PlayerSObj::serialize(buf) + 16;
+}
+
+void ScientistSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
+	if(this->transformclass == CHAR_CLASS_CYBORG) {
+		this->CyborgOnCollision(obj, collNorm);
+	} else {
+		PlayerSObj::onCollision(obj, collNorm);
+	}
+}
+
+void ScientistSObj::CyborgOnCollision(ServerObject *obj, const Vec3f &collNorm) {
+	// Reset Damage
+	damage = 0;
+
+	PlayerSObj::onCollision(obj, collNorm);
 }
