@@ -17,6 +17,8 @@ public:
 	virtual void combo();
 	virtual void spike();
 	virtual void rage();
+	virtual void move();
+	virtual void death();
 
 private:
 	int fireballForce;

@@ -43,10 +43,7 @@ public:
 
 	//////////////////// ACTIONS /////////////////////
 
-	// These are the same
-	virtual void move();
-	virtual void death();
-
+	// None of the actions are the same, since collision boxes are for each type
 	// These are different (should be implemented)
 	virtual void idle() = 0;
 	virtual void probe() = 0;
@@ -54,6 +51,9 @@ public:
 	virtual void combo() = 0;
 	virtual void spike() = 0;
 	virtual void rage() = 0; // this might be the same...?
+	virtual void move() = 0;
+	virtual void death() = 0;
+
 
 protected:
 	int health;

@@ -122,6 +122,8 @@ bool MonsterPartSObj::update() {
 
 		///////////////////// State logic ///////////////////////
 		//actionState = ATTACK_ACTION;
+		move();
+		/*
 		switch(actionState)
 		{
 		case IDLE_ACTION:
@@ -152,52 +154,11 @@ bool MonsterPartSObj::update() {
 			if(actionState > NUM_MONSTER_ACTIONS) DC::get()->print("ERROR: Monster state %d not known\n", actionState);
 			break;
 		}
-		
+		*/
 		// Reset attack every update loop, onCollision re-sets it
 		attacked = false;
 	}
 	return false;
-}
-
-void MonsterPartSObj::move() {
-	// move in 16
-	// move out 18
-
-	// Wriggle out
-	if (stateCounter < 16)
-	{
-		modelAnimationState = M_EXIT;
-	}
-	// Switch positions
-	else if (stateCounter == 16)
-	{
-		Frame* currFrame = this->getPhysicsModel()->ref;
-		Frame newFrame = this->overlord->updatePosition(*currFrame);
-		currFrame->setPos(newFrame.getPos());
-		currFrame->setRot(newFrame.getRot());
-	}
-	// Wriggle back in
-	else
-	{
-		modelAnimationState = M_ENTER;
-	}
-
-	currStateDone = (stateCounter == 33);
-}
-
-void MonsterPartSObj::death() {
-	modelAnimationState = M_DEATH;
-
-	// No collision boxes in death
-	if (stateCounter == 0)
-	{
-		CollisionModel *cm = getCollisionModel();
-		((AabbElement*)cm->get(0))->bx = Box();
-		((AabbElement*)cm->get(1))->bx = Box();
-		((AabbElement*)cm->get(2))->bx = Box();
-	}
-
-	currStateDone = (stateCounter == 20);
 }
 
 void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {

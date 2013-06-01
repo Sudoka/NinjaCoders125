@@ -193,3 +193,47 @@ void HeadSObj::rage() {
 	// when the object dies we're done raging
 	currStateDone = stateCounter >= RageSObj::lifetime;
 }
+
+void HeadSObj::move() {
+	// move in 16
+	// move out 18
+
+	// Wriggle out
+	if (stateCounter == 0) 
+	{
+	}
+	else if (stateCounter < 16)
+	{
+		modelAnimationState = M_EXIT;
+	}
+	// Switch positions
+	else if (stateCounter == 16)
+	{
+		Frame* currFrame = this->getPhysicsModel()->ref;
+		Frame newFrame = this->overlord->updatePosition(*currFrame);
+		currFrame->setPos(newFrame.getPos());
+		currFrame->setRot(newFrame.getRot());
+	}
+	// Wriggle back in
+	else
+	{
+		modelAnimationState = M_ENTER;
+	}
+
+	currStateDone = (stateCounter == 33);
+}
+
+void HeadSObj::death() {
+	modelAnimationState = M_DEATH;
+
+	// No collision boxes in death
+	if (stateCounter == 0)
+	{
+		CollisionModel *cm = getCollisionModel();
+		((AabbElement*)cm->get(0))->bx = Box();
+		((AabbElement*)cm->get(1))->bx = Box();
+		((AabbElement*)cm->get(2))->bx = Box();
+	}
+
+	currStateDone = (stateCounter == 20);
+}
