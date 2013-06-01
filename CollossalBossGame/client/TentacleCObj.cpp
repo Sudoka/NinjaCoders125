@@ -45,8 +45,7 @@ bool TentacleCObj::update() {
 
 		float change = .00002f;
 		// NOTE: to make fog super quick change .01 to .00004
-		if(densityCounter < .00002 * 15)
-		{
+		if(densityCounter < .004) { 
 			RE::get()->startFog(density);
 			smoking->setPosition(rm->getFrameOfRef()->getPos());
 			smoking->update(.33f); 
