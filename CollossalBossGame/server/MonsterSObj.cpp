@@ -209,8 +209,8 @@ bool MonsterSObj::update() {
 				currPlace = availHeadPlacements.back();
 				availHeadPlacements.pop_back();
 
-				newPart = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), currPlace.getPos(), currPlace.getRot(), this);
-				//newPart = new TentacleSObj(SOM::get()->genId(), (Model)(i + MDL_TENTACLE_1), currPlace.getPos(), currPlace.getRot(), this);
+				//newPart = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), currPlace.getPos(), currPlace.getRot(), this);
+				newPart = new TentacleSObj(SOM::get()->genId(), (Model)(i + MDL_TENTACLE_1), currPlace.getPos(), currPlace.getRot(), this);
 				break;
 			case 1:
 				// pick the random position
