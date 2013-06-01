@@ -87,8 +87,8 @@ void MonsterSObj::setupAvailablePlacements()
 	//availHeadPlacements.push_back(Frame(Vec3f(75.f, -20.f, 10.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/4) * Quat_t(Vec3f(1.f, 0, 0), (float)3*M_PI/10)));
 
 	////// East Wall (non-window)
-	//availHeadPlacements.push_back(Frame(Vec3f(640.5f, 95.f, 75.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/2)));
-	//availHeadPlacements.push_back(Frame(Vec3f(640.5f, 225.f, -160.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/2)));
+	availHeadPlacements.push_back(Frame(Vec3f(640.5f, 95.f, 75.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/2)));
+	availHeadPlacements.push_back(Frame(Vec3f(640.5f, 225.f, -160.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/2)));
 
 	// North Wall
 	availHeadPlacements.push_back(Frame(Vec3f(525.5f, 147.5f, -360.f),  Quat_t(Vec3f(0, 0, 1.f), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
@@ -206,8 +206,8 @@ bool MonsterSObj::update() {
 			{
 			case 0:
 				// pick the random position TODO THIS SOULD BE TENTACLE PLACEMENTS!
-				currPlace = availHeadPlacements.back();
-				availHeadPlacements.pop_back();
+				currPlace = availTentaclePlacements.back();
+				availTentaclePlacements.pop_back();
 
 				//newPart = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), currPlace.getPos(), currPlace.getRot(), this);
 				newPart = new TentacleSObj(SOM::get()->genId(), (Model)(i + MDL_TENTACLE_1), currPlace.getPos(), currPlace.getRot(), this);

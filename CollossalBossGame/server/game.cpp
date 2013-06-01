@@ -155,7 +155,7 @@ void gameInit() {
 	//PE::get()->setGravDir(NORTH);
 
 	//MonsterSObj* monster = new MonsterSObj(som->genId(), 2);
-	MonsterSObj* monster = new MonsterSObj(som->genId(), 1); // 4
+	MonsterSObj* monster = new MonsterSObj(som->genId(), 5); // 4
 	som->add(monster);
 	addPlatforms();
 
