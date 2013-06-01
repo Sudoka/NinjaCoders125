@@ -133,7 +133,51 @@ void TentacleSObj::idle() {
 
 // TODO PROBE!!!
 void TentacleSObj::probe() {
-	idle();
+	CollisionModel *cm = getCollisionModel();
+	Box base =	 ((AabbElement*)cm->get(0))->bx; //this->getPhysicsModel()->colBoxes.at(0);
+	Box middle = ((AabbElement*)cm->get(1))->bx; //this->getPhysicsModel()->colBoxes.at(1);
+	Box tip =	 ((AabbElement*)cm->get(2))->bx; //this->getPhysicsModel()->colBoxes.at(2);
+	Vec4f axis = this->getPhysicsModel()->ref->getRot();
+		
+	Vec3f changePosT = Vec3f(), changeProportionT = Vec3f();
+	Vec3f changePosM = Vec3f(), changeProportionM = Vec3f();
+
+	if (stateCounter == 0)
+	{
+		// Keep initial idle boxes
+		Box origBase = idleBoxes[0];
+		Box origMiddle = idleBoxes[1];
+		Box origTip = idleBoxes[2];
+
+		//get the actual axis
+		origBase.rotate(axis);
+		origMiddle.rotate(axis);
+		origTip.rotate(axis);
+
+		CollisionModel *cm = getCollisionModel();
+		((AabbElement*)cm->get(0))->bx = origBase;
+		((AabbElement*)cm->get(1))->bx = origMiddle;
+		((AabbElement*)cm->get(2))->bx = origTip;
+	} else {		
+		if ( stateCounter < (30) ) {
+			changePosT.y -= 2;
+			changePosM.y -= 2;
+
+		} else {
+			changePosT.y += 2;
+			changePosM.y += 2;
+		}
+		changePosT = axis.rotateToThisAxis(changePosT);
+		changePosM = axis.rotateToThisAxis(changePosM);
+	
+		tip.setRelPos(changePosT);
+		middle.setRelPos(changePosM);
+		
+		((AabbElement*)cm->get(1))->bx = *(middle.fix());	//pm->colBoxes[1] = *(middle.fix());
+		((AabbElement*)cm->get(2))->bx = *(tip.fix());		//pm->colBoxes[2] = *(tip.fix());
+	}
+
+	currStateDone = (stateCounter == 59);
 	modelAnimationState = M_PROBE;
 }
 
