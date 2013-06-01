@@ -343,6 +343,7 @@ void TentacleSObj::spike() {
 
 void TentacleSObj::rage() {
 	modelAnimationState = M_RAGE;
+	CollisionModel *cm = getCollisionModel();
 
 	// First, we create the wave object
 	if (stateCounter == 0) {
@@ -350,29 +351,65 @@ void TentacleSObj::rage() {
 		Vec3f changePos = Vec3f(0,0,-120);
 		changePos = axis.rotateToThisAxis(changePos);
 		SOM::get()->add(new RageSObj(SOM::get()->genId(), pm->ref->getPos() + changePos));
+
+		// for now, keep our initial idle collision boxes
+		Box origBase = idleBoxes[0];
+		Box origMiddle = idleBoxes[1];
+		Box origTip = idleBoxes[2];
+
+		//get the actual axis
+		axis = this->getPhysicsModel()->ref->getRot();
+
+		origBase.setPos(axis.rotateToThisAxis(origBase.getPos()));
+		origBase.setSize(axis.rotateToThisAxis(origBase.getSize()));
+
+		origMiddle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+		origMiddle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+
+		origTip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+		origTip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+
+		((AabbElement*)cm->get(0))->bx = *(origBase.fix());
+		((AabbElement*)cm->get(1))->bx = *(origMiddle.fix());
+		((AabbElement*)cm->get(2))->bx = *(origTip.fix());
+		
+	} else {
+		//get the actual axis
+		Vec4f axis = this->getPhysicsModel()->ref->getRot();
+
+		//and the objects we want to change
+		Box middle = ((AabbElement*)cm->get(1))->bx; //this->getPhysicsModel()->colBoxes.at(1);
+		Box tip =	 ((AabbElement*)cm->get(2))->bx; //this->getPhysicsModel()->colBoxes.at(2);
+
+		Vec3f changePosT = Vec3f();
+		Vec3f changePosM = Vec3f();
+
+		if (stateCounter < RageSObj::lifetime/2)
+		{
+			changePosM.y += 2;
+			changePosM.z -= 1;
+			changePosT.y += 2;
+			changePosT.z -= 1;
+		} else {
+			changePosM.y -= 2;
+			changePosM.z += 1;
+			changePosT.y -= 2;
+			changePosT.z += 1;
+		}
+
+		changePosT = axis.rotateToThisAxis(changePosT);
+		changePosM = axis.rotateToThisAxis(changePosM);
+
+		tip.setRelPos(changePosT);
+		middle.setRelPos(changePosM);
+		
+		// Set new collision boxes
+		((AabbElement*)cm->get(1))->bx = *(middle.fix());	//pm->colBoxes[1] = *(middle.fix());
+		((AabbElement*)cm->get(2))->bx = *(tip.fix());		//pm->colBoxes[2] = *(tip.fix());
+	
 	}
 
-	// for now, keep our initial idle collision boxes
-	Box origBase = idleBoxes[0];
-	Box origMiddle = idleBoxes[1];
-	Box origTip = idleBoxes[2];
 
-	//get the actual axis
-	Vec4f axis = this->getPhysicsModel()->ref->getRot();
-
-	origBase.setPos(axis.rotateToThisAxis(origBase.getPos()));
-	origBase.setSize(axis.rotateToThisAxis(origBase.getSize()));
-
-	origMiddle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
-	origMiddle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
-
-	origTip.setPos(axis.rotateToThisAxis(origTip.getPos()));
-	origTip.setSize(axis.rotateToThisAxis(origTip.getSize()));
-
-	CollisionModel *cm = getCollisionModel();
-	((AabbElement*)cm->get(0))->bx = *(origBase.fix());
-	((AabbElement*)cm->get(1))->bx = *(origMiddle.fix());
-	((AabbElement*)cm->get(2))->bx = *(origTip.fix());
 
 	// when the object dies we're done raging
 	currStateDone = stateCounter >= RageSObj::lifetime;
