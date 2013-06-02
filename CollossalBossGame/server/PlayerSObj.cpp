@@ -27,6 +27,7 @@ PlayerSObj::PlayerSObj(uint id, uint clientId, CharacterClass cc) : ServerObject
 void PlayerSObj::initialize() {
 	// Configuration options
 	jumpDist = CM::get()->find_config_as_float("JUMP_DIST");
+	jumpDiv = CM::get()->find_config_as_float("JUMP_DIV");
 	movDamp = CM::get()->find_config_as_int("MOV_DAMP");
 	chargeForce = CM::get()->find_config_as_float("CHARGE_FORCE");
 	swordDamage = CM::get()->find_config_as_int("SWORD_DAMAGE");
@@ -97,6 +98,7 @@ void PlayerSObj::initialize() {
 	scientistBuffCounter = 0;
 	scientistBuffDecreasing = false;
 	zoomed = false;
+	jumpForceTimer = 0;
 	setFlag(IS_DIRTY, true);
 }
 
@@ -169,6 +171,14 @@ bool PlayerSObj::update() {
 
 		appliedJumpForce = false; // we apply it on collision
 
+		//Apply a small, continuous force based on time jump is pressed
+		if(jumpForceTimer > 0 && istat.jump) {
+			jumpForceTimer--;
+			pm->applyForce(jumpVec * (jumpForceTimer / jumpDiv));
+		} else {
+			jumpForceTimer = 0;
+		}
+
 		// damage = charging ? chargeDamage : 0;
 
 		//Update the yaw rotation of the player (about the default up vector)
@@ -193,10 +203,7 @@ bool PlayerSObj::update() {
 		pm->ref->setRot(qRot);
 
 		//Move the player: apply a force in the appropriate direction
-		float rawRight = istat.rightDist / movDamp;
-		float rawForward = istat.forwardDist / movDamp;
-		float fwdMag = sqrt(rawRight *rawRight + rawForward * rawForward);
-		//Vec3f total = rotate(Vec3f(rawRight, 0, rawForward), qRot);
+		float fwdMag = sqrt(istat.rightDist * istat.rightDist + istat.forwardDist * istat.forwardDist) * pm->frictCoeff / movDamp;
 		Vec3f total = rotate(Vec3f(0, 0, fwdMag), qRot);
 		
 		pm->applyForce(total);
@@ -240,6 +247,13 @@ bool PlayerSObj::update() {
 			this->attacking = false;
 		}
 	}
+
+	if(istat.d_north)	{ PE::get()->setGravDir(NORTH); }
+	if(istat.d_east)	{ PE::get()->setGravDir(EAST); }
+	if(istat.d_up)		{ PE::get()->setGravDir(UP); }
+	if(istat.d_south)	{ PE::get()->setGravDir(SOUTH); }
+	if(istat.d_west)	{ PE::get()->setGravDir(WEST); }
+	if(istat.d_down)	{ PE::get()->setGravDir(DOWN); }
 	
 	setFlag(IS_DIRTY, true);	//This is probably a safe assumption
 
@@ -417,9 +431,10 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 		pm->vel -= pm->vel * dirAxis(PE::get()->getGravDir());
 
 		//Apply jump force
-		Vec3f jumpVec = collNorm - PE::get()->getGravVec();
+		jumpVec = collNorm - PE::get()->getGravVec();
 		jumpVec.normalize();
-		pm->applyForce(jumpVec * jumpDist);
+		jumpForceTimer = jumpDist;
+		pm->applyForce(jumpVec * (jumpForceTimer / jumpDiv));
 
 		//play jump sound
 		sTrig = SOUND_PLAYER_JUMP;

@@ -14,7 +14,7 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir, bo
 
 	switch (modelNum) {
 		case MDL_TEST_CRATE:
-			testBoxIndex = cm->add(new AabbElement(Box( -40, -40, -40, 80, 80, 80)));
+			testBoxIndex = cm->add(new AabbElement(Box( -20, -20, -20, 40, 40, 40)));
 			mass = (rand() % 20) + 10;
 			break;
 		case MDL_TEST_BOX:
@@ -57,6 +57,8 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir, bo
 	pm = new PhysicsModel(pos, rot, (float)mass);
 	t = 0;
 	this->floating = floating;
+	dist = -2.5;
+	counter = 0;
 }
 
 
@@ -73,8 +75,7 @@ bool TestSObj::update() {
 	 * South = -Z (towards player start)
 	 * West  = -X (left of player start)
 	 */
-	static float dist = -2.5;
-	static int counter = 0;
+	
 	int xPos;
 	switch(dir) {
 	case TEST_STILL:

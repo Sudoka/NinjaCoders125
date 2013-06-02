@@ -30,5 +30,7 @@ private:
 	Box bxVol;
 	uint testBoxIndex;
 	bool floating;
+	float dist;
+	int counter;
 };
 
