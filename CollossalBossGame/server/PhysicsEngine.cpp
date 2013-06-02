@@ -62,6 +62,7 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	}
 	
 	Vec3f surfaceShift = Vec3f();
+
 	if(!obj->getFlag(IS_FALLING) && !obj->getFlag(IS_FLOATING)) {
 		ServerObject *obj = SOM::get()->find(mdl->surfaceId);
 		if(obj != NULL && obj->getPhysicsModel() != NULL) {
@@ -185,9 +186,7 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, HMap
 		case CMDL_AABB:
 			bx = ((AabbElement*)(*cur))->bx + obj2->getPhysicsModel()->ref->getPos();
 			if(areColliding(&shift, &dir, bx, pos, *el)) {
-				//TODO: Replace with appropriate collision code!
-				//getCollisionInfo(&shift, &dir, el->bxTotalVolume + pos, bx);
-				handleCollision(obj1, obj2, shift, dir);
+				handleCollision(obj2, obj1, shift, dir);
 			}
 			break;
 		case CMDL_HMAP:
@@ -218,11 +217,11 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	}
 
 	//Handle not-falling status
-	if(flip(dir) == gravDir) {
+	if(flip(dir) == gravDir && (obj2->getFlag(IS_STATIC) || obj2->getFlag(IS_FLOATING) || !obj2->getFlag(IS_FALLING))) {
 		obj1->setFlag(IS_FALLING, false);
 		obj1->getPhysicsModel()->frictCoeff = frictGround;
 		obj1->getPhysicsModel()->surfaceId = obj2->getId();
-	} else if((dir) == gravDir) {
+	} else if((dir) == gravDir && (obj1->getFlag(IS_STATIC) || obj1->getFlag(IS_FLOATING) || !obj1->getFlag(IS_FALLING))) {
 		obj2->setFlag(IS_FALLING, false);
 		obj2->getPhysicsModel()->frictCoeff = frictGround;
 		obj2->getPhysicsModel()->surfaceId = obj1->getId();
@@ -243,6 +242,13 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	//Move the objects by the specified amount
 	mdl1->ref->translate(shift1);
 	mdl2->ref->translate(shift2);
+
+#define floatingConstant 2
+
+	if(this->gravMag == 0.0f) {
+		mdl1->applyForce(dirVec(dir) * floatingConstant);
+		mdl2->applyForce(dirVec(flip(dir)) * floatingConstant);
+	}
 
 	//Inform the logic module of the collision event
 	obj1->onCollision(obj2, dirVec(dir));

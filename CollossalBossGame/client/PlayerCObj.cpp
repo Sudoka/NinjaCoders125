@@ -68,8 +68,8 @@ bool PlayerCObj::update() {
 			}
 			*/
 
-			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
-			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
+			//if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
+			//if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
 		}
 
 		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;

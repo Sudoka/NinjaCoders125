@@ -65,6 +65,7 @@ protected:
 	PhysicsModel *pm;
 	MonsterSObj* overlord;
 	int stateCounter; // keeps track of our frames within each state
+	int slamCounter;  // keeps track of our frames in an individual slam
 	bool currStateDone; // whether or not our current state has gone through it's full cycle
 
 	// player targetting
