@@ -25,4 +25,5 @@ struct inputstatus {
 	float rightDist, forwardDist; // Left Joystick
 	float rotAngle; // Right Joystick
 	float rotVert, rotHoriz;
+	bool d_north, d_east, d_up, d_south, d_west, d_down;
 };
