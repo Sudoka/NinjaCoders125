@@ -68,7 +68,8 @@ void addPlatforms()
 	//---------------------------------------Moving---------------------------------------------
 
 	vector<Point_t> moving_box_placements; //make sure divisible by 5
-	moving_box_placements.push_back(Point_t(10,40,10));
+	moving_box_placements.push_back(Point_t(600,120,110));
+	moving_box_placements.push_back(Point_t(-600,120,-110));
 	//moving_box_placements.push_back(Point_t(110,10,110));
 	//moving_box_placements.push_back(Point_t(120,80,-110));
 	//moving_box_placements.push_back(Point_t(160,90,-110));

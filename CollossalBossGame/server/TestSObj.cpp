@@ -94,7 +94,7 @@ bool TestSObj::update() {
 		xPos = pm->ref->getPos().x;
 		if(xPos == 600)
 		{
-			if(counter == 50)	
+			if(counter == 150)	
 			{
 				counter = 0;
 				dist = -2.5;
@@ -107,7 +107,7 @@ bool TestSObj::update() {
 		}
 		if(xPos == -600)
 		{
-			if(counter == 50)	
+			if(counter == 150)	
 			{
 				counter = 0;
 				dist = 2.5;
