@@ -140,6 +140,9 @@ void ClientObjectManager::create(uint id, char *data) {
 	case OBJ_BULLET:
 		obj = new BulletCObj(id, data + sizeof(CreateHeader));
 		break;
+	case OBJ_FIREBALL:
+		obj = new BulletCObj(id, data + sizeof(CreateHeader));
+		break;
 	case OBJ_HARPOON:
 		obj = new HarpoonCObj(id, data + sizeof(CreateHeader));
 		break;
@@ -147,6 +150,9 @@ void ClientObjectManager::create(uint id, char *data) {
 		obj = new MonsterCObj(id, data + sizeof(CreateHeader));
 		break;
 	case OBJ_TENTACLE:
+		obj = new TentacleCObj(id, data + sizeof(CreateHeader));
+		break;
+	case OBJ_HEAD: // same as tentacles for now, but could be changed?
 		obj = new TentacleCObj(id, data + sizeof(CreateHeader));
 		break;
 	case OBJ_RAGE:

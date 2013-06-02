@@ -31,16 +31,23 @@ void CyborgSObj::actionCharge(bool buttondown) {
 		if(charge > 13.0f) charge = 13.0f;
 	} else {
 		// reset charge
-		if(charging) {
+		if(charging && charge > 0.0f) {
 			float anglepi = (fabs(camPitch*1.5f) > (M_PI/4.f)) ? camPitch : camPitch*1.5f;
 			float upforce = -sin(anglepi);
 			float forwardforce = cos(anglepi);
 			Vec3f force = rotate(Vec3f(0, upforce * chargeForce * charge, forwardforce * chargeForce * charge), pm->ref->getRot());
 			pm->applyForce(force);
+			damage = this->chargeDamage;
 		}
 		charge = 0.0f;
 		charging = false;
 	}
 }
 
+void CyborgSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
+	// Reset Damage
+	damage = 0;
+
+	PlayerSObj::onCollision(obj, collisionNormal);
+}
 

@@ -99,7 +99,7 @@ int BulletSObj::serialize(char * buf) {
 }
 
 void BulletSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
-	if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_HARPOON) {
+	if(obj->getType() == OBJ_FIREBALL || obj->getType() == OBJ_BULLET || obj->getType() == OBJ_HARPOON) {
 		return;
 	}
 

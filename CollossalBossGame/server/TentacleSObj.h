@@ -22,8 +22,12 @@ public:
 	virtual void combo();
 	virtual void spike();
 	virtual void rage();
+	virtual void move();
+	virtual void death();
 
 	virtual void fastForward();
+
+	virtual ObjectType getType() { return OBJ_TENTACLE; }
 
 private:
 	//Box updatableBox;
@@ -35,7 +39,7 @@ private:
 	Quat_t lastRotation;
 
 	// Collision boxes
-	Box slamBoxes[3]; // stores first position for the slam boxes
+	Box moveBoxes[3]; // stores first position for the slam boxes
 	Box spikeBox; // stores spike box =D
 
 	// Helper actions

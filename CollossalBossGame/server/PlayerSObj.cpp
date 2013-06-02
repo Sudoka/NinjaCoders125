@@ -33,7 +33,7 @@ void PlayerSObj::initialize() {
 	swordDamage = CM::get()->find_config_as_int("SWORD_DAMAGE");
 	chargeDamage = CM::get()->find_config_as_int("CHARGE_DAMAGE");
 	chargeUpdate = CM::get()->find_config_as_float("CHARGE_UPDATE");
-	this->health = 1; //CM::get()->find_config_as_int("INIT_HEALTH");
+	this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 
 
 	if(SOM::get()->debugFlag) DC::get()->print("Initialized new PlayerSObj %d\n", this->getId());
@@ -401,7 +401,7 @@ void PlayerSObj::deserialize(char* newInput)
 }
 
 void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
-	if(obj->getType() == OBJ_BULLET) {
+	if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_FIREBALL) {
 		this->health-=3;
 		if(this->health < 0) health = 0;
 		if(this->health > 100) health = 100;
@@ -409,10 +409,14 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 	if(obj->getType() == OBJ_HARPOON) {
 		return;
 	}
+	if(obj->getType() == OBJ_RAGE) {
+		this->health-=.0001;
+	}
 	if(obj->getFlag(IS_HARMFUL) && !(attacking))
 		this->health-=3;
 	if(obj->getFlag(IS_HEALTHY))
 		this->health++;
+
 	if(this->health < 0) health = 0;
 	if(this->health > 100) health = 100;
 

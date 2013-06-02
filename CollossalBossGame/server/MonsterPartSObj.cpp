@@ -22,6 +22,7 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 	stateCounter = 0;
 	attacked = false; // haven't been attacked yet
 	currStateDone = true; // no states have started yet
+	modelAnimationState = M_IDLE;
 
 	GameServer::get()->state.monsterspawn();
 }
@@ -121,7 +122,8 @@ bool MonsterPartSObj::update() {
 		}
 
 		///////////////////// State logic ///////////////////////
-		//actionState = ATTACK_ACTION;
+		//actionState = MOVE_ACTION;
+		
 		switch(actionState)
 		{
 		case IDLE_ACTION:
@@ -152,51 +154,11 @@ bool MonsterPartSObj::update() {
 			if(actionState > NUM_MONSTER_ACTIONS) DC::get()->print("ERROR: Monster state %d not known\n", actionState);
 			break;
 		}
+		
 		// Reset attack every update loop, onCollision re-sets it
 		attacked = false;
 	}
 	return false;
-}
-
-void MonsterPartSObj::move() {
-	// move in 16
-	// move out 18
-
-	// Wriggle out
-	if (stateCounter < 16)
-	{
-		modelAnimationState = M_EXIT;
-	}
-	// Switch positions
-	else if (stateCounter == 16)
-	{
-		Frame* currFrame = this->getPhysicsModel()->ref;
-		Frame newFrame = this->overlord->updatePosition(*currFrame);
-		currFrame->setPos(newFrame.getPos());
-		currFrame->setRot(newFrame.getRot());
-	}
-	// Wriggle back in
-	else
-	{
-		modelAnimationState = M_ENTER;
-	}
-
-	currStateDone = (stateCounter == 33);
-}
-
-void MonsterPartSObj::death() {
-	modelAnimationState = M_DEATH;
-
-	// No collision boxes in death
-	if (stateCounter == 0)
-	{
-		CollisionModel *cm = getCollisionModel();
-		((AabbElement*)cm->get(0))->bx = Box();
-		((AabbElement*)cm->get(1))->bx = Box();
-		((AabbElement*)cm->get(2))->bx = Box();
-	}
-
-	currStateDone = (stateCounter == 20);
 }
 
 void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
@@ -280,7 +242,6 @@ int MonsterPartSObj::serialize(char * buf) {
 	}
 }
 
-#define TAU 6.28318530718
 /**
  * Finds player nearest to us and sets targetting 
  * information in fields according to its position.
@@ -314,9 +275,7 @@ void MonsterPartSObj::findPlayer()
 		if (currDist < minDist) {
 			minDist = currDist;
 			this->playerFound = true;
-			this->playerAngle = (atan2(difference.x, difference.y));
-			if (this->playerAngle < 0)
-				this->playerAngle += TAU;
+			this->playerAngle = (atan2(-1*difference.x, -1*difference.y));
 			this->playerPos = playerPos;
 		}
 	}

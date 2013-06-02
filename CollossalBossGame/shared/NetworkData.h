@@ -61,6 +61,10 @@ enum Model {
     MDL_TENTACLE_4,
     MDL_TENTACLE_5,
 	MDL_HEAD_1,
+	MDL_HEAD_2,
+	MDL_HEAD_3,
+	MDL_HEAD_4,
+	MDL_HEAD_5,
     MDL_FLOOR,
     MDL_CEILING,
 	MDL_EAST_WALL,
@@ -91,8 +95,10 @@ enum ObjectType {
 	OBJ_PLAYER,
 	OBJ_MONSTER,
 	OBJ_TENTACLE,
+	OBJ_HEAD,
 	OBJ_RAGE,
 	OBJ_BULLET,
+	OBJ_FIREBALL,
 	OBJ_HARPOON,
 	OBJ_STUNGUN,
 	NUM_OBJS
@@ -218,6 +224,8 @@ struct PlayerState {
 	int health;
 	int ready;
 	float charge;
+	int scientisttransformdelay;
+	int scientisttransformduration;
 	int animationstate;
 	PlayerSoundState sState;
 	PlayerSoundTrigger sTrig;

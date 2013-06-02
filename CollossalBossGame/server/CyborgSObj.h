@@ -9,6 +9,8 @@ public:
 	virtual ~CyborgSObj(void);
 
 	virtual void initialize();
+	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal);
+
 protected:
 	virtual void actionCharge(bool buttondown);
 	virtual void actionAttack();
