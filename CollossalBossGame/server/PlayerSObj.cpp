@@ -188,15 +188,15 @@ bool PlayerSObj::update() {
 			yaw = camYaw;
 		}
 
-		if(istat.camLock) {
+		if(istat.camLock || !istat.zoom) {
 			camPitch = DEFAULT_PITCH_10;
 		} else {
 			camPitch += istat.rotVert;
-		}
-		if (camPitch > M_PI / 2.f) {
-			camPitch = (float)M_PI / 2.f;
-		} else if(camPitch < -M_PI / 4) {
-			camPitch = (float)-M_PI / 4.f;
+			if (camPitch > M_PI / 2.f) {
+				camPitch = (float)M_PI / 2.f;
+			} else if(camPitch < -M_PI / 4) {
+				camPitch = (float)-M_PI / 4.f;
+			}
 		}
 
 		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
