@@ -228,8 +228,10 @@ void ServerNetworkManager::receiveFromClients() {
 					}
                     break;
 				case GAMESTATE_MANAGER:
-					plyr = reinterpret_cast<PlayerSObj*>(SOM::get()->find(packet.object_id));
-					if (plyr != NULL) GameServer::get()->recieveInput(packet.packet_data, plyr->clientId);
+					plyr = (PlayerSObj *)SOM::get()->find(packet.object_id);
+					if(plyr != NULL) {
+						GameServer::get()->recieveInput(packet.packet_data, plyr->clientId);
+					}
 					break;
 				case CLIENT_READY:
 					// GameServer::get()->state.clientready(packet.object_id);

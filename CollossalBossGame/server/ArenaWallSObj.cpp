@@ -27,33 +27,33 @@ ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Poin
 	case SOUTH:
 		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "SOUTH\n");
 		fxo = -roomWidth / 2;
-		fyo = -70.f;
+		fyo = -85.f;
 		fzo = -roomHeight / 2;
 		scale = 110.0f / 255.0f;
 		div = 5;
 		break;
 	case EAST:
-		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "EAST\n");
-		fxo = -roomWidth / 2;
-		fyo = -85.f;
+		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "EAST (window)\n");
+		fxo = -roomLength / 2;
+		fyo = 0;
 		fzo = -roomHeight / 2;
-		scale = 110.0f / 255.0f;
+		scale = 6.0f / 255.0f;
 		div = 5;
 		break;
 	case WEST:
-		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "WEST\n");
-		fxo = -roomWidth / 2;
-		fyo = -85.f;
+		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "WEST (back wall)\n");
+		fxo = -roomLength / 2;
+		fyo = 0;
 		fzo = -roomHeight / 2;
-		scale = 110.0f / 255.0f;
+		scale = 10.0f / 255.0f;
 		div = 5;
 		break;
 	case DOWN:	//ceiling
 		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "DOWN (ceiling)\n");
 		fxo = -roomWidth / 2;
-		fyo = -85.f;
-		fzo = -roomHeight / 2;
-		scale = 110.0f / 255.0f;
+		fyo = 0;
+		fzo = -roomLength / 2;
+		scale = 12.5f / 255.0f;
 		div = 5;
 		break;
 	default:	//floor
