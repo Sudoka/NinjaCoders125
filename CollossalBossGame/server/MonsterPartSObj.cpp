@@ -122,7 +122,8 @@ bool MonsterPartSObj::update() {
 		}
 
 		///////////////////// State logic ///////////////////////
-		actionState = COMBO_ACTION;
+		//actionState = MOVE_ACTION;
+		
 		switch(actionState)
 		{
 		case IDLE_ACTION:
@@ -153,6 +154,7 @@ bool MonsterPartSObj::update() {
 			if(actionState > NUM_MONSTER_ACTIONS) DC::get()->print("ERROR: Monster state %d not known\n", actionState);
 			break;
 		}
+		
 		// Reset attack every update loop, onCollision re-sets it
 		attacked = false;
 	}
@@ -240,7 +242,6 @@ int MonsterPartSObj::serialize(char * buf) {
 	}
 }
 
-#define TAU 6.28318530718
 /**
  * Finds player nearest to us and sets targetting 
  * information in fields according to its position.
@@ -274,9 +275,7 @@ void MonsterPartSObj::findPlayer()
 		if (currDist < minDist) {
 			minDist = currDist;
 			this->playerFound = true;
-			this->playerAngle = (atan2(difference.x, difference.y));
-			if (this->playerAngle < 0)
-				this->playerAngle += TAU;
+			this->playerAngle = (atan2(-1*difference.x, -1*difference.y));
 			this->playerPos = playerPos;
 		}
 	}
