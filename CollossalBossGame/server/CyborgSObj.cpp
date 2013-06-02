@@ -17,6 +17,9 @@ CyborgSObj::~CyborgSObj(void)
 void CyborgSObj::initialize() {
 	charge = 0.0f;
 	chargeUpdate = 13.0f/50.0f;
+	delay = 50;
+	canCharge = false;
+	delayCounter = 0;
 }
 
 
@@ -25,28 +28,43 @@ void CyborgSObj::actionAttack() {
 }
 
 void CyborgSObj::actionCharge(bool buttondown) {
-	if(buttondown && !this->getFlag(IS_FALLING)) {
+	if(!canCharge && charge == 0.f) delayCounter++;
+	if((charge == 0.f) && ((delayCounter % delay) == 0)) canCharge = true;
+
+	// only charge if you already started or you're out of charge
+	if(canCharge && buttondown/*!this->getFlag(IS_FALLING)*/) {
 		charging = true;
 		charge += chargeUpdate;
 		if(charge > 13.0f) charge = 13.0f;
 	} else {
 		// reset charge
-		if(charging && charge > 0.0f) {
-			float anglepi = (fabs(camPitch*1.5f) > (M_PI/4.f)) ? camPitch : camPitch*1.5f;
+		if(/*charging && */charge > 0.0f) {
+			/*float anglepi = (fabs(camPitch*1.5f) > (M_PI/4.f)) ? camPitch : camPitch*1.5f;
 			float upforce = -sin(anglepi);
 			float forwardforce = cos(anglepi);
 			Vec3f force = rotate(Vec3f(0, upforce * chargeForce * charge, forwardforce * chargeForce * charge), pm->ref->getRot());
-			pm->applyForce(force);
-			damage = this->chargeDamage;
+			pm->applyForce(force);*/
+			canCharge = false;
+			damage = this->chargeDamage * this->charge;
+			this->setFlag(IS_INVINCIBLE, 1);
 		}
-		charge = 0.0f;
+		else
+		{
+			damage = 0;
+			this->setFlag(IS_INVINCIBLE, 0);
+		}
+
+		//charge = 0.0f;
+		charge -= chargeUpdate;
+		if(charge < 0.f) charge = 0.f;
 		charging = false;
 	}
 }
 
 void CyborgSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
 	// Reset Damage
-	damage = 0;
+	ObjectType collidedWith = obj->getType();
+	if (collidedWith == OBJ_TENTACLE || collidedWith == OBJ_HEAD) charge = 0;
 
 	PlayerSObj::onCollision(obj, collisionNormal);
 }

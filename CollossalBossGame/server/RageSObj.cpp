@@ -11,7 +11,7 @@ RageSObj::RageSObj(uint id, Point_t pos) : ServerObject(id)
 	getCollisionModel()->add(new AabbElement(Box()));
 	age = 0;
 	this->setFlag(IS_STATIC, 1);
-	lifetime = 20;
+	lifetime = 80;
 }
 
 
@@ -20,7 +20,7 @@ RageSObj::~RageSObj(void)
 	delete pm;
 }
 
-#define GROW_UNIT 8.0
+#define GROW_UNIT 4.0
 bool RageSObj::update()
 {
 	// Grow our box!

@@ -29,6 +29,7 @@ public:
 
 	bool attacking, newAttack;
 	uint jumpCounter, attackCounter;
+	int jumpForceTimer;
 	int health;
 	int damage;
 	bool ready;
@@ -51,7 +52,7 @@ protected:
 	bool charging, newCharge;
 	float charge;
 	// Configuration options
-	float jumpDist;
+	float jumpDist, jumpDiv;
 	float chargeForce, chargeUpdate, chargeCap;
 	int movDamp;
 
@@ -71,6 +72,7 @@ protected:
 	Box bxStaticVol;
 	bool camLocked;
 	float camKp, camKpFast, camKpSlow;
+	Vec3f jumpVec;
 
 	//Sounds
 	PlayerSoundState sState;
@@ -79,7 +81,8 @@ protected:
 	bool firedeath;
 	int gravityTimer;
 	int modelAnimationState;
-	int swordDamage, chargeDamage;
+	int swordDamage;
+	float chargeDamage;
 
 	void  calcUpVector(Quat_t *upRot);
 	void  controlCamera(const Quat_t &upRot);
