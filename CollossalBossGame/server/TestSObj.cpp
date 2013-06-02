@@ -14,10 +14,12 @@ TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir, bo
 
 	switch (modelNum) {
 		case MDL_TEST_CRATE:
+			testBoxIndex = cm->add(new AabbElement(Box( -40, -40, -40, 80, 80, 80)));
 			mass = (rand() % 20) + 10;
+			break;
 		case MDL_TEST_BOX:
 			// bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-5, 0, -5, 10, 10, 10);
-			testBoxIndex = cm->add(new AabbElement(Box( -10, -10, -10, 20, 20, 20)));
+			testBoxIndex = cm->add(new AabbElement(Box( -30, -30, -30, 60, 60, 60)));
 			break;
 		case MDL_TEST_PYRAMID:
 			//bxVol = CM::get()->find_config_as_box("BOX_PYRAMID");//Box(-20, 0, -20, 40, 40, 40);
@@ -71,6 +73,9 @@ bool TestSObj::update() {
 	 * South = -Z (towards player start)
 	 * West  = -X (left of player start)
 	 */
+	static float dist = -2.5;
+	static int counter = 0;
+	int xPos;
 	switch(dir) {
 	case TEST_STILL:
 		setFlag(IS_FALLING,true);
@@ -85,10 +90,43 @@ bool TestSObj::update() {
 		pm->applyForce(Vec3f(0, 0, -MOVE_AMT * sin((float)t / DIV)));
 		break;
 	case TEST_WEST:
-		pm->applyForce(Vec3f(-MOVE_AMT * sin((float)t / DIV), 0, 0));
+		//pm->applyForce(Vec3f(-MOVE_AMT * sin((float)t / DIV), 0, 0));
+		xPos = pm->ref->getPos().x;
+		if(xPos == 600)
+		{
+			if(counter == 50)	
+			{
+				counter = 0;
+				dist = -2.5;
+			}
+			else 
+			{
+				dist = 0;
+				counter++;
+			}
+		}
+		if(xPos == -600)
+		{
+			if(counter == 50)	
+			{
+				counter = 0;
+				dist = 2.5;
+			}
+			else 
+			{
+				dist = 0;
+				counter++;
+			}
+		}
+		
+		pm->ref->setPos(pm->ref->getPos() + Vec3f(dist,0,0));
 		break;
 	default:
-		pm->applyForce(Vec3f(0, -MOVE_AMT * sin((float)t / DIV), 0));
+		//pm->applyForce(Vec3f(0, -MOVE_AMT * sin((float)t / DIV), 0));
+		//int xPos = pm->ref->getPos().x;
+		//if(xPos == 600) dist = -5;
+		//if(xPos == -600) dist = 5;
+		//pm->ref->setPos(pm->ref->getPos() + Vec3f(dist,0,0));
 		break;
 	}
 	++t;
