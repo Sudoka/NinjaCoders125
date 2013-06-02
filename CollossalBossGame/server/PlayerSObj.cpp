@@ -30,7 +30,7 @@ void PlayerSObj::initialize() {
 	movDamp = CM::get()->find_config_as_int("MOV_DAMP");
 	chargeForce = CM::get()->find_config_as_float("CHARGE_FORCE");
 	swordDamage = CM::get()->find_config_as_int("SWORD_DAMAGE");
-	chargeDamage = CM::get()->find_config_as_int("CHARGE_DAMAGE");
+	chargeDamage = CM::get()->find_config_as_float("CHARGE_DAMAGE");
 	chargeUpdate = CM::get()->find_config_as_float("CHARGE_UPDATE");
 	this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 
@@ -115,7 +115,7 @@ bool PlayerSObj::update() {
 	}
 	Point_t myPos = pm->ref->getPos();
 	CollisionModel *cm = getCollisionModel();
-	DC::get()->print(LOGFILE | TIMESTAMP, "Player pos: (%f,%f,%f), collSize = %d\n", myPos.x, myPos.y, myPos.z, cm->getEnd() - cm->getStart());
+	//DC::get()->print(LOGFILE | TIMESTAMP, "Player pos: (%f,%f,%f), collSize = %d\n", myPos.x, myPos.y, myPos.z, cm->getEnd() - cm->getStart());
 
 	
 	Quat_t upRot;
@@ -163,9 +163,6 @@ bool PlayerSObj::update() {
 		// when they pressed 'jump' before they got there
 		if (jumping) jumpCounter++;
 		else jumpCounter = 0; 
-
-		//this is HACKY! HELP ME!!!!!!
-		//if(jumpCounter == 1)
 
 		appliedJumpForce = false; // we apply it on collision
 
@@ -387,25 +384,28 @@ void PlayerSObj::deserialize(char* newInput)
 }
 
 void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
-	if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_FIREBALL) {
-		this->health-=3;
+	// If you're not invincible, deal damage
+	if (!this->getFlag(IS_INVINCIBLE))
+	{
+		if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_FIREBALL) {
+			this->health-=3;
+			if(this->health < 0) health = 0;
+			if(this->health > 100) health = 100;
+		}
+		if(obj->getType() == OBJ_HARPOON) {
+			return;
+		}
+		if(obj->getType() == OBJ_RAGE) {
+			this->health-=.0001;
+		}
+		if(obj->getFlag(IS_HARMFUL) && !(attacking))
+			this->health-=3;
+		if(obj->getFlag(IS_HEALTHY))
+			this->health++;
+
 		if(this->health < 0) health = 0;
 		if(this->health > 100) health = 100;
 	}
-	if(obj->getType() == OBJ_HARPOON) {
-		return;
-	}
-	if(obj->getType() == OBJ_RAGE) {
-		this->health-=.0001;
-	}
-	if(obj->getFlag(IS_HARMFUL) && !(attacking))
-		this->health-=3;
-	if(obj->getFlag(IS_HEALTHY))
-		this->health++;
-
-	if(this->health < 0) health = 0;
-	if(this->health > 100) health = 100;
-
 	
 	// If I started jumping a little bit ago, that's a jump
 	// appliedJumpForce is because OnCollision gets called twice

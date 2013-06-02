@@ -149,7 +149,7 @@ void ServerNetworkManager::update() {
 				// Ok, since we should only have one object on both sides, the id's will match
 				// but how do we get them matching later? maybe the server should send
 				// the client the id back or something?
-				switch(client_id) {
+				switch(/*client_id*/1) {
 					case 0:
 						o = new CyborgSObj(som->genId(), client_id);
 						break;
