@@ -7,7 +7,8 @@ enum HarpoonState {
 	HS_FLYING = 0,
 	HS_GRAPPLE = 1,
 	HS_HARPOON = 2,
-	HS_DEAD = 3
+	HS_STUNGUN = 3,
+	HS_DEAD = 4
 };
 
 class HarpoonSObj : public ServerObject
@@ -32,4 +33,6 @@ private:
 	PhysicsModel *pm;
 	Model modelNum;
 	Vec3f dist2target;
+
+	int leashrange;
 };

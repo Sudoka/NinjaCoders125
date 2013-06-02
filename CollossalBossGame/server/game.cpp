@@ -157,7 +157,6 @@ void gameInit() {
 	som->add(monster);
 	addPlatforms();
 
-
 /*
 	Point_t pos = Point_t(0, 10, 15);
 	Vec3f force = Vec3f(0, 0, 0);

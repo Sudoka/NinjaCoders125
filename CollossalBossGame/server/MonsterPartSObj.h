@@ -55,6 +55,7 @@ public:
 
 	virtual ObjectType getType() = 0;
 
+	bool takes_double_damage;
 protected:
 	int health;
 	bool isFogging;
