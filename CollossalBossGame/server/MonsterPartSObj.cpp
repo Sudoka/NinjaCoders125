@@ -25,6 +25,8 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 	modelAnimationState = M_IDLE;
 
 	GameServer::get()->state.monsterspawn();
+
+	this->takes_double_damage = false;
 }
 
 
@@ -171,7 +173,6 @@ void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNorma
 		switch(actionState) 
 		{
 			case IDLE_ACTION:
-				
 				break;
 			case PROBE_ACTION:
 				break;
@@ -191,12 +192,12 @@ void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNorma
 	if(obj->getType() == OBJ_PLAYER)
 	{	
 		PlayerSObj* player = reinterpret_cast<PlayerSObj*>(obj);
-		damage = player->damage;
+		damage = player->damage * 2;
 	}
 
 	if(obj->getType() == OBJ_BULLET) {
 		BulletSObj* bullet = reinterpret_cast<BulletSObj*>(obj);
-		damage = bullet->damage;
+		damage = bullet->damage * 2;
 	}
 
 	if(obj->getType() == OBJ_HARPOON) {
