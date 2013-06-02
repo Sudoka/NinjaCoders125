@@ -242,7 +242,6 @@ int MonsterPartSObj::serialize(char * buf) {
 	}
 }
 
-#define PI 3.14159265359
 /**
  * Finds player nearest to us and sets targetting 
  * information in fields according to its position.

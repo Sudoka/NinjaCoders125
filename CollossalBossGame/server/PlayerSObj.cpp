@@ -395,10 +395,14 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 	if(obj->getType() == OBJ_HARPOON) {
 		return;
 	}
+	if(obj->getType() == OBJ_RAGE) {
+		this->health-=.0001;
+	}
 	if(obj->getFlag(IS_HARMFUL) && !(attacking))
 		this->health-=3;
 	if(obj->getFlag(IS_HEALTHY))
 		this->health++;
+
 	if(this->health < 0) health = 0;
 	if(this->health > 100) health = 100;
 
