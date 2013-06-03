@@ -40,69 +40,7 @@ HeadSObj::~HeadSObj(void)
 }
 
 void HeadSObj::idle() {
-	modelAnimationState = M_IDLE;
-
-	CollisionModel *cm = getCollisionModel();
-	Box base =	 ((AabbElement*)cm->get(0))->bx;
-	Box middle = ((AabbElement*)cm->get(1))->bx;
-	Box tip =	 ((AabbElement*)cm->get(2))->bx;
-
-	Vec3f changePosT = Vec3f();
-
-	//get the actual axis
-	Vec4f axis = this->getPhysicsModel()->ref->getRot();
-
-	if (stateCounter == 0)
-	{
-		// Keep initial idle boxes
-		Box origBase = idleBoxes[0];
-		Box origMiddle = idleBoxes[1];
-		Box origTip = idleBoxes[2];
-
-		base.setPos(axis.rotateToThisAxis(origBase.getPos()));
-		base.setSize(axis.rotateToThisAxis(origBase.getSize()));
-
-		middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
-		middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
-
-		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
-		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
-	}
-	else if (stateCounter < 55) { changePosT.x -= 1; }
-	else if (stateCounter < 60) { /* stay still for a sec */ }
-	else if (stateCounter < 74) { changePosT.x += 3; }
-	else if (stateCounter < 104) { changePosT.x += 2; }
-	else if (stateCounter < 136) { changePosT.x -= 1; }
-	else {
-		// Return to initial idle boxes
-		Box origBase = idleBoxes[0];
-		Box origMiddle = idleBoxes[1];
-		Box origTip = idleBoxes[2];
-
-		base.setPos(axis.rotateToThisAxis(origBase.getPos()));
-		base.setSize(axis.rotateToThisAxis(origBase.getSize()));
-
-		middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
-		middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
-
-		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
-		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
-	}
-
-	// Rotate the relative change according to where we're facing
-	changePosT = axis.rotateToThisAxis(changePosT);
-	tip.setRelPos(changePosT);
-
-	// Set new collision boxes
-	((AabbElement*)cm->get(0))->bx = *(base.fix());
-	((AabbElement*)cm->get(1))->bx = *(middle.fix());
-	((AabbElement*)cm->get(2))->bx = *(tip.fix());
-
-	currStateDone = (stateCounter == 163);
-}
-
-void HeadSObj::probe() {
-	modelAnimationState = M_PROBE;
+	modelAnimationState = M_PROBE; // M_IDLE;
 
 	CollisionModel *cm = getCollisionModel();
 	Box base =	 ((AabbElement*)cm->get(0))->bx;
@@ -160,10 +98,72 @@ void HeadSObj::probe() {
 	((AabbElement*)cm->get(1))->bx = *(middle.fix());
 	((AabbElement*)cm->get(2))->bx = *(tip.fix());
 
-	currStateDone = (stateCounter == 85);
+	currStateDone = (stateCounter == 85); // 44
 }
 
-#define SHOOT_CYCLE 85
+void HeadSObj::probe() {
+	modelAnimationState = M_IDLE; // M_PROBE;
+
+	CollisionModel *cm = getCollisionModel();
+	Box base =	 ((AabbElement*)cm->get(0))->bx;
+	Box middle = ((AabbElement*)cm->get(1))->bx;
+	Box tip =	 ((AabbElement*)cm->get(2))->bx;
+
+	Vec3f changePosT = Vec3f();
+
+	//get the actual axis
+	Vec4f axis = this->getPhysicsModel()->ref->getRot();
+
+	if (stateCounter == 0)
+	{
+		// Keep initial idle boxes
+		Box origBase = idleBoxes[0];
+		Box origMiddle = idleBoxes[1];
+		Box origTip = idleBoxes[2];
+
+		base.setPos(axis.rotateToThisAxis(origBase.getPos()));
+		base.setSize(axis.rotateToThisAxis(origBase.getSize()));
+
+		middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+		middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+
+		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+	}
+	else if (stateCounter < 55) { changePosT.x -= 1; }
+	else if (stateCounter < 60) { /* stay still for a sec */ }
+	else if (stateCounter < 74) { changePosT.x += 3; }
+	else if (stateCounter < 104) { changePosT.x += 2; }
+	else if (stateCounter < 136) { changePosT.x -= 1; }
+	else {
+		// Return to initial idle boxes
+		Box origBase = idleBoxes[0];
+		Box origMiddle = idleBoxes[1];
+		Box origTip = idleBoxes[2];
+
+		base.setPos(axis.rotateToThisAxis(origBase.getPos()));
+		base.setSize(axis.rotateToThisAxis(origBase.getSize()));
+
+		middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+		middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+
+		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+	}
+
+	// Rotate the relative change according to where we're facing
+	changePosT = axis.rotateToThisAxis(changePosT);
+	tip.setRelPos(changePosT);
+
+	// Set new collision boxes
+	((AabbElement*)cm->get(0))->bx = *(base.fix());
+	((AabbElement*)cm->get(1))->bx = *(middle.fix());
+	((AabbElement*)cm->get(2))->bx = *(tip.fix());
+
+	currStateDone = (stateCounter == 163); // 80
+}
+
+#define SHOOT_CYCLE 85 // 43
 
 void HeadSObj::shootFireball() {
 	modelAnimationState = M_ENTER; // M_ATTACK
@@ -354,7 +354,7 @@ void HeadSObj::spike() {
 		((AabbElement*)cm->get(1))->bx = *(middle.fix());
 		((AabbElement*)cm->get(2))->bx = *(tip.fix());
 
-		currStateDone = stateCounter >= 77;
+		currStateDone = stateCounter >= 77; // 39
 	}
 }
 
@@ -390,7 +390,7 @@ void HeadSObj::rage() {
 	}
 
 	// when the object dies we're done raging
-	currStateDone = stateCounter >= max(RageSObj::lifetime, 60);
+	currStateDone = stateCounter >= max(RageSObj::lifetime, 60); // 60
 }
 
 void HeadSObj::move() {
@@ -404,7 +404,7 @@ void HeadSObj::move() {
 	}
 
 	// Wriggle out
-	if (stateCounter <= 27)
+	if (stateCounter <= 27) // 29
 	{
 		modelAnimationState = M_SPIKE; // M_EXIT;
 	}
@@ -422,7 +422,7 @@ void HeadSObj::move() {
 		modelAnimationState = M_ATTACK; // M_ENTER;
 	}
 
-	currStateDone = (stateCounter == 60);
+	currStateDone = (stateCounter == 60); // 29 + 31
 }
 
 void HeadSObj::death() {
@@ -437,5 +437,5 @@ void HeadSObj::death() {
 		((AabbElement*)cm->get(2))->bx = Box();
 	}
 
-	currStateDone = (stateCounter == 20);
+	currStateDone = (stateCounter == 20); // 69
 }
