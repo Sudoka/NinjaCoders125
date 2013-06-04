@@ -27,6 +27,8 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 	GameServer::get()->state.monsterspawn();
 
 	this->takes_double_damage = false;
+
+	oldGravDir = PE::get()->getGravDir();
 }
 
 
@@ -69,13 +71,20 @@ bool MonsterPartSObj::update() {
 			}
 			else
 			{
-				int angryProb = attacked ? 85 : 60;
+				DIRECTION currGravDir = PE::get()->getGravDir();
+				
+				// if gravity switched, you want to move...so you're angry AND you want to move...
+				// blame suman....seriously
+				bool gravSwitch = currGravDir != oldGravDir;
+				oldGravDir = currGravDir;
+
+				int angryProb = gravSwitch || attacked ? 85 : 60;
 		
 				// we're angry!
 				if ((rand() % 100) < angryProb) 
 				{
 					// fight or flight?
-					int moveProb = 15;
+					int moveProb = gravSwitch? 95 : 15;
 
 					// Flight!
 					if ((rand() % 100) < moveProb)

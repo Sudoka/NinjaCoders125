@@ -69,6 +69,8 @@ protected:
 	int slamCounter;  // keeps track of our frames in an individual slam
 	bool currStateDone; // whether or not our current state has gone through it's full cycle
 
+	DIRECTION oldGravDir; // used to know when gravity switched so everyone moves
+
 	// player targetting
 	int targettingDist;
 	bool playerFound;
