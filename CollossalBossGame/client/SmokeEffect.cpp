@@ -7,8 +7,8 @@ SmokeEffect::SmokeEffect(void)
 	filename = "res/spiky.jpg";
 	vbOffset = 0;
 	vbBatchSize = 512;
-	pointSize = 5.0f;
-	for(int i =0; i< 512; i++) addParticle();
+	pointSize = 15.0f;
+	for(int i =0; i< 128; i++) addParticle();
 }
 
 
@@ -49,6 +49,6 @@ void SmokeEffect::setPosition(Vec3f pos)
 {
 	this->pos = D3DXVECTOR3(pos.x, pos.y, pos.z);
 	if(particles.size() == 0)
-		for(int i =0; i< 512; i++) addParticle();
+		for(int i =0; i< 128; i++) addParticle();
 
 }

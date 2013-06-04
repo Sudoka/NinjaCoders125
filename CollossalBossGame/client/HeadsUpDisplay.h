@@ -27,6 +27,7 @@ public:
 	void displayLoadingScreen();
 	void displayClassSelect();
 	void displayGameStats();
+	void displayCross(int width, int height);
 private:
 	bool * gamestart;
 	ID3DXFont* direct3dText; // the pointer to the device class
@@ -47,6 +48,8 @@ private:
 	LPD3DXLINE monsterLine;
 	LPD3DXLINE chargeLine;
 	LPD3DXLINE backgroundLine;
+	LPD3DXLINE crossUp;
+	LPD3DXLINE crossAcross;
 
 	LPD3DXSPRITE sprite;
 	LPD3DXSPRITE sprite1;

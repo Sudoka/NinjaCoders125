@@ -7,6 +7,7 @@ BeamEffect::BeamEffect(void)
 	vbOffset = 0;
 	vbBatchSize = 512;
 	pointSize = 1.0f;
+	filename = "res/portal.jpg";
 }
 
 

@@ -101,6 +101,13 @@ void RenderEngine::renderInitalization()
 		&deviceInfo,
 		&direct3dDevice);
 
+	RECT rect;
+	if(GetWindowRect(windowHandle, &rect))
+	{
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+	}
+
 
 	D3DXMATRIX matProj;
 	//TODO: determine clipping
@@ -224,6 +231,7 @@ RenderEngine::~RenderEngine() {
 	delete xAnimator;
 }
 
+
 void RenderEngine::drawHUD() {
 	if(gamestarted) {
 		if(CE::get()->getState().gameover) {
@@ -231,6 +239,7 @@ void RenderEngine::drawHUD() {
 		} else {
 			hud->displayText(this->hudText,this->monsterHUDText);
 			hud->displayHealthBars(this->healthPts, this->monsterHealthPts, this->charge);
+			if(this->fpv) hud->displayCross(width, height);
 		}
 	}
 	else
