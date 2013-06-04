@@ -148,7 +148,7 @@ void ScientistSObj::ShooterActionCharge(bool buttondown) {
 
 			// todo clean up or config or something
 			const int bulletDamage = 3;
-			BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1, position, offset, bulletDamage, (int)diameter);
+			BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1, position, offset, bulletDamage, (int)diameter, this);
 			SOM::get()->add(bso);
 
 			charging = false;

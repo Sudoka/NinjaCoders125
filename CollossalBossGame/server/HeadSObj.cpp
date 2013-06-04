@@ -243,6 +243,16 @@ void HeadSObj::shootFireball() {
 			randTarget = axis.rotateToThisAxis(randTarget);
 			this->playerPos = randTarget + headPos;
 		}
+		else if (this->attackerId != -1)
+		{
+			// Just so we're AWESOME, re-target that darn attacker =P
+			this->playerPos = SOM::get()->find(this->attackerId)->getPhysicsModel()->ref->getPos();
+
+			// At this point, the attacker has been dealt with
+			this->attackerId = -1;
+		}
+		// Fix playerPos so we don't aim at the feet
+		this->playerPos += PE::get()->getGravVec()*-20;
 
 		// Determine our bullet path
 		Vec3f bulletPath = this->playerPos - headPos;
@@ -365,7 +375,7 @@ void HeadSObj::rage() {
 	// First, we create the wave object
 	if (stateCounter == 0) {
 		Vec4f axis = this->getPhysicsModel()->ref->getRot();
-		Vec3f changePos = Vec3f(0,0,-120);
+		Vec3f changePos = Vec3f(0,0,20);
 		changePos = axis.rotateToThisAxis(changePos);
 		SOM::get()->add(new RageSObj(SOM::get()->genId(), pm->ref->getPos() + changePos));
 
@@ -387,6 +397,9 @@ void HeadSObj::rage() {
 		((AabbElement*)cm->get(0))->bx = *(origBase.fix());
 		((AabbElement*)cm->get(1))->bx = *(origMiddle.fix());
 		((AabbElement*)cm->get(2))->bx = *(origTip.fix());
+
+		// At this point, the attacker has been dealt with
+		this->attackerId = -1;
 	}
 
 	// when the object dies we're done raging
