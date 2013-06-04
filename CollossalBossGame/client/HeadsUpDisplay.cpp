@@ -611,19 +611,19 @@ void HeadsUpDisplay::displayPhase(int phase)
 	phaseSprite->SetTransform(&mat);
 	phaseSprite->Begin(D3DXSPRITE_ALPHABLEND);
 	switch (phase) {
-		case 2: 
+		case 1: 
 			phaseSprite->Draw(phase2_texture,NULL,NULL,&test1,0xFFFFFFFF);
 			break;
-		case 3: 
+		case 2: 
 			phaseSprite->Draw(phase3_texture,NULL,NULL,&test1,0xFFFFFFFF);
 			break;
-		case 4: 
+		case 3: 
 			phaseSprite->Draw(phase4_texture,NULL,NULL,&test1,0xFFFFFFFF);
 			break;
-		case 5: 
+		case 4: 
 			phaseSprite->Draw(phase5_texture,NULL,NULL,&test1,0xFFFFFFFF);
 			break;
-		case 6: 
+		case 5: 
 			phaseSprite->Draw(phase6_texture,NULL,NULL,&test1,0xFFFFFFFF);
 			break;
 		default:
