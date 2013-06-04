@@ -49,6 +49,15 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 							&shooterHelp_texture);
 
 
+	/* The phases */
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase1.png",&phase1_texture);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase2.png",&phase2_texture);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase3.png",&phase3_texture);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase4.png",&phase4_texture);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase5.png",&phase5_texture);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase6.png",&phase6_texture);
+
+
 	D3DXCreateFont(	direct3dDevice,     //D3D Device
 				    64,                       //Font height
 					0,					      //Font width
@@ -97,6 +106,7 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateSprite(direct3dDevice,&blackbackground);
 	D3DXCreateSprite(direct3dDevice,&blackscreen);
 	D3DXCreateSprite(direct3dDevice,&youwin);
+	D3DXCreateSprite(direct3dDevice,&phaseSprite);
 
 	initTime = clock();
 }
@@ -207,6 +217,7 @@ void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
                            0xFFFFFFFF);//0xFF000000); //Color
 	*/
 	sprite1->End();
+
 }
 
 void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, float charge)
@@ -582,6 +593,44 @@ void HeadsUpDisplay::displayGameStats() {
 //    direct3dText->DrawText(sprite1, ss1.str().c_str(), -1, &middleofscreen2, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(0, 100, 0));//0xFFFFFFFF);
     direct3dText->DrawText(sprite1, ss1.str().c_str(), -1, &middleofscreen2, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(175, 0, 0));//0xFFFFFFFF);
 	sprite1->End();
+}
+
+void HeadsUpDisplay::displayPhase(int phase) 
+{
+	D3DXVECTOR3 test1;
+	
+	test1.x= 10; //CM::get()->find_config_as_float("TEST1_X");
+	test1.y= 880; //CM::get()->find_config_as_float("TEST1_Y");
+	test1.z= 0; //CM::get()->find_config_as_float("TEST1_Z");
+
+	D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);
+	D3DXVECTOR2 scaling(0.8f,0.75f);
+	D3DXMATRIX mat;
+	D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,NULL,0.f,&trans);
+
+	phaseSprite->SetTransform(&mat);
+	phaseSprite->Begin(D3DXSPRITE_ALPHABLEND);
+	switch (phase) {
+		case 2: 
+			phaseSprite->Draw(phase2_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		case 3: 
+			phaseSprite->Draw(phase3_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		case 4: 
+			phaseSprite->Draw(phase4_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		case 5: 
+			phaseSprite->Draw(phase5_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		case 6: 
+			phaseSprite->Draw(phase6_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		default:
+			phaseSprite->Draw(phase1_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+	}
+	phaseSprite->End();
 }
 
 #pragma endregion

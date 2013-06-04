@@ -265,6 +265,7 @@ struct WorldState {
 struct MonsterState {
 	//Model modelNum;
 	int health;
+	int phase;
 };
 
 /*

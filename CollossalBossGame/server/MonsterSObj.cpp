@@ -319,6 +319,7 @@ bool MonsterSObj::update() {
 int MonsterSObj::serialize(char * buf) {
 	MonsterState *state = (MonsterState*)buf;
 	state->health = health;
+	state->phase = phase;
 	return /*pm->ref->serialize(buf + sizeof(MonsterState)) + */ sizeof(MonsterState);
 }
 

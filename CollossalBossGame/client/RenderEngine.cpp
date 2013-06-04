@@ -239,6 +239,7 @@ void RenderEngine::drawHUD() {
 		} else {
 			hud->displayText(this->hudText,this->monsterHUDText);
 			hud->displayHealthBars(this->healthPts, this->monsterHealthPts, this->charge);
+			hud->displayPhase(this->monsterPhase);
 			if(this->fpv) hud->displayCross(width, height);
 		}
 	}

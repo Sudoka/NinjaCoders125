@@ -55,7 +55,7 @@ public:
 	CollisionBoxPoints* getColBxPts() { return colBxPts; }
 
 	void setHUDText(string newText, int health, float charge) { hudText = newText; healthPts = health; this->charge = charge;}
-	void setMonsterHUDText(string newText, int health) { monsterHUDText = newText; monsterHealthPts = health; }
+	void setMonsterHUDText(string newText, int health, int phase) { monsterHUDText = newText; monsterHealthPts = health; monsterPhase = phase; }
 	void startFog(float density);
 	void stopFog(float density);
 	void addParticleEffect(ParticleSystem* ps) { ps->init(this->direct3dDevice); this->particleSystems.push_back(ps); }
@@ -93,6 +93,7 @@ private:
 	string monsterHUDText;
 	int healthPts;
 	int monsterHealthPts;
+	int monsterPhase;
 	float charge;
 
 	HWND windowHandle;	
