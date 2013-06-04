@@ -79,7 +79,7 @@ void MonsterSObj::setupAvailablePlacements()
 	availTentaclePlacements.push_back(Frame(Vec3f(106.25, 50, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
 	availTentaclePlacements.push_back(Frame(Vec3f(-106.25, 50, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
 	availTentaclePlacements.push_back(Frame(Vec3f(-140.25, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-
+	
 	////////////////////////// HEADS //////////////////////////
 	//// Floor
 	//availHeadPlacements.push_back(Frame(Vec3f(-265.f, -20.f, 140.f), Quat_t(Vec3f(1.f, 0, 0), (float)3*M_PI/10)));

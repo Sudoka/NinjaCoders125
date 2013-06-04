@@ -279,28 +279,71 @@ void TentacleSObj::slamMotion() {
 		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
 	}
 
+	//Ellipse!
+	/*
+		ellipse equation = 1 = (x^2)/a^2 + (y^2)/b^2
+		where a and b are the max points along those axis.
+		Let's talk about the tip of the tentacle
+		we vary in y and z, so max y = 252 and max z = 72 (based on cycle of 18 * arbitrary movement)
+
+		Therefore, 1 = (y^2)/(252^2) + (z^2)/(72^2)
+
+		However, since we don't have linear algebra, we want to find the current value of one and then
+		solve for the other. this is why we'll keep track of it's position in one axis and then solve for the other
+	*/
+#define PI 3.14159265359
+#define middleZExtent 80
+#define middleYExtent 80
+#define zExtent 100
+#define yExtent 100
 	if (slamCounter < CYCLE ) 
 	{
 		changePosB.z+=2;
-
-		changePosM.z+=6;
-		changeProportionM.z+=2;
-		changePosM.y+=3;
-
-		changePosT.z+=14;
-		changeProportionT.z-=2;
-		changePosT.y+=4;
+		
+		float angle = PI/2 * (slamCounter/ ((float)CYCLE));
+		float prevAngle = PI/2 * (slamCounter-1) / ((float)CYCLE);
+		
+		if (slamCounter != 0 ) 
+		{
+			changePosM.y+= middleYExtent * sin(angle) - middleYExtent * sin(prevAngle);
+			changePosM.z-= middleZExtent * cos(angle) - middleZExtent * cos(prevAngle);
+			
+			changePosT.y+= yExtent * sin(angle) - yExtent * sin(prevAngle);
+			changePosT.z-= zExtent * cos(angle) - zExtent * cos(prevAngle);
+		} else {
+			/*changePosM.y+= middleYExtent * sin(angle);
+			changePosM.z-= middleZExtent * cos(angle);
+			*/
+			changePosT.y+= yExtent * sin(angle);
+			changePosT.z-= zExtent * cos(angle);
+		}
+		changeProportionM.z-=1;
+		changeProportionM.y+=4;
+		changeProportionT.z-=1;
 		changeProportionT.y+=4;
 	} else if (slamCounter < CYCLE * 2) {
 		changePosB.z-=2;
+		
+		float angle = PI/2 * ((slamCounter-CYCLE)/ ((float)CYCLE));
+		float prevAngle = PI/2 * (slamCounter-1-CYCLE) / ((float)CYCLE);
 
-		changePosM.z-=6;
-		changeProportionM.z-=2;
-		changePosM.y-=3;
-
-		changePosT.z-=14;
-		changeProportionT.z+=2;
-		changePosT.y-=4;
+		if (slamCounter != 0 ) 
+		{
+			changePosM.y-= middleYExtent * sin(angle) - middleYExtent * sin(prevAngle);
+			changePosM.z+= middleZExtent * cos(angle) - middleZExtent * cos(prevAngle);
+			
+			changePosT.y+= yExtent * cos(angle) - yExtent * cos(prevAngle);
+			changePosT.z-= zExtent * sin(angle) - zExtent * sin(prevAngle);
+		} else {
+			changePosM.y-= middleYExtent * sin(angle);
+			changePosM.z+= middleZExtent * cos(angle);
+			
+			changePosT.y+= yExtent * cos(angle);
+			changePosT.z-= zExtent * sin(angle);
+		}
+		changeProportionM.z+=1;
+		changeProportionM.y-=4;
+		changeProportionT.z+=1;
 		changeProportionT.y-=4;
 	}
 	// Rotate the relative change according to where we're facing

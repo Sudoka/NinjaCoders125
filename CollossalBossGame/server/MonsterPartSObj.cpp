@@ -276,7 +276,7 @@ void MonsterPartSObj::findPlayer()
 		if (currDist < minDist) {
 			minDist = currDist;
 			this->playerFound = true;
-			this->playerAngle = (atan2(-1*difference.x, -1*difference.y));
+			this->playerAngle = (atan2(1*difference.x, 1*difference.y));
 			this->playerPos = playerPos;
 		}
 	}
