@@ -404,12 +404,12 @@ void HeadSObj::move() {
 	}
 
 	// Wriggle out
-	if (stateCounter <= 27) // 29
+	if (stateCounter <= 28) // 29
 	{
 		modelAnimationState = M_SPIKE; // M_EXIT;
 	}
 	// Switch positions
-	if (stateCounter == 27)
+	if (stateCounter == 29)
 	{
 		Frame* currFrame = this->getPhysicsModel()->ref;
 		Frame newFrame = this->overlord->updatePosition(*currFrame, this->getType());
@@ -417,12 +417,12 @@ void HeadSObj::move() {
 		currFrame->setRot(newFrame.getRot());
 	}
 	// Wriggle back in
-	if (stateCounter > 27)
+	if (stateCounter > 28)
 	{
 		modelAnimationState = M_ATTACK; // M_ENTER;
 	}
 
-	currStateDone = (stateCounter == 60); // 29 + 31
+	currStateDone = (stateCounter == 59); // 29 + 31
 }
 
 void HeadSObj::death() {
@@ -437,5 +437,5 @@ void HeadSObj::death() {
 		((AabbElement*)cm->get(2))->bx = Box();
 	}
 
-	currStateDone = (stateCounter == 20); // 69
+	currStateDone = (stateCounter == 68); // 69
 }
