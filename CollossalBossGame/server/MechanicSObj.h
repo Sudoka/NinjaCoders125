@@ -18,5 +18,8 @@ protected:
 	virtual void actionAttack();
 	int delay, delaycounter;
 	bool delaytrigger;
+
+private:
+	void fireHarpoon();
 };
 

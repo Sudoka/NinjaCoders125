@@ -50,6 +50,7 @@ bool PlayerCObj::update() {
 	//Move the camera to follow the player
 	if(COM::get()->player_id == getId()) {
 		rm->setInvisible(bStates & PLAYER_ZOOM);
+		RE::get()->setFPV(bStates & PLAYER_ZOOM); 
 		XboxController *xctrl = CE::getController();
 		if(xctrl->isConnected()) {
 			/*
@@ -65,8 +66,8 @@ bool PlayerCObj::update() {
 			}
 			*/
 
-			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
-			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
+			//if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
+			//if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
 		}
 
 		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;

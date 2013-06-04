@@ -25,6 +25,10 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 	modelAnimationState = M_IDLE;
 
 	GameServer::get()->state.monsterspawn();
+
+	this->takes_double_damage = false;
+
+	oldGravDir = PE::get()->getGravDir();
 }
 
 
@@ -67,13 +71,20 @@ bool MonsterPartSObj::update() {
 			}
 			else
 			{
-				int angryProb = attacked ? 85 : 60;
+				DIRECTION currGravDir = PE::get()->getGravDir();
+				
+				// if gravity switched, you want to move...so you're angry AND you want to move...
+				// blame suman....seriously
+				bool gravSwitch = currGravDir != oldGravDir;
+				oldGravDir = currGravDir;
+
+				int angryProb = gravSwitch || attacked ? 85 : 60;
 		
 				// we're angry!
 				if ((rand() % 100) < angryProb) 
 				{
 					// fight or flight?
-					int moveProb = 15;
+					int moveProb = gravSwitch? 95 : 15;
 
 					// Flight!
 					if ((rand() % 100) < moveProb)
@@ -122,7 +133,7 @@ bool MonsterPartSObj::update() {
 		}
 
 		///////////////////// State logic ///////////////////////
-		//actionState = MOVE_ACTION;
+		//actionState = RAGE_ACTION;
 		
 		switch(actionState)
 		{
@@ -171,7 +182,6 @@ void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNorma
 		switch(actionState) 
 		{
 			case IDLE_ACTION:
-				
 				break;
 			case PROBE_ACTION:
 				break;
@@ -191,12 +201,12 @@ void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNorma
 	if(obj->getType() == OBJ_PLAYER)
 	{	
 		PlayerSObj* player = reinterpret_cast<PlayerSObj*>(obj);
-		damage = player->damage;
+		damage = player->damage * 2;
 	}
 
 	if(obj->getType() == OBJ_BULLET) {
 		BulletSObj* bullet = reinterpret_cast<BulletSObj*>(obj);
-		damage = bullet->damage;
+		damage = bullet->damage * 2;
 	}
 
 	if(obj->getType() == OBJ_HARPOON) {
@@ -242,7 +252,6 @@ int MonsterPartSObj::serialize(char * buf) {
 	}
 }
 
-#define PI 3.14159265359
 /**
  * Finds player nearest to us and sets targetting 
  * information in fields according to its position.

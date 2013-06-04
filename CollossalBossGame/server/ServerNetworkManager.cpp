@@ -150,16 +150,16 @@ void ServerNetworkManager::update() {
 				// but how do we get them matching later? maybe the server should send
 				// the client the id back or something?
 				switch(client_id) {
-					case 0:
+					case 3:
 						o = new CyborgSObj(som->genId(), client_id);
 						break;
-					case 2:
+					case 0:
 						o = new ShooterSObj(som->genId(), client_id);
 						break;
 					case 1:
 						o = new MechanicSObj(som->genId(), client_id);
 						break;
-					case 3:
+					case 2:
 						o = new ScientistSObj(som->genId(), client_id);
 						break;
 				}
@@ -228,8 +228,10 @@ void ServerNetworkManager::receiveFromClients() {
 					}
                     break;
 				case GAMESTATE_MANAGER:
-					plyr = reinterpret_cast<PlayerSObj*>(SOM::get()->find(packet.object_id));
-					if (plyr != NULL) GameServer::get()->recieveInput(packet.packet_data, plyr->clientId);
+					plyr = (PlayerSObj *)SOM::get()->find(packet.object_id);
+					if(plyr != NULL) {
+						GameServer::get()->recieveInput(packet.packet_data, plyr->clientId);
+					}
 					break;
 				case CLIENT_READY:
 					// GameServer::get()->state.clientready(packet.object_id);

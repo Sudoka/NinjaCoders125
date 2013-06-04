@@ -2,6 +2,8 @@
 #include "ShooterSObj.h"
 #include "PhysicsEngine.h"
 #include "ServerObjectManager.h"
+#include "ConfigurationManager.h"
+#include "MonsterPartSObj.h"
 #include "defs.h"
 #include <math.h>
 
@@ -25,6 +27,9 @@ HarpoonSObj::HarpoonSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForc
 
 	this->setFlag(IS_FLOATING, 1); // YAY IT'S A LASER PEWPEW
 	// this->setFlag(IS_PASSABLE, 1); // YAY IT'S A GHOST PEWPEW 
+
+	this->leashrange = CM::get()->find_config_as_int("STUNGUN_LEASH_RANGE");
+	this->leashrange = CM::get()->find_config_as_int("STUNGUN_LEASH_RANGE");
 }
 
 
@@ -83,6 +88,17 @@ bool HarpoonSObj::update() {
 			creator->setFlag(IS_FLOATING, 1);
 		}
 		return false;
+	} else if(this->state == HS_STUNGUN) {
+		PlayerSObj * creator = reinterpret_cast<PlayerSObj *>(SOM::get()->find(creatorid));
+		ServerObject * target = SOM::get()->find(targetid);
+		if(creator == NULL || target == NULL) { gracefullyfail(creator, target); return true; }
+		MonsterPartSObj * mpso = reinterpret_cast<MonsterPartSObj *>(target);
+		if(mpso == NULL) { this->state = HS_DEAD; return false; }
+		if(magnitude(this->dist2target) > 250) { this->state = HS_DEAD; mpso->takes_double_damage = false; return false; }
+		int dist2player = magnitude(creator->getPhysicsModel()->ref->getPos() - this->getPhysicsModel()->ref->getPos());
+		if(dist2player > this->leashrange) { this->state = HS_DEAD; mpso->takes_double_damage = false; return false; }
+		mpso->takes_double_damage = true;
+		return false;
 	} else {
 		assert(false && "Dunno how you got here =[");
 		return false;
@@ -132,7 +148,14 @@ void HarpoonSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 		target->setFlag(IS_FLOATING, 0);
 		target->setFlag(IS_FALLING, 1);
 	} else if(this->state == HS_FLYING && obj->getId() != creatorid) {
-		if(obj->getFlag(IS_STATIC)) {
+		if(obj->getType() == OBJ_TENTACLE || obj->getType() == OBJ_HEAD) {
+			this->state = HS_STUNGUN;
+			this->targetid = obj->getId();
+			this->setFlag(IS_STATIC, 1);
+			this->pm->accel = Vec3f();
+			this->pm->vel = Vec3f();
+			this->dist2target = obj->getPhysicsModel()->ref->getPos() - this->getPhysicsModel()->ref->getPos();
+		} else if(obj->getFlag(IS_STATIC)) {
 			this->setFlag(IS_STATIC, 1);
 			this->pm->accel = Vec3f();
 			this->pm->vel = Vec3f();

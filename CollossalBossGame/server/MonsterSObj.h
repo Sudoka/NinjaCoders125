@@ -40,8 +40,10 @@ private:
 	int phase; // what phase of the monster you're in
 
 	set<MonsterPartSObj*> parts;
-	vector<Frame> availTentaclePlacements;
-	vector<Frame> availHeadPlacements;
+	vector<Frame> availTentaclePlacementsE;
+	vector<Frame> availTentaclePlacementsW;
+	vector<Frame> availHeadPlacementsE;
+	vector<Frame> availHeadPlacementsW;
 	//vector<Point_t> placements;
 	uint numParts;
 

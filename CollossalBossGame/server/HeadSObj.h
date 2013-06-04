@@ -2,8 +2,6 @@
 #include "MonsterPartSObj.h"
 #include "MonsterSObj.h"
 
-#define SHOOT_CYCLE 50
-
 class HeadSObj : public MonsterPartSObj
 {
 public:
@@ -30,5 +28,8 @@ private:
 
 	// Helper Actions
 	void shootFireball();
+
+	// Collision boxes
+	Box shootBoxes[3]; // stores first position for the shoot boxes
 };
 

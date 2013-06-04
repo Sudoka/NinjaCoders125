@@ -55,6 +55,7 @@ public:
 
 	virtual ObjectType getType() = 0;
 
+	bool takes_double_damage;
 protected:
 	int health;
 	bool isFogging;
@@ -67,6 +68,8 @@ protected:
 	int stateCounter; // keeps track of our frames within each state
 	int slamCounter;  // keeps track of our frames in an individual slam
 	bool currStateDone; // whether or not our current state has gone through it's full cycle
+
+	DIRECTION oldGravDir; // used to know when gravity switched so everyone moves
 
 	// player targetting
 	int targettingDist;

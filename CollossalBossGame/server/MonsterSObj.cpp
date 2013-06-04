@@ -50,81 +50,80 @@ void MonsterSObj::setupAvailablePlacements()
 
 	// Floor
 	int adjustment = 60;
-	availTentaclePlacements.push_back(Frame(Vec3f(-265, 45+adjustment, 120), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
-	availTentaclePlacements.push_back(Frame(Vec3f(370, 45+adjustment, -220), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
-	availTentaclePlacements.push_back(Frame(Vec3f(75, 45+adjustment, -20), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-265, 45+adjustment, 120), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(370, 45+adjustment, -220), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(75, 45+adjustment, -20), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
 
 	
 	// East Wall (non-window)
-	availTentaclePlacements.push_back(Frame(Vec3f(585.5-adjustment, 85, 75), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
-	availTentaclePlacements.push_back(Frame(Vec3f(585.5-adjustment, 220, -160), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(585.5-adjustment, 85, 75), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(585.5-adjustment, 220, -160), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
 
 	// North Wall
-	availTentaclePlacements.push_back(Frame(Vec3f(140.25, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacements.push_back(Frame(Vec3f(106.25, 50, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacements.push_back(Frame(Vec3f(-106.25, 50, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacements.push_back(Frame(Vec3f(318.75, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacements.push_back(Frame(Vec3f(532.5, 250.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacements.push_back(Frame(Vec3f(-73.25, 245.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacements.push_back(Frame(Vec3f(-570.5, 258.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacements.push_back(Frame(Vec3f(-553.5, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(140.25, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(106.25, 50, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-106.25, 50, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(318.75, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(532.5, 250.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-73.25, 245.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-570.5, 258.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-553.5, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
 	
 	// South Wall
 	
-	availTentaclePlacements.push_back(Frame(Vec3f(553.5, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacements.push_back(Frame(Vec3f(570.5, 258.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacements.push_back(Frame(Vec3f(73.25, 245.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacements.push_back(Frame(Vec3f(-532.5, 250.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacements.push_back(Frame(Vec3f(-318.75, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacements.push_back(Frame(Vec3f(106.25, 50, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacements.push_back(Frame(Vec3f(-106.25, 50, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacements.push_back(Frame(Vec3f(-140.25, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	
-	////////////////////////// HEADS //////////////////////////
-	//// Floor
-	//availHeadPlacements.push_back(Frame(Vec3f(-265.f, -20.f, 140.f), Quat_t(Vec3f(1.f, 0, 0), (float)3*M_PI/10)));
-	//availHeadPlacements.push_back(Frame(Vec3f(380.f, -20.f, -240.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)3*M_PI/10)));
-	//availHeadPlacements.push_back(Frame(Vec3f(75.f, -20.f, 10.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/4) * Quat_t(Vec3f(1.f, 0, 0), (float)3*M_PI/10)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(553.5, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(570.5, 258.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(73.25, 245.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-532.5, 250.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-318.75, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(106.25, 50, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-106.25, 50, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-140.25, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
 
-	////// East Wall (non-window)
-	//availHeadPlacements.push_back(Frame(Vec3f(640.5f, 95.f, 75.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/2)));
-	//availHeadPlacements.push_back(Frame(Vec3f(640.5f, 225.f, -160.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/2)));
+	////////////////////////// HEADS //////////////////////////
+	// Floor
+	availHeadPlacementsW.push_back(Frame(Vec3f(-265.f, -20.f, 140.f), Quat_t(Vec3f(1.f, 0, 0), (float)3*M_PI/10)));
+	availHeadPlacementsE.push_back(Frame(Vec3f(380.f, -20.f, -240.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)3*M_PI/10)));
+	availHeadPlacementsE.push_back(Frame(Vec3f(75.f, -20.f, 10.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/4) * Quat_t(Vec3f(1.f, 0, 0), (float)3*M_PI/10)));
+
+	// East Wall (non-window)
+	availHeadPlacementsE.push_back(Frame(Vec3f(640.5f, 95.f, 75.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/2)));
+	availHeadPlacementsE.push_back(Frame(Vec3f(640.5f, 225.f, -160.f), Quat_t(Vec3f(0, 1.f, 0), (float)M_PI/2)));
 
 	// North Wall
-	availHeadPlacements.push_back(Frame(Vec3f(525.5f, 147.5f, -360.f),  Quat_t(Vec3f(0, 0, 1.f), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+	availHeadPlacementsE.push_back(Frame(Vec3f(525.5f, 147.5f, -360.f),  Quat_t(Vec3f(0, 0, 1.f), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
 	//availHeadPlacements.push_back(Frame(Vec3f(-505.5f, 258.15f, 300.f),  Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
 	//availHeadPlacements.push_back(Frame(Vec3f(-135.25f, 260.15f, 300.f),  Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
 	//availHeadPlacements.push_back(Frame(Vec3f(532.5f, 250.15f, 300.f),  Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availHeadPlacements.push_back(Frame(Vec3f(-318.75f, 147.5f, -360.f),   Quat_t(Vec3f(0, 0, 1.f), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availHeadPlacements.push_back(Frame(Vec3f(106.25f, 50.f, -360.f),   Quat_t(Vec3f(0, 0, 1.f), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availHeadPlacements.push_back(Frame(Vec3f(-106.25f, 50.f, -360.f),   Quat_t(Vec3f(0, 0, 1.f), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	availHeadPlacements.push_back(Frame(Vec3f(-140.25f, 157.5f, -360.f),   Quat_t(Vec3f(0, 0, 1.f), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	//availHeadPlacements.push_back(Frame(Vec3f(525.5f, 147.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	//availHeadPlacements.push_back(Frame(Vec3f(505.5f, 258.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	//availHeadPlacements.push_back(Frame(Vec3f(135.25f, 260.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	//availHeadPlacements.push_back(Frame(Vec3f(-532.5f, 250.15f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	//availHeadPlacements.push_back(Frame(Vec3f(-318.75f, 147.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	//availHeadPlacements.push_back(Frame(Vec3f(106.25f, 50.f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	//availHeadPlacements.push_back(Frame(Vec3f(-106.25f, 50.f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
-	//availHeadPlacements.push_back(Frame(Vec3f(-140.25f, 157.5f, -300.f), Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+	availHeadPlacementsW.push_back(Frame(Vec3f(-318.75f, 147.5f, -360.f),   Quat_t(Vec3f(0, 0, 1.f), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+	availHeadPlacementsE.push_back(Frame(Vec3f(106.25f, 50.f, -360.f),   Quat_t(Vec3f(0, 0, 1.f), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+	availHeadPlacementsW.push_back(Frame(Vec3f(-106.25f, 50.f, -360.f),   Quat_t(Vec3f(0, 0, 1.f), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+	availHeadPlacementsW.push_back(Frame(Vec3f(-140.25f, 157.5f, -360.f),   Quat_t(Vec3f(0, 0, 1.f), (float)M_PI) * Quat_t(Vec3f(1.f, 0, 0), (float)M_PI)));
+
 
 	// South Wall
-	//availHeadPlacements.push_back(Frame(Vec3f(-525.5f, 147.5f, 360.f), Quat_t()));
-	////availHeadPlacements.push_back(Frame(Vec3f(-505.5f, 258.15f, 300.f), Quat_t()));
-	////availHeadPlacements.push_back(Frame(Vec3f(-135.25f, 260.15f, 300.f), Quat_t()));
-	////availHeadPlacements.push_back(Frame(Vec3f(532.5f, 250.15f, 300.f), Quat_t()));
-	//availHeadPlacements.push_back(Frame(Vec3f(318.75f, 147.5f, 360.f), Quat_t()));
-	//availHeadPlacements.push_back(Frame(Vec3f(-106.25f, 50.f, 360.f), Quat_t()));
-	//availHeadPlacements.push_back(Frame(Vec3f(106.25f, 50.f, 360.f), Quat_t()));
-	//availHeadPlacements.push_back(Frame(Vec3f(140.25f, 157.5f, 360.f), Quat_t()));
+	availHeadPlacementsW.push_back(Frame(Vec3f(-525.5f, 147.5f, 360.f), Quat_t()));
+	//availHeadPlacements.push_back(Frame(Vec3f(-505.5f, 258.15f, 300.f), Quat_t()));
+	//availHeadPlacements.push_back(Frame(Vec3f(-135.25f, 260.15f, 300.f), Quat_t()));
+	//availHeadPlacements.push_back(Frame(Vec3f(532.5f, 250.15f, 300.f), Quat_t()));
+	availHeadPlacementsE.push_back(Frame(Vec3f(318.75f, 147.5f, 360.f), Quat_t()));
+	availHeadPlacementsW.push_back(Frame(Vec3f(-106.25f, 50.f, 360.f), Quat_t()));
+	availHeadPlacementsE.push_back(Frame(Vec3f(106.25f, 50.f, 360.f), Quat_t()));
+	availHeadPlacementsE.push_back(Frame(Vec3f(140.25f, 157.5f, 360.f), Quat_t()));
 }
 
 void MonsterSObj::removePart(MonsterPartSObj* t)
 { 
 	parts.erase(t); 
 	Frame* fr = t->getPhysicsModel()->ref; 
-	if (t->getType() == OBJ_TENTACLE) availTentaclePlacements.push_back(*fr);
-	else if (t->getType() == OBJ_HEAD) availHeadPlacements.push_back(*fr);
+	if (t->getType() == OBJ_TENTACLE) {
+		if (fr->getPos().x > 0)	availTentaclePlacementsE.push_back(*fr);
+		else	availTentaclePlacementsW.push_back(*fr);
+	}
+	else if (t->getType() == OBJ_HEAD) {
+		if (fr->getPos().x > 0) availHeadPlacementsE.push_back(*fr);
+		else  availHeadPlacementsW.push_back(*fr);
+	}
 }
 
 /**
@@ -133,25 +132,70 @@ void MonsterSObj::removePart(MonsterPartSObj* t)
 Frame MonsterSObj::updatePosition(Frame oldPos, ObjectType childType) {
 	Frame result;
 
+	vector<Frame>* choosePositionFrom;
+	vector<Frame>* addPositionTo = NULL; // set to non-null if oldPos comes from different list
+
+	DIRECTION gravity = PE::get()->getGravDir();
+
+	// Pick a list depending on what you are
 	if (childType == OBJ_TENTACLE)
 	{
-		// Make sure we actually have positions
-		assert(availTentaclePlacements.size() > 0 && "You ran out of positions for your tentacles!");
+		// If gravity is east or west, they should go towards you, otherwise random
+		if (gravity == EAST) choosePositionFrom = &availTentaclePlacementsE;
+		else if (gravity == WEST) choosePositionFrom = &availTentaclePlacementsW;
+		else {
+			if (rand()%2) choosePositionFrom = &availTentaclePlacementsE;
+			else choosePositionFrom = &availTentaclePlacementsW;
+		}
 
-		// Now pick one at random
-		int index = rand() % availTentaclePlacements.size();
-		result = availTentaclePlacements[index];
-		availTentaclePlacements[index] = oldPos;
+		// check if we should add the old position to a different list
+		if (choosePositionFrom == &availTentaclePlacementsE && oldPos.getPos().x <= 0) {
+			addPositionTo = &availTentaclePlacementsW;
+		}
+		else if (choosePositionFrom == &availTentaclePlacementsW && oldPos.getPos().x > 0) {
+			addPositionTo = &availTentaclePlacementsE;
+		}
 	}
 	else if (childType == OBJ_HEAD)
 	{
-		// Make sure we actually have positions
-		assert(availHeadPlacements.size() > 0 && "You ran out of positions for your heads!");
+		// If gravity is east or west, they should go towards you, otherwise random
+		if (gravity == EAST) choosePositionFrom = &availHeadPlacementsE;
+		else if (gravity == WEST) choosePositionFrom = &availHeadPlacementsW;
+		else {
+			if (rand()%2) choosePositionFrom = &availHeadPlacementsE;
+			else choosePositionFrom = &availHeadPlacementsW;
+		}
+		
+		// check if we should add the old position to a different list
+		if (choosePositionFrom == &availHeadPlacementsE && oldPos.getPos().x <= 0) {
+			addPositionTo = &availHeadPlacementsW;
+		}
+		else if (choosePositionFrom == &availHeadPlacementsW && oldPos.getPos().x > 0) {
+			addPositionTo = &availHeadPlacementsE;
+		}
+	}
 
-		// Now pick one at random
-		int index = rand() % availHeadPlacements.size();
-		result = availHeadPlacements[index];
-		availHeadPlacements[index] = oldPos;
+	// Make sure we actually have positions
+	assert(choosePositionFrom->size() > 0 && "You ran out of positions for your tentacles!");
+
+	// Now pick one at random
+	int index = rand() % choosePositionFrom->size();
+	result = choosePositionFrom->at(index);
+
+	// Now do the switch if needed
+	if (addPositionTo != NULL)
+	{
+		// First, fix the list we got a new position from
+		choosePositionFrom->at(index) = choosePositionFrom->back();
+		choosePositionFrom->pop_back();
+
+		// Now, just add the old position to the right list
+		addPositionTo->push_back(oldPos);
+	}
+	// Otherwise, this is a simple swap like before
+	else
+	{
+		choosePositionFrom->at(index) = oldPos;
 	}
 
 	return result;
@@ -190,11 +234,13 @@ bool MonsterSObj::update() {
 		phase = (phase+1)%2;
 
 		// Make sure we've got enough positions
-		assert(availTentaclePlacements.size() >= numParts && availHeadPlacements.size() >= numParts && "You ran out of positions for your tentacles!");
+		//assert(availTentaclePlacements.size() >= numParts && availHeadPlacements.size() >= numParts && "You ran out of positions for your tentacles!");
 
 		// shuffle your positions
-		std::random_shuffle(availTentaclePlacements.begin(), availTentaclePlacements.end());
-		std::random_shuffle(availHeadPlacements.begin(), availHeadPlacements.end());
+		std::random_shuffle(availTentaclePlacementsE.begin(), availTentaclePlacementsE.end());
+		std::random_shuffle(availTentaclePlacementsW.begin(), availTentaclePlacementsW.end());
+		std::random_shuffle(availHeadPlacementsE.begin(), availHeadPlacementsE.end());
+		std::random_shuffle(availHeadPlacementsW.begin(), availHeadPlacementsW.end());
 
 		// Initialize your parts (tentacles, or hydras, or mixed, or whatever)
 		for (uint i=0; i<numParts; i++)
@@ -206,16 +252,21 @@ bool MonsterSObj::update() {
 			{
 			case 0:
 				// pick the random position TODO THIS SOULD BE TENTACLE PLACEMENTS!
-				currPlace = availHeadPlacements.back();
-				availHeadPlacements.pop_back();
+				//currPlace = availTentaclePlacements.back();
+				//availTentaclePlacements.pop_back();
+	
+				//newPart = new TentacleSObj(SOM::get()->genId(), (Model)(i + MDL_TENTACLE_1), currPlace.getPos(), currPlace.getRot(), this);
 
-				//newPart = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), currPlace.getPos(), currPlace.getRot(), this);
-				newPart = new TentacleSObj(SOM::get()->genId(), (Model)(i + MDL_TENTACLE_1), currPlace.getPos(), currPlace.getRot(), this);
+				if (rand()%2) { currPlace = availHeadPlacementsE.back(); availHeadPlacementsE.pop_back(); }
+				else { currPlace = availHeadPlacementsW.back(); availHeadPlacementsW.pop_back(); }
+
+				newPart = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), currPlace.getPos(), currPlace.getRot(), this);
+
 				break;
 			case 1:
 				// pick the random position
-				currPlace = availHeadPlacements.back();
-				availHeadPlacements.pop_back();
+				if (rand()%2) { currPlace = availTentaclePlacementsE.back(); availTentaclePlacementsE.pop_back(); }
+				else { currPlace = availTentaclePlacementsW.back(); availTentaclePlacementsW.pop_back(); } 
 
 				newPart = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), currPlace.getPos(), currPlace.getRot(), this);
 				break;

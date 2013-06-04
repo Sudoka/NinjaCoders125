@@ -65,6 +65,8 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateLine(direct3dDevice, &monsterLine);
 	D3DXCreateLine(direct3dDevice, &backgroundLine);
 	D3DXCreateLine(direct3dDevice, &chargeLine);
+	D3DXCreateLine(direct3dDevice, &crossUp);
+	D3DXCreateLine(direct3dDevice, &crossAcross);
 
 	D3DXCreateTextureFromFile(direct3dDevice, "res/p1connect.png", &p1connecttxt);
 	D3DXCreateTextureFromFile(direct3dDevice, "res/p2connect.png", &p2connecttxt);
@@ -126,6 +128,8 @@ HeadsUpDisplay::~HeadsUpDisplay(void)
 	backgroundLine->Release();
 	monsterLine->Release();
 	chargeLine->Release();
+	crossAcross->Release();
+	crossUp->Release();
 	p1connect->Release();
 	p2connect->Release();
 	p3connect->Release();
@@ -267,6 +271,17 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 	//sprite->Begin(D3DXSPRITE_ALPHABLEND);
 	//sprite->Draw(p,NULL,NULL,&pos,0xFFFFFFFF);
 	//sprite->End();
+}
+
+void HeadsUpDisplay::displayCross(int width, int height) {
+		int length = 25;
+		D3DXVECTOR2 acrosslines[] = {D3DXVECTOR2(width / 2, (height / 2) - length), D3DXVECTOR2(width / 2, (height / 2) + length)};
+		crossAcross->SetWidth(5.0f);
+		crossAcross->Draw(acrosslines, 2, D3DCOLOR_ARGB(255, 255, 255, 255));
+
+		D3DXVECTOR2 uplines[] = {D3DXVECTOR2((width / 2) - length, (height / 2)), D3DXVECTOR2((width / 2) + length, (height / 2))};
+		crossUp->SetWidth(5.0f);
+		crossUp->Draw(uplines, 2, D3DCOLOR_ARGB(255, 255, 255, 255));
 }
 
 void HeadsUpDisplay::displayMonsterHealth(int monsterHealth) {
@@ -549,7 +564,7 @@ void HeadsUpDisplay::displayGameStats() {
 	ostringstream ss;
 	ostringstream ss1;
 	ostringstream ss2;
-	ss2 << "Whack-a-Hydra!\n";
+	ss2 << "Hyperion's Demise\n";
 	ss << "Player 1 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[0] << "\n";
 	if(CE::get()->getState().totalPlayerCount > 1) {
 		ss << "Player 2 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[1] << "\n";

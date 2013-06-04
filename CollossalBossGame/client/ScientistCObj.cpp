@@ -30,8 +30,12 @@ bool ScientistCObj::update()
 	if(co) { 
 		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;
 		Vec3f pos = co->getRenderModel()->getFrameOfRef()->getPos()  + gravity*(float)15;
-		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*(float)15;
-		be->setPosition(objPos, pos, transformduration / 15);
+		if(!(bStates & PLAYER_ZOOM))
+		{
+			Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*(float)15;
+			be->setPosition(objPos, pos, transformduration / 25);
+		}
+		else be->particles.clear();
 	} else {
 		be->particles.clear();
 	}
