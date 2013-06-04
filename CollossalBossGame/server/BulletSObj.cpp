@@ -6,9 +6,12 @@
 
 int BulletSObj::TotalBullets = 0;
 
-BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int dmg, int diameter) : ServerObject(id)
+BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int dmg, int diameter, ServerObject* shooter) : ServerObject(id)
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new Bullet %d ", id);
+
+	this->creator = shooter;
+
 	Box bxVol;
 	Quat_t rot = Quat_t();
 	float negathing = -((float)diameter/2);

@@ -5,6 +5,8 @@
 #include "WallSObj.h"
 #include "defs.h"
 #include "PhysicsEngine.h"
+#include "BulletSObj.h"
+#include "FireBallSObj.h"
 
 
 #define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
@@ -401,10 +403,13 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 	// If you're not invincible, deal damage
 	if (!this->getFlag(IS_INVINCIBLE))
 	{
-		if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_FIREBALL) {
-			this->health-=3;
-			if(this->health < 0) health = 0;
-			if(this->health > 100) health = 100;
+		if(obj->getType() == OBJ_BULLET) {
+			BulletSObj* bullet = reinterpret_cast<BulletSObj*>(obj);
+			this->health-=bullet->damage;
+		}
+		if(obj->getType() == OBJ_FIREBALL) {
+			FireBallSObj* fireball = reinterpret_cast<FireBallSObj*>(obj);
+			this->health-=fireball->damage;
 		}
 		if(obj->getType() == OBJ_HARPOON) {
 			return;

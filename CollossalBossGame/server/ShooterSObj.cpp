@@ -40,8 +40,7 @@ void ShooterSObj::actionCharge(bool buttondown) {
 			Vec3f gravity = dirVec(PE::get()->getGravDir())*-1;
 			Vec3f position = mechpos + gravity*15 + offset;
 
-			// todo clean up or config or something
-			BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1, position, offset, bulletdamage, (int)diameter);
+			BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1, position, offset, bulletdamage, (int)diameter, this);
 			SOM::get()->add(bso);
 
 			charging = false;
