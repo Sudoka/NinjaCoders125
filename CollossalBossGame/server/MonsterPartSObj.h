@@ -55,7 +55,10 @@ public:
 
 	virtual ObjectType getType() = 0;
 
+	virtual int getModelNumber() = 0;
+	virtual void reset();
 	bool takes_double_damage;
+	bool frozen;
 protected:
 	int health;
 	bool isFogging;

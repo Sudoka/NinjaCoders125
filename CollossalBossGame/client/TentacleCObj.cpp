@@ -35,6 +35,11 @@ RenderModel* TentacleCObj::getBox() {
 }
 
 bool TentacleCObj::update() {
+	if(rm->getFrameOfRef()->getPos().y > 2900) {
+		rm->setInvisible(true);
+	} else {
+		rm->setInvisible(false);
+	}
 	//portal->setPosition(rm->getFrameOfRef()->getPos());
 	//portal->update(.33);
 	//rm->setInvisible(true);

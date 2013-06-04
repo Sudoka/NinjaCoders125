@@ -13,6 +13,7 @@ public:
 	virtual void clearAccessory();
 
 protected:
+	uint bulletdamage;
 	virtual void actionCharge(bool buttondown);
 	virtual void actionAttack();
 };

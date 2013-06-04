@@ -28,6 +28,7 @@ public:
 	virtual void fastForward();
 
 	virtual ObjectType getType() { return OBJ_TENTACLE; }
+	virtual int getModelNumber() { return this->modelNum; }
 
 private:
 	//Box updatableBox;

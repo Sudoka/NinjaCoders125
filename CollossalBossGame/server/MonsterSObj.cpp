@@ -33,6 +33,29 @@ MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 
 	srand((uint)time(NULL)); // initialize our random number generator
 
+	// Initialize Tentacle and Head Locations to park them
+	for (uint i=0; i<numParts; i++) {
+		Vec3f posh = Vec3f((float)(i*100), 3000.f, 0.f);
+		Vec3f post = Vec3f(0.f, (float)(i*100) + 3000.f, 0.f);
+		Quat_t rot = Quat_t();
+		Frame h = Frame(posh, rot);
+		Frame t = Frame(post, rot);
+		fixedHeadLocations.push_back(h);
+		fixedTentacleLocations.push_back(t);
+	}
+
+	// Initialize Tentacles and Head Objects to prevent ingame lag between phases
+	for (uint i=0; i<numParts; i++) {
+		MonsterPartSObj * newHead = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), fixedHeadLocations[i].getPos(), fixedHeadLocations[i].getRot(), this);
+		newHead->frozen = true;
+		this->headStorage.push_back(newHead);
+		SOM::get()->add(newHead);
+		MonsterPartSObj * newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)(i + MDL_TENTACLE_1), fixedTentacleLocations[i].getPos(), fixedTentacleLocations[i].getRot(), this);
+		newTentacle->frozen = true;
+		this->tentStorage.push_back(newTentacle);
+		SOM::get()->add(newTentacle);
+	}
+
 }
 
 MonsterSObj::~MonsterSObj(void)
@@ -114,7 +137,9 @@ void MonsterSObj::setupAvailablePlacements()
 
 void MonsterSObj::removePart(MonsterPartSObj* t)
 { 
-	parts.erase(t); 
+	parts.erase(t);
+	t->frozen = true;
+
 	Frame* fr = t->getPhysicsModel()->ref; 
 	if (t->getType() == OBJ_TENTACLE) {
 		if (fr->getPos().x > 0)	availTentaclePlacementsE.push_back(*fr);
@@ -123,7 +148,18 @@ void MonsterSObj::removePart(MonsterPartSObj* t)
 	else if (t->getType() == OBJ_HEAD) {
 		if (fr->getPos().x > 0) availHeadPlacementsE.push_back(*fr);
 		else  availHeadPlacementsW.push_back(*fr);
+	}	
+	
+	if(t->getType() == OBJ_TENTACLE) {
+		t->getPhysicsModel()->ref->setPos(fixedTentacleLocations[t->getModelNumber()-MDL_TENTACLE_1].getPos());
+		t->getPhysicsModel()->ref->setRot(fixedTentacleLocations[t->getModelNumber()-MDL_TENTACLE_1].getRot());
+	} else if(t->getType() == OBJ_HEAD) {
+		t->getPhysicsModel()->ref->setPos(fixedHeadLocations[t->getModelNumber()-MDL_HEAD_1].getPos());
+		t->getPhysicsModel()->ref->setRot(fixedHeadLocations[t->getModelNumber()-MDL_HEAD_1].getRot());
+	} else {
+		assert(false && "HERPDERP");
 	}
+	t->reset();
 }
 
 /**
@@ -260,15 +296,16 @@ bool MonsterSObj::update() {
 				if (rand()%2) { currPlace = availHeadPlacementsE.back(); availHeadPlacementsE.pop_back(); }
 				else { currPlace = availHeadPlacementsW.back(); availHeadPlacementsW.pop_back(); }
 
-				newPart = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), currPlace.getPos(), currPlace.getRot(), this);
-
+				// newPart = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), currPlace.getPos(), currPlace.getRot(), this);
+				newPart = this->headStorage[i];
 				break;
 			case 1:
 				// pick the random position
 				if (rand()%2) { currPlace = availTentaclePlacementsE.back(); availTentaclePlacementsE.pop_back(); }
 				else { currPlace = availTentaclePlacementsW.back(); availTentaclePlacementsW.pop_back(); } 
 
-				newPart = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), currPlace.getPos(), currPlace.getRot(), this);
+				// newPart = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), currPlace.getPos(), currPlace.getRot(), this);
+				newPart = this->headStorage[i];
 				break;
 			default: // you beat all the phases!
 				GameServer::get()->event_monster_death();
@@ -276,9 +313,11 @@ bool MonsterSObj::update() {
 				// DO NOTHING MORE
 				// DONT YOU DARE
 			}
-
+			newPart->getPhysicsModel()->ref->setPos(currPlace.getPos());
+			newPart->getPhysicsModel()->ref->setRot(currPlace.getRot());
+			newPart->frozen = false;
 			this->addPart(newPart);
-			SOM::get()->add(newPart);
+			// SOM::get()->add(newPart);
 		}
 	}
 

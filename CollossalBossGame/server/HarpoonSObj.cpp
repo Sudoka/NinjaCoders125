@@ -95,8 +95,8 @@ bool HarpoonSObj::update() {
 		MonsterPartSObj * mpso = reinterpret_cast<MonsterPartSObj *>(target);
 		if(mpso == NULL) { this->state = HS_DEAD; return false; }
 		if(magnitude(this->dist2target) > 250) { this->state = HS_DEAD; mpso->takes_double_damage = false; return false; }
-		int dist2player = magnitude(creator->getPhysicsModel()->ref->getPos() - this->getPhysicsModel()->ref->getPos());
-		if(dist2player > this->leashrange) { this->state = HS_DEAD; mpso->takes_double_damage = false; return false; }
+		// int dist2player = magnitude(creator->getPhysicsModel()->ref->getPos() - this->getPhysicsModel()->ref->getPos());
+		// if(dist2player > this->leashrange) { this->state = HS_DEAD; mpso->takes_double_damage = false; return false; }
 		mpso->takes_double_damage = true;
 		return false;
 	} else {

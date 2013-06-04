@@ -38,12 +38,15 @@ private:
 	PhysicsModel *pm;
 	int health;
 	int phase; // what phase of the monster you're in
-
+	vector<MonsterPartSObj*> headStorage;
+	vector<MonsterPartSObj*> tentStorage;
 	set<MonsterPartSObj*> parts;
 	vector<Frame> availTentaclePlacementsE;
 	vector<Frame> availTentaclePlacementsW;
 	vector<Frame> availHeadPlacementsE;
 	vector<Frame> availHeadPlacementsW;
+	vector<Frame> fixedHeadLocations;
+	vector<Frame> fixedTentacleLocations;
 	//vector<Point_t> placements;
 	uint numParts;
 

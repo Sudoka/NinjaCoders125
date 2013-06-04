@@ -8,7 +8,7 @@
 MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj* master) : ServerObject(id)
 {
 	this->overlord = master;
-	overlord->addPart(this);
+	// overlord->addPart(this);
 	this->modelNum = modelNum;
 
 	this->health = CM::get()->find_config_as_int("INIT_HEALTH");
@@ -27,8 +27,19 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 	GameServer::get()->state.monsterspawn();
 
 	this->takes_double_damage = false;
+	this->frozen = false;
 
 	oldGravDir = PE::get()->getGravDir();
+}
+
+void MonsterPartSObj::reset() {
+	this->health = CM::get()->find_config_as_int("INIT_HEALTH");
+	this->stateCounter = 0;
+	this->attacked = false; // haven't been attacked yet
+	this->currStateDone = true; // no states have started yet
+	this->modelAnimationState = M_IDLE;
+	this->takes_double_damage = false;
+	this->oldGravDir = PE::get()->getGravDir();
 }
 
 
@@ -40,7 +51,7 @@ MonsterPartSObj::~MonsterPartSObj(void)
 }
 
 bool MonsterPartSObj::update() {
-	if (!GameServer::get()->state.gameover) {
+	if (!GameServer::get()->state.gameover && !this->frozen) {
 		stateCounter++;
 
 		////////////////// State transitions /////////////////////
@@ -61,7 +72,7 @@ bool MonsterPartSObj::update() {
 				// If my previous state was death, I already did my fancy animation
 				if (actionState == DEATH_ACTION) {
 					overlord->removePart(this);
-					return true; // I died!
+					return false; // I died!
 				}
 				// Otherwise, do my fancy animation before actually dying
 				else

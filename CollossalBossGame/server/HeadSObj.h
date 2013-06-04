@@ -19,7 +19,7 @@ public:
 	virtual void death();
 
 	virtual ObjectType getType() { return OBJ_HEAD; }
-
+	virtual int getModelNumber() { return this->modelNum; }
 private:
 	int fireballForce;
 	int fireballDamage;
