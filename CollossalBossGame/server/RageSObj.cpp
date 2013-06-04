@@ -20,7 +20,7 @@ RageSObj::~RageSObj(void)
 	delete pm;
 }
 
-#define GROW_UNIT 4.0
+#define GROW_UNIT 6.0
 bool RageSObj::update()
 {
 	// Grow our box!

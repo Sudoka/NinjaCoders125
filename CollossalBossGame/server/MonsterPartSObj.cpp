@@ -4,6 +4,7 @@
 #include "ConfigurationManager.h"
 #include "ServerObjectManager.h"
 #include "GameServer.h"
+#include "ShooterSObj.h"
 
 MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj* master) : ServerObject(id)
 {
@@ -21,6 +22,7 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 
 	stateCounter = 0;
 	attacked = false; // haven't been attacked yet
+	attackerId = -1;
 	currStateDone = true; // no states have started yet
 	modelAnimationState = M_IDLE;
 
@@ -44,93 +46,127 @@ bool MonsterPartSObj::update() {
 		stateCounter++;
 
 		////////////////// State transitions /////////////////////
-		// These should maybe be moved to the monster...
-		// Only change states when our current state has gone through a whole cycle
-		// This should be set by the individual state methods when their cycle is over
-		// i.e. idle(), slam(), spike(), etc...
-		if (currStateDone)
+		bool smart = true; // todo phase
+
+		// MUAHAHAHA PREPARE TO DIE
+		if (smart && this->attacked)
 		{
 			// we're about to start a new state =)
 			stateCounter = 0;
 			currStateDone = false; 
 
-			// If you're dead, you're dead xD
-			if (health <= 0) {
-				health = 0;
+			this->setFlag(IS_HARMFUL, 1);
 
-				// If my previous state was death, I already did my fancy animation
-				if (actionState == DEATH_ACTION) {
-					overlord->removePart(this);
-					return true; // I died!
-				}
-				// Otherwise, do my fancy animation before actually dying
-				else
-				{
-					actionState = DEATH_ACTION;
-				}
-			}
-			else
+			// First, tell shoot we have our attacker >_>
+			// the shootFireball method takes care of finding its position
+			this->playerFound = true;
+
+			// Now, counter-attack!
+			switch (this->lastAttack)
 			{
-				DIRECTION currGravDir = PE::get()->getGravDir();
-				
-				// if gravity switched, you want to move...so you're angry AND you want to move...
-				// blame suman....seriously
-				bool gravSwitch = currGravDir != oldGravDir;
-				oldGravDir = currGravDir;
+			case CHARGE: actionState = RAGE_ACTION; break; // rage against charger
+			case SHOOT: actionState = ATTACK_ACTION; break; // shoot the shooter
+			case STUN: actionState = ATTACK_ACTION; break; // shoot the stunner
+			default:
+				if(lastAttack > NUM_PLAYER_ATTACKS) DC::get()->print("ERROR: Player attack %d not known\n", actionState);
+				break;
+			}
+		}
+		else
+		{
+			// These should maybe be moved to the monster...
+			// Only change states when our current state has gone through a whole cycle
+			// This should be set by the individual state methods when their cycle is over
+			// i.e. idle(), slam(), spike(), etc...
+			if (currStateDone)
+			{
+				// we're about to start a new state =)
+				stateCounter = 0;
+				currStateDone = false; 
 
-				int angryProb = gravSwitch || attacked ? 85 : 60;
-		
-				// we're angry!
-				if ((rand() % 100) < angryProb) 
-				{
-					// fight or flight?
-					int moveProb = gravSwitch? 95 : 15;
+				// If you're dead, you're dead xD
+				if (health <= 0) {
+					health = 0;
 
-					// Flight!
-					if ((rand() % 100) < moveProb)
-					{
-						this->setFlag(IS_HARMFUL, 0);
-						actionState = MOVE_ACTION;
+					// If my previous state was death, I already did my fancy animation
+					if (actionState == DEATH_ACTION) {
+						overlord->removePart(this);
+						return true; // I died!
 					}
-					// Fight!!
+					// Otherwise, do my fancy animation before actually dying
 					else
 					{
-						this->setFlag(IS_HARMFUL, 1);
+						actionState = DEATH_ACTION;
+					}
+				}
+				else
+				{
+					DIRECTION currGravDir = PE::get()->getGravDir();
+				
+					// if gravity switched, you want to move...so you're angry AND you want to move...
+					// blame suman....seriously
+					bool gravSwitch = currGravDir != oldGravDir;
+					oldGravDir = currGravDir;
 
-						// This sets all player info in our fields
-						this->findPlayer();
+					int angryProb = gravSwitch || attacked ? 85 : 60;
+		
+					// we're angry!
+					if ((rand() % 100) < angryProb) 
+					{
+						// fight or flight?
+						int moveProb = gravSwitch? 95 : 15;
 
-						int targetAttackProb = this->playerFound ? 90 : 25;
-
-						// targetted attack
-						if ((rand() % 100) < targetAttackProb)
+						// Flight!
+						if ((rand() % 100) < moveProb)
 						{
-							actionState = ATTACK_ACTION;
+							this->setFlag(IS_HARMFUL, 0);
+							actionState = MOVE_ACTION;
 						}
-						// non-targetted attack
+						// Fight!!
 						else
 						{
-							// randomly pick between combo attack, spike, and defense rage
-							switch(rand() % 3)
+							bool smart = true; // todo phase
+
+							this->setFlag(IS_HARMFUL, 1);
+
+							// This sets all player info in our fields
+							this->findPlayer();
+
+							int targetAttackProb = this->playerFound ? 90 : 25;
+
+							// targetted attack
+							if ((rand() % 100) < targetAttackProb)
 							{
-							case 0:		actionState = COMBO_ACTION; break;
-							case 1:		actionState = SPIKE_ACTION; break;
-							default:	actionState = RAGE_ACTION; break;
+								actionState = ATTACK_ACTION;
+							}
+							// non-targetted attack
+							else
+							{
+								// randomly pick between combo attack, spike, and defense rage
+								switch(rand() % 3)
+								{
+								case 0:		actionState = COMBO_ACTION; break;
+								case 1:		actionState = SPIKE_ACTION; break;
+								default:	actionState = RAGE_ACTION; break;
+								}
 							}
 						}
 					}
-				}
-				// we're not attacking!
-				else
-				{
-					this->setFlag(IS_HARMFUL, 0);
+					// we're not attacking!
+					else
+					{
+						this->setFlag(IS_HARMFUL, 0);
 
-					// randomly pick between idle and probing
-					if (rand() % 2) { actionState = IDLE_ACTION; }
-					else { actionState = PROBE_ACTION; }
+						// randomly pick between idle and probing
+						if (rand() % 2) { actionState = IDLE_ACTION; }
+						else { actionState = PROBE_ACTION; }
+					}
 				}
 			}
 		}
+		
+		// Reset attack every time we change states, onCollision re-sets it
+		attacked = false;
 
 		///////////////////// State logic ///////////////////////
 		//actionState = RAGE_ACTION;
@@ -165,9 +201,6 @@ bool MonsterPartSObj::update() {
 			if(actionState > NUM_MONSTER_ACTIONS) DC::get()->print("ERROR: Monster state %d not known\n", actionState);
 			break;
 		}
-		
-		// Reset attack every update loop, onCollision re-sets it
-		attacked = false;
 	}
 	return false;
 }
@@ -175,43 +208,61 @@ bool MonsterPartSObj::update() {
 void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
 	int damage = 0;
 
-	// if I collided against a static object, then we want to skip to whatever animation
-	//  allows me to go away (if we're in a moving animation)
-	if (obj->getFlag(IS_STATIC))
-	{
-		switch(actionState) 
-		{
-			case IDLE_ACTION:
-				break;
-			case PROBE_ACTION:
-				break;
-			case ATTACK_ACTION:
-				break;
-			case COMBO_ACTION:
-				break;
-			case RAGE_ACTION:
-				break;
-			default:	//omitting: Spike, Move, Death
-				break;
-		}
-		return;
-	}
+
+	// IF YOU COMMENT THIS BACK IN YOU WILL BREAK THINGS!
+	// TALK TO HARO IF YOU WANT TO DO THAT!
+	////////////////// if I collided against a static object, then we want to skip to whatever animation
+	//////////////////  allows me to go away (if we're in a moving animation)
+	////////////////if (obj->getFlag(IS_STATIC))
+	////////////////{
+	////////////////	switch(actionState) 
+	////////////////	{
+	////////////////		case IDLE_ACTION:
+	////////////////			break;
+	////////////////		case PROBE_ACTION:
+	////////////////			break;
+	////////////////		case ATTACK_ACTION:
+	////////////////			break;
+	////////////////		case COMBO_ACTION:
+	////////////////			break;
+	////////////////		case RAGE_ACTION:
+	////////////////			break;
+	////////////////		default:	//omitting: Spike, Move, Death
+	////////////////			break;
+	////////////////	}
+	////////////////	return;
+	////////////////}
 
 	// if I collided against the player, AND they're attacking me, loose health
 	if(obj->getType() == OBJ_PLAYER)
 	{	
 		PlayerSObj* player = reinterpret_cast<PlayerSObj*>(obj);
 		damage = player->damage * 2;
+
+		// if this did any damage, it'll be the cyborg (or scientist)
+		// note: you HAVE to check attacked bool before assuming
+		// this is indeed an attacker! it could be just any player
+		// colliding..
+		this->lastAttack = CHARGE;
+		this->attackerId = obj->getId();
 	}
 
 	if(obj->getType() == OBJ_BULLET) {
 		BulletSObj* bullet = reinterpret_cast<BulletSObj*>(obj);
 		damage = bullet->damage * 2;
+
+		// this'll be the shooter (or scientist)
+		this->lastAttack = SHOOT;
+		this->attackerId = bullet->getShooter()->getId();
 	}
 
 	if(obj->getType() == OBJ_HARPOON) {
-		// HarpoonSObj* bullet = reinterpret_cast<HarpoonSObj*>(obj);
+		HarpoonSObj* harpoon = reinterpret_cast<HarpoonSObj*>(obj);
 		// damage = bullet->damage;
+		
+		// and this one here's the harpooner (or scientist, darn scientist =P)
+		this->lastAttack = STUN;
+		this->attackerId = harpoon->creatorid; // that was convenient xDD
 	}
 
 	health -= damage;
@@ -220,7 +271,7 @@ void MonsterPartSObj::onCollision(ServerObject *obj, const Vec3f &collisionNorma
 	if(this->health > 100) health = 100; // would this ever be true? o_O
 
 	// I have been attacked! You'll regret it in the next udpate loop player! >_>
-	attacked = damage > 0;
+	attacked = (damage > 0) || (this->lastAttack == STUN);
 }
 
 int MonsterPartSObj::serialize(char * buf) {

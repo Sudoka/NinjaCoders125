@@ -15,6 +15,17 @@ enum MonsterAction {
 	NUM_MONSTER_ACTIONS
 };
 
+/*
+ * Ways our monster can be attacked
+ * Smart Heads will counteract these =P
+ */
+enum PlayerAttack {
+	CHARGE,
+	SHOOT,
+	STUN,
+	NUM_PLAYER_ATTACKS
+};
+
 class MonsterPartSObj :
 	public ServerObject
 {
@@ -70,6 +81,10 @@ protected:
 	bool currStateDone; // whether or not our current state has gone through it's full cycle
 
 	DIRECTION oldGravDir; // used to know when gravity switched so everyone moves
+
+	// smart heads
+	PlayerAttack lastAttack;
+	int attackerId; // this should be set to -1 when the attacker has been dealt with
 
 	// player targetting
 	int targettingDist;
