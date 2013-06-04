@@ -17,7 +17,7 @@ TentacleCObj::TentacleCObj(uint id, char *data) : ClientObject(id, OBJ_TENTACLE)
 	densityCounter = 0.f;
 	ss = new SoundSource();
 	char* s1 = CM::get()->find_config("TENTACLE_ROAR");
-	roarsound = ss->addSound(s1);
+	roarsound = ss->addSound(s1,true);
 }
 
 TentacleCObj::~TentacleCObj(void)
@@ -41,9 +41,10 @@ bool TentacleCObj::update() {
 
 	switch(this->sTrig) {
 	case SOUND_TENTACLE_ROAR:
-		ss->playOneShot(roarsound);
-		break;
-	default:
+		DC::get()->print("[Audio] Roaring.\n");
+		Vec3f test = this->getRenderModel()->getFrameOfRef()->getPos();
+		DC::get()->print("[Audio] Tentacle Pos: (%f,%f,%f)\n",test.x,test.y,test.z);
+		ss->playOneShot3D(roarsound,1.0f,test);
 		break;
 
 	}

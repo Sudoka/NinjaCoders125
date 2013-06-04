@@ -20,7 +20,7 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	rm = new RenderModel(Point_t(),Quat_t(), state->modelNum);
 	ss = new SoundSource();
 	char* s1 = CM::get()->find_config("LINK");
-	jumpsound = ss->addSound(s1);
+	jumpsound = ss->addSound(s1,false);
 	cameraPitch = DEFAULT_PITCH;
 	ready = false;
 	chargingEffect = new ChargeEffect(10);

@@ -8,6 +8,7 @@
 #include "DebugConsole.h"
 #include "FMOD\inc\fmod.hpp"
 #include "FMOD\inc\fmod_errors.h"
+#include <time.h>
 
 #ifndef AUDIO_ENGINE_H
 #define AUDIO_ENGINE_H
@@ -28,14 +29,16 @@ public:
 	static uint getFileHash(char* filename);
 
 	//add sound to our soundbank
-	uint addSound(char* filename);
+	uint addSound(char* filename, bool is3D);
 	uint addStream(char* filename);
 
 	void update();
+	void setListenerPos(const Vec3f &listenerPos, const Vec3f &listenerForward, const Vec3f &listenerUp);
 
 	//playback
 	void playOneShot(uint soundId);
 	void playOneShot(uint soundId, float volume);
+	void playOneShot3D(uint soundId, float volume, Vec3f &pos);
 	void playLoop(uint soundId);
 
 private:
@@ -49,7 +52,7 @@ private:
 
 	//file loading
 	bool loadStream(char* filename, uint soundId);
-	bool loadSound(char* filename, uint soundId);
+	bool loadSound(char* filename, uint soundId, bool is3D);
 
 	//hash table for our sounds and music streams
 	map<uint, FMOD::Sound *> loadedSounds;
@@ -64,6 +67,16 @@ private:
 	FMOD_CAPS	     caps;
 	char			 driverName[256];
 	bool			 fmodErrThrown; //used to check success without fatal exits/crashes
+
+	//listener
+	FMOD_VECTOR pos;
+	FMOD_VECTOR vel;
+	FMOD_VECTOR forward;
+	FMOD_VECTOR up;
+
+	Vec3f lastPos;
+	clock_t lastTime;
+	clock_t newTime;
 };
 typedef AudioEngine AE;
 #endif

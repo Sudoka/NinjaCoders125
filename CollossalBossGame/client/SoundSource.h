@@ -19,10 +19,11 @@ public:
 	~SoundSource();
 
 	//adds an available sound to our object and returns its id
-	uint addSound(char* filename);
+	uint addSound(char* filename, bool is3D);
 
 	//play sound
 	bool playOneShot(uint soundId);
+	bool playOneShot3D(uint soundId, float volume, Vec3f &pos);
 
 private:
 	//all sounds available for our object
