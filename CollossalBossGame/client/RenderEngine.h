@@ -60,7 +60,8 @@ public:
 	void stopFog(float density);
 	void addParticleEffect(ParticleSystem* ps) { ps->init(this->direct3dDevice); this->particleSystems.push_back(ps); }
 	void removeParticleEffect(ParticleSystem* ps) { this->particleSystems.remove(ps); delete ps; }
-
+	void setFPV(bool fpv) { this->fpv = fpv; }
+	void getWindowSize() ;
 	//Models
 	void animate(int id, const D3DXMATRIX &pos);
 
@@ -71,6 +72,7 @@ public:
 	IXAnimator *getAnim() { return xAnimator; }
 	HeadsUpDisplay* getHUD() { return hud; }
 	bool gamestarted; // begins as false, when everyone's pressed start, then set this to true.
+
 
 private:
 	void startWindow ();
@@ -102,6 +104,9 @@ private:
 	CollisionBoxPoints* colBxPts;
 	//Configuration fields
 	bool fogging;
+	bool fpv;
+	int width;
+	int height;
 };
 typedef RenderEngine RE;
 

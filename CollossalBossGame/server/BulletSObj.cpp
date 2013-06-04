@@ -70,7 +70,7 @@ int BulletSObj::serialize(char * buf) {
 	// All this ObjectState stuff is extra. TODO: Remove extra. 
 	*(int *)buf = diameter;
 	buf = buf + 4;
-	*(int *)buf = BLUE;
+	*(int *)buf = GREEN;
 	buf = buf + 4;
 
 	ObjectState *state = (ObjectState*)buf;

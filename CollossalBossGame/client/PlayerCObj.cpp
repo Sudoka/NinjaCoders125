@@ -50,6 +50,7 @@ bool PlayerCObj::update() {
 	//Move the camera to follow the player
 	if(COM::get()->player_id == getId()) {
 		rm->setInvisible(bStates & PLAYER_ZOOM);
+		RE::get()->setFPV(bStates & PLAYER_ZOOM); 
 		XboxController *xctrl = CE::getController();
 		if(xctrl->isConnected()) {
 			/*
