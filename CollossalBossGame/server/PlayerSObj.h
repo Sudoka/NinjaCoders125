@@ -30,7 +30,7 @@ public:
 	bool attacking, newAttack;
 	uint jumpCounter, attackCounter;
 	int jumpForceTimer;
-	int health;
+	float health;
 	int damage;
 	bool ready;
 	CharacterClass charclass;

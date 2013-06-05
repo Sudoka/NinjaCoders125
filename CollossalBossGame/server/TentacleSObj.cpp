@@ -56,6 +56,12 @@ TentacleSObj::~TentacleSObj(void)
 {
 }
 
+void TentacleSObj::reinitialize() {
+	CollisionModel *cm = getCollisionModel();
+	for (int i=0; i<3; i++) {
+		assert((cm->add(new AabbElement(idleBoxes[i])) == i) && "Your physics model is out of sync with the rest of the world...");
+	}
+}
 
 void TentacleSObj::idle() {
 	modelAnimationState = M_IDLE;

@@ -129,6 +129,21 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 		scale = CM::get()->find_config_as_point("MODEL_PLAYER4_SCALE");
 		initRot = CM::get()->find_config_as_point("MODEL_PLAYER4_ROTATION");
 		break;
+	case MDL_PLAYER_1_1:
+		filename = CM::get()->find_config("MODEL_PLAYER1_1");
+		scale = CM::get()->find_config_as_point("MODEL_PLAYER1_1_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_PLAYER1_1_ROTATION");
+		break;
+	case MDL_PLAYER_2_1:
+		filename = CM::get()->find_config("MODEL_PLAYER2_1");
+		scale = CM::get()->find_config_as_point("MODEL_PLAYER2_1_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_PLAYER2_1_ROTATION");
+		break;
+	case MDL_PLAYER_3_1:
+		filename = CM::get()->find_config("MODEL_PLAYER3_1");
+		scale = CM::get()->find_config_as_point("MODEL_PLAYER3_1_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_PLAYER3_1_ROTATION");
+		break;
 	case MDL_TEST_BOX:
 		filename = CM::get()->find_config("MODEL_TEST_BOX");
 		scale = CM::get()->find_config_as_point("MODEL_TEST_BOX_SCALE");

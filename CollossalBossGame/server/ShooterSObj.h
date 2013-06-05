@@ -14,6 +14,7 @@ public:
 
 protected:
 	uint bulletdamage;
+	uint maxbulletcount;
 	virtual void actionCharge(bool buttondown);
 	virtual void actionAttack();
 };
