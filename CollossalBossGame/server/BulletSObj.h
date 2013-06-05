@@ -17,7 +17,8 @@ public:
 	ServerObject* getShooter() { return creator; }
 	char serialbuffer[100];
 
-	static int TotalBullets;
+	static int TotalShooterBullets;
+	static int TotalScientistBullets;
 
 	int health;
 	int damage;

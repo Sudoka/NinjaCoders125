@@ -20,6 +20,10 @@ ScientistSObj::~ScientistSObj(void)
 void ScientistSObj::initialize() {
 	charge = 0.0f;
 	chargeUpdate = 13.0f/50.0f;
+	delay = 50;
+	cyborgcanCharge = false;
+	cyborgdelayCounter = 0;
+
 	if(harpoon != -1) {
 		this->clearAccessory();
 	}
@@ -30,6 +34,10 @@ void ScientistSObj::initialize() {
 	delay = 50;
 	delaycounter = 0;
 	delaytrigger = true;
+
+	bulletdamage = CM::get()->find_config_as_int("BULLET_DAMAGE");
+	maxbulletcount = CM::get()->find_config_as_int("SCIENTIST_MAX_BULLET_COUNT");
+
 	this->transformclass = CHAR_CLASS_SCIENTIST;
 }
 
@@ -59,31 +67,27 @@ void ScientistSObj::clearAccessory() {
 	clearMechanicAccessory();
 }
 
+void ScientistSObj::fireHarpoon() {
+	Vec3f gravity = dirVec(PE::get()->getGravDir())*-1;
+	Vec3f mechanic_position = this->pm->ref->getPos();
+	Vec3f force = rotate(Vec3f(0, -sin(camPitch) * 30, cos(camPitch) * 30), pm->ref->getRot());
+	Vec3f initial_bullet_position = mechanic_position + gravity*15 + force; // Vec3f(mechanic_position.x, mechanic_position.y + 15, mechanic_position.z) + force;
+	this->harpoon = SOM::get()->genId();
+	HarpoonSObj * hso = new HarpoonSObj(this->harpoon, (Model)-1, initial_bullet_position, force, 10, this);
+	SOM::get()->add(hso);
+}
+
 void ScientistSObj::MechanicActionCharge(bool buttondown) {
 	if(!delaytrigger) delaycounter++;
 	if(!(delaycounter % delay)) delaytrigger = true;
-	ServerObject * so = SOM::get()->find(this->harpoon);
+	HarpoonSObj * hso = reinterpret_cast<HarpoonSObj *>(SOM::get()->find(this->harpoon));
 	if(buttondown) {
-		if(delaytrigger && !charging && (this->harpoon == -1 || so == NULL)) {
-			Vec3f mechpos = this->pm->ref->getPos();
-			Vec3f force = rotate(Vec3f(0, -sin(camPitch) * 30, cos(camPitch) * 30), pm->ref->getRot());
-			if(this->targetlockon != -1) {
-				ServerObject * nil = SOM::get()->find(this->targetlockon);
-				if(nil != NULL) {
-					Vec3f targetlocation = nil->getPhysicsModel()->ref->getPos();
-					force = targetlocation - mechpos;
-					force.normalize();
-					force *= 30;
-				}	
-			}
-			Vec3f position = Vec3f(mechpos.x, mechpos.y + 15, mechpos.z) + force;
-			this->harpoon = SOM::get()->genId();
-			HarpoonSObj * hso = new HarpoonSObj(this->harpoon, (Model)-1, position, force, 10, this);
-			SOM::get()->add(hso);
+		if(delaytrigger && !charging && (this->harpoon == -1 || hso == NULL)) {
+			fireHarpoon();
 		} else {
-			if(so == NULL) {
+			if(hso == NULL) {
 				charge = 0.0f;
-			} else if(((HarpoonSObj *)so)->state == HS_GRAPPLE) {
+			} else if(hso->state == HS_GRAPPLE || hso->state == HS_STUNGUN) {
 				if(!charging) {
 					charge = chargeCap;
 					charging = true;
@@ -95,7 +99,7 @@ void ScientistSObj::MechanicActionCharge(bool buttondown) {
 					charge = 0.0f;
 					
 				}
-			} else if(((HarpoonSObj *)so)->state == HS_HARPOON) {
+			} else if(hso->state == HS_HARPOON) {
 				if(!charging) {
 					charge = chargeCap;
 					charging = true;
@@ -104,7 +108,7 @@ void ScientistSObj::MechanicActionCharge(bool buttondown) {
 			}
 		}
 	} else {
-		if(this->harpoon != -1 || so != NULL) {
+		if(this->harpoon != -1 || hso != NULL) {
 			this->clearAccessory();
 			charge = 0.0f;
 		}
@@ -113,27 +117,41 @@ void ScientistSObj::MechanicActionCharge(bool buttondown) {
 }
 
 void ScientistSObj::CyborgActionCharge(bool buttondown) {
-	if(buttondown && !this->getFlag(IS_FALLING)) {
+	if(!cyborgcanCharge && charge == 0.f) cyborgdelayCounter++;
+	if((charge == 0.f) && ((cyborgdelayCounter % cyborgdelay) == 0)) cyborgcanCharge = true;
+
+	// only charge if you already started or you're out of charge
+	if(cyborgcanCharge && buttondown/*!this->getFlag(IS_FALLING)*/) {
 		charging = true;
 		charge += chargeUpdate;
 		if(charge > 13.0f) charge = 13.0f;
 	} else {
 		// reset charge
-		if(charging && charge > 0.0f) {
-			float anglepi = (fabs(camPitch*1.5f) > (M_PI/4.f)) ? camPitch : camPitch*1.5f;
+		if(/*charging && */charge > 0.0f) {
+			/*float anglepi = (fabs(camPitch*1.5f) > (M_PI/4.f)) ? camPitch : camPitch*1.5f;
 			float upforce = -sin(anglepi);
 			float forwardforce = cos(anglepi);
 			Vec3f force = rotate(Vec3f(0, upforce * chargeForce * charge, forwardforce * chargeForce * charge), pm->ref->getRot());
-			pm->applyForce(force);
-			damage = this->chargeDamage;
+			pm->applyForce(force);*/
+			cyborgcanCharge = false;
+			damage = this->chargeDamage * this->charge;
+			this->setFlag(IS_INVINCIBLE, 1);
 		}
-		charge = 0.0f;
+		else
+		{
+			damage = 0;
+			this->setFlag(IS_INVINCIBLE, 0);
+		}
+
+		//charge = 0.0f;
+		charge -= chargeUpdate;
+		if(charge < 0.f) charge = 0.f;
 		charging = false;
 	}
 }
 
 void ScientistSObj::ShooterActionCharge(bool buttondown) {
-	if(buttondown && BulletSObj::TotalBullets < 5) {
+	if(buttondown && BulletSObj::TotalScientistBullets < maxbulletcount) {
 		charging = true;
 		charge += chargeUpdate;
 	} else {
@@ -144,11 +162,10 @@ void ScientistSObj::ShooterActionCharge(bool buttondown) {
 			float forwardforce = cos(anglepi);
 			float diameter = 10*(charge/3);
 			Vec3f offset = rotate(Vec3f(0, upforce * diameter * sqrt(2.0f), forwardforce * diameter * sqrt(2.0f)), pm->ref->getRot());
-			Vec3f position = Vec3f(mechpos.x, mechpos.y + 15, mechpos.z) + offset;
+			Vec3f gravity = dirVec(PE::get()->getGravDir())*-1;
+			Vec3f position = mechpos + gravity*15 + offset;
 
-			// todo clean up or config or something
-			const int bulletDamage = 3;
-			BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1, position, offset, bulletDamage, (int)diameter, this);
+			BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1, position, offset, bulletdamage, (int)diameter, this);
 			SOM::get()->add(bso);
 
 			charging = false;
@@ -239,7 +256,8 @@ void ScientistSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 
 void ScientistSObj::CyborgOnCollision(ServerObject *obj, const Vec3f &collNorm) {
 	// Reset Damage
-	damage = 0;
+	ObjectType collidedWith = obj->getType();
+	if (collidedWith == OBJ_TENTACLE || collidedWith == OBJ_HEAD) charge = 0;
 
 	PlayerSObj::onCollision(obj, collNorm);
 }

@@ -29,7 +29,7 @@ public:
 
 	virtual ObjectType getType() { return OBJ_TENTACLE; }
 	virtual int getModelNumber() { return this->modelNum; }
-
+	virtual void reinitialize();
 private:
 	//Box updatableBox;
 	//int attackBuffer; // how many frames pass before we're harmful again

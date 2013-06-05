@@ -8,9 +8,15 @@ ScientistCObj::ScientistCObj(uint id, char *data) : PlayerCObj(id, data+16)
 	this->transformduration = *(int *)data; data += 4;
 	this->transformtargetid = *(int *)data; data += 4;
 	this->transformedclass = (CharacterClass)*(int *)data; data += 4;
+	this->transformedclassprevious = this->transformedclass;
 
 	be = new BeamEffect();
 	RE::get()->addParticleEffect(be);
+
+	rm1 = new RenderModel(Point_t(),Quat_t(), MDL_PLAYER_1_1);
+	rm2 = new RenderModel(Point_t(),Quat_t(), MDL_PLAYER_2_1);
+	rm3 = new RenderModel(Point_t(),Quat_t(), MDL_PLAYER_3_1);
+	rm4 = rm;
 }
 
 
@@ -26,6 +32,17 @@ int ScientistCObj::getTypeInt()
 
 bool ScientistCObj::update()
 {
+	if(this->transformedclass != this->transformedclassprevious) {
+		switch(transformedclass) {
+			case CHAR_CLASS_CYBORG: rm = rm1; break;
+			case CHAR_CLASS_SHOOTER: rm = rm2; break;
+			case CHAR_CLASS_MECHANIC: rm = rm3; break;
+			case CHAR_CLASS_SCIENTIST: rm = rm4; break;
+		}
+		
+		this->transformedclassprevious = this->transformedclass;
+	}
+
 	ClientObject * co = COM::get()->find(transformtargetid);
 	if(co) { 
 		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;

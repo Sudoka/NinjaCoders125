@@ -32,6 +32,7 @@ protected:
 	virtual void ShooterOnCollision(ServerObject *obj, const Vec3f &collNorm) { }
 
 	virtual void actionAttack();
+	virtual void fireHarpoon();
 
 	// Mechanic Variables
 	int delay, delaycounter;
@@ -41,5 +42,12 @@ protected:
 	int currenttarget;
 	int transformdelay;
 	int transformduration;
+
+	// Cyborg Variables
+	int cyborgdelay, cyborgdelayCounter;
+	bool cyborgcanCharge;
+
+	uint bulletdamage;
+	uint maxbulletcount;
 };
 
