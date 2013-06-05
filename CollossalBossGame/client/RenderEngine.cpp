@@ -127,6 +127,10 @@ void RenderEngine::renderInitalization()
 	light.Diffuse.b  = 1.0f;
 	light.Diffuse.a  = 1.0f;
 	light.Range      = 500.0f;
+	light.Ambient.r = .25f;
+	light.Ambient.g = .25f;
+	light.Ambient.b = .25f;
+	light.Ambient.a = .25f;
 	// Create a direction for our light - it must be normalized  
 	D3DXVECTOR3 vecDir;
 	vecDir = D3DXVECTOR3(-1.0f,-0.1f,0.5);
@@ -145,6 +149,10 @@ void RenderEngine::renderInitalization()
 	light2.Diffuse.b  = 1.0f;
 	light2.Diffuse.a  = 1.0f;
 	light2.Range      = 500.0f;
+	light2.Ambient.r = .25f;
+	light2.Ambient.g = .25f;
+	light2.Ambient.b = .25f;
+	light2.Ambient.a = .25f;
 	// Create a direction for our light - it must be normalized  
 	D3DXVECTOR3 vecDir1;
 	vecDir1 = D3DXVECTOR3(1.0f,-0.1f,-0.5);
