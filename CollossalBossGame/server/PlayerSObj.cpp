@@ -188,10 +188,14 @@ bool PlayerSObj::update() {
 			yaw = camYaw;
 		}
 
-		if(istat.camLock || !istat.zoom) {
+		if(istat.camLock) {
 			camPitch = DEFAULT_PITCH_10;
 		} else {
-			camPitch += istat.rotVert;
+			if(istat.zoom) {
+				camPitch -= istat.rotVert;
+			} else {
+				camPitch += istat.rotVert;
+			}
 			if (camPitch > M_PI / 2.f) {
 				camPitch = (float)M_PI / 2.f;
 			} else if(camPitch < -M_PI / 4) {
