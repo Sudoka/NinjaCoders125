@@ -57,10 +57,9 @@ bool MonsterPartSObj::update() {
 		stateCounter++;
 
 		////////////////// State transitions /////////////////////
-		bool smart = true; // todo phase
 
 		// MUAHAHAHA PREPARE TO DIE
-		if (smart && this->attacked)
+		if (MonsterSObj::brainsOn && this->attacked)
 		{
 			// we're about to start a new state =)
 			stateCounter = 0;
@@ -102,7 +101,7 @@ bool MonsterPartSObj::update() {
 					// If my previous state was death, I already did my fancy animation
 					if (actionState == DEATH_ACTION) {
 						overlord->removePart(this);
-						return true; // I died!
+						return false; // I died!
 					}
 					// Otherwise, do my fancy animation before actually dying
 					else
@@ -122,7 +121,7 @@ bool MonsterPartSObj::update() {
 					int angryProb = gravSwitch || attacked ? 85 : 60;
 		
 					// we're angry!
-					if ((rand() % 100) < angryProb) 
+					if (MonsterSObj::attackingOn && (rand() % 100) < angryProb) 
 					{
 						// fight or flight?
 						int moveProb = gravSwitch? 95 : 15;
@@ -136,8 +135,6 @@ bool MonsterPartSObj::update() {
 						// Fight!!
 						else
 						{
-							bool smart = true; // todo phase
-
 							this->setFlag(IS_HARMFUL, 1);
 
 							// This sets all player info in our fields
