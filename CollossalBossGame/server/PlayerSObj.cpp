@@ -197,8 +197,8 @@ bool PlayerSObj::update() {
 			}
 			if (camPitch > M_PI / 2.f) {
 				camPitch = (float)M_PI / 2.f;
-			} else if(camPitch < -M_PI / 4) {
-				camPitch = (float)-M_PI / 4.f;
+			} else if(camPitch < -M_PI / 2) {
+				camPitch = (float)-M_PI / 2.f;
 			}
 		}
 

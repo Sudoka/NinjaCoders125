@@ -144,12 +144,13 @@ void gameInit() {
 	
 	float xBase = 0, yBase = 10, zBase = -300;
 
-	buildRoom();
-								
 	//This object manages the world state 
 	WorldSObj *wobj = new WorldSObj(som->genId());
 	som->add(wobj);
 	wobj->setGravitySwitch(CM::get()->find_config_as_bool("ENABLE_GRAVITY"));
+
+	buildRoom();
+								
 
 	//PE::get()->setGravDir(EAST);
 

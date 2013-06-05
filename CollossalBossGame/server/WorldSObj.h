@@ -2,6 +2,13 @@
 #include "ServerObject.h"
 #include "defs.h"
 
+enum GravityInterval {
+	GRAV_START,
+	GRAV_NULL,
+	GRAV_SWITCH,
+	NUM_GRAV_INTERVALS
+};
+
 class WorldSObj : public ServerObject {
 public:
 	WorldSObj(uint id);
@@ -14,6 +21,7 @@ public:
 	virtual void onCollision(ServerObject *obj, const Vec3f &collisionNormal) {}
 
 	void setGravitySwitch(bool en) { gravSwitchEnabled = en; }
+	void setGravTimer(GravityInterval i);
 
 private:
 	int gravityTimer;
