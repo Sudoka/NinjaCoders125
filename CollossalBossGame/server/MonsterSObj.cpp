@@ -75,7 +75,11 @@ void MonsterSObj::setupAvailablePlacements()
 	////////////////////////// TENTACLES //////////////////////////
 
 	// Floor
-	int adjustment = 60;
+	int adjustment = 30;
+	/*Frame f = Frame(Vec3f(370, 45+adjustment, -220), Quat_t(Vec3f(1, 0, 0), M_PI/2));
+	availTentaclePlacementsW.push_back(f);
+	availTentaclePlacementsE.push_back(f);
+	*/
 	availTentaclePlacementsW.push_back(Frame(Vec3f(-265, 45+adjustment, 120), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
 	availTentaclePlacementsE.push_back(Frame(Vec3f(370, 45+adjustment, -220), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
 	availTentaclePlacementsE.push_back(Frame(Vec3f(75, 45+adjustment, -20), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
@@ -136,6 +140,7 @@ void MonsterSObj::setupAvailablePlacements()
 	availHeadPlacementsW.push_back(Frame(Vec3f(-106.25f, 50.f, 360.f), Quat_t()));
 	availHeadPlacementsE.push_back(Frame(Vec3f(106.25f, 50.f, 360.f), Quat_t()));
 	availHeadPlacementsE.push_back(Frame(Vec3f(140.25f, 157.5f, 360.f), Quat_t()));
+	
 }
 
 void MonsterSObj::removePart(MonsterPartSObj* t)
