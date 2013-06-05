@@ -4,6 +4,7 @@
 #include "ServerObjectManager.h"
 // #include "NetworkData.h"
 #include "PhysicsEngine.h"
+#include "PlayerSObj.h"
 #include "game.h"
 #include "Action.h"
 #include <Windows.h>
@@ -103,6 +104,15 @@ void GameServer::recieveInput(char * buf, int pid) {
 	} else if(istat.quit) {
 		state.gameover = true;
 	} else if(istat.start) {
+		if(state.gameover) {
+			vector<ServerObject *> rawr;
+			SOM::get()->findObjects(OBJ_PLAYER, &rawr);
+			for(unsigned int i = 0; i < rawr.size(); i++) {
+				PlayerSObj * p = reinterpret_cast<PlayerSObj *>(rawr[i]);
+				if(p) { p->ready = false; }
+			}
+			state.gameover = false;
+		}
 		state.playerready(pid);
 	}
 }

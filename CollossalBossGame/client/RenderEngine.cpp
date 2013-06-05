@@ -96,10 +96,17 @@ void RenderEngine::renderInitalization()
 		D3DDEVTYPE_HAL,
 		windowHandle,
 //		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-		D3DCREATE_MIXED_VERTEXPROCESSING,
-//		D3DCREATE_HARDWARE_VERTEXPROCESSING,
+//		D3DCREATE_MIXED_VERTEXPROCESSING,
+		D3DCREATE_HARDWARE_VERTEXPROCESSING,
 		&deviceInfo,
 		&direct3dDevice);
+
+	RECT rect;
+	if(GetWindowRect(windowHandle, &rect))
+	{
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+	}
 
 
 	D3DXMATRIX matProj;
@@ -218,10 +225,12 @@ RenderEngine::~RenderEngine() {
 	direct3dDevice->Release(); // close and release the 3D device
 	direct3dInterface->Release(); // close and release Direct3D
 	this->removeParticleEffect(colBxPts);
-
+	//delete this->xAnimator;
 	delete hud;
 	delete cam;
+	delete xAnimator;
 }
+
 
 void RenderEngine::drawHUD() {
 	if(gamestarted) {
@@ -230,6 +239,8 @@ void RenderEngine::drawHUD() {
 		} else {
 			hud->displayText(this->hudText,this->monsterHUDText);
 			hud->displayHealthBars(this->healthPts, this->monsterHealthPts, this->charge);
+			hud->displayPhase(this->monsterPhase);
+			if(this->fpv) hud->displayCross(width, height);
 		}
 	}
 	else

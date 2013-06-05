@@ -30,7 +30,7 @@ public:
 	bool attacking, newAttack;
 	uint jumpCounter, attackCounter;
 	int jumpForceTimer;
-	int health;
+	float health;
 	int damage;
 	bool ready;
 	CharacterClass charclass;
@@ -81,7 +81,8 @@ protected:
 	bool firedeath;
 	int gravityTimer;
 	int modelAnimationState;
-	int swordDamage, chargeDamage;
+	int swordDamage;
+	float chargeDamage;
 
 	void  calcUpVector(Quat_t *upRot);
 	void  controlCamera(const Quat_t &upRot);

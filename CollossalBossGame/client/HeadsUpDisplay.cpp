@@ -49,22 +49,33 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 							&shooterHelp_texture);
 
 
+	/* The phases */
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase1.png",&phase1_texture);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase2.png",&phase2_texture);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase3.png",&phase3_texture);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase4.png",&phase4_texture);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase5.png",&phase5_texture);
+	D3DXCreateTextureFromFile(direct3dDevice, "res/phase6.png",&phase6_texture);
+
+
 	D3DXCreateFont(	direct3dDevice,     //D3D Device
-				    22,                       //Font height
+				    64,                       //Font height
 					0,					      //Font width
-					FW_NORMAL,                //Font Weight
+					FW_BOLD,                 //Font Weight
 					1,                        //MipLevels
 					false,                    //Italic
 					DEFAULT_CHARSET,          //CharSet
 					OUT_DEFAULT_PRECIS,       //OutputPrecision
 					ANTIALIASED_QUALITY,      //Quality
-					DEFAULT_PITCH|FF_DONTCARE,//PitchAndFamily
-					"Georgia",                //pFacename,
+					DEFAULT_PITCH|FF_MODERN,//PitchAndFamily
+					"Courier New",            //pFacename,
 					&direct3dText);     //ppFont
 	D3DXCreateLine(direct3dDevice, &healthLine);
 	D3DXCreateLine(direct3dDevice, &monsterLine);
 	D3DXCreateLine(direct3dDevice, &backgroundLine);
 	D3DXCreateLine(direct3dDevice, &chargeLine);
+	D3DXCreateLine(direct3dDevice, &crossUp);
+	D3DXCreateLine(direct3dDevice, &crossAcross);
 
 	D3DXCreateTextureFromFile(direct3dDevice, "res/p1connect.png", &p1connecttxt);
 	D3DXCreateTextureFromFile(direct3dDevice, "res/p2connect.png", &p2connecttxt);
@@ -95,6 +106,7 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateSprite(direct3dDevice,&blackbackground);
 	D3DXCreateSprite(direct3dDevice,&blackscreen);
 	D3DXCreateSprite(direct3dDevice,&youwin);
+	D3DXCreateSprite(direct3dDevice,&phaseSprite);
 
 	initTime = clock();
 }
@@ -126,6 +138,8 @@ HeadsUpDisplay::~HeadsUpDisplay(void)
 	backgroundLine->Release();
 	monsterLine->Release();
 	chargeLine->Release();
+	crossAcross->Release();
+	crossUp->Release();
 	p1connect->Release();
 	p2connect->Release();
 	p3connect->Release();
@@ -203,6 +217,7 @@ void HeadsUpDisplay::displayText(string hudText, string monsterHUDText)
                            0xFFFFFFFF);//0xFF000000); //Color
 	*/
 	sprite1->End();
+
 }
 
 void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, float charge)
@@ -255,7 +270,7 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 		//charge bar
 		D3DXVECTOR2 clines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40.f), D3DXVECTOR2(healthBarPos[0]+charge/100.0f*healthBarSize , healthBarPos[1]+40.f)};
 		chargeLine->SetWidth(15.0f);
-		chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(0), (int)(255.0 * (charge) / 100.0), (int)(255.0 * charge / 100.0)));
+		chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100 - charge) / 100.0), (int)(255.0 * (charge) / 100.0), (int)(255.0 * charge / 100.0)));
 
 	}
 	
@@ -267,6 +282,17 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 	//sprite->Begin(D3DXSPRITE_ALPHABLEND);
 	//sprite->Draw(p,NULL,NULL,&pos,0xFFFFFFFF);
 	//sprite->End();
+}
+
+void HeadsUpDisplay::displayCross(int width, int height) {
+		int length = 25;
+		D3DXVECTOR2 acrosslines[] = {D3DXVECTOR2(width / 2, (height / 2) - length), D3DXVECTOR2(width / 2, (height / 2) + length)};
+		crossAcross->SetWidth(5.0f);
+		crossAcross->Draw(acrosslines, 2, D3DCOLOR_ARGB(255, 255, 255, 255));
+
+		D3DXVECTOR2 uplines[] = {D3DXVECTOR2((width / 2) - length, (height / 2)), D3DXVECTOR2((width / 2) + length, (height / 2))};
+		crossUp->SetWidth(5.0f);
+		crossUp->Draw(uplines, 2, D3DCOLOR_ARGB(255, 255, 255, 255));
 }
 
 void HeadsUpDisplay::displayMonsterHealth(int monsterHealth) {
@@ -418,12 +444,12 @@ void HeadsUpDisplay::displayStart()
 			} else if (playernumber == 2) {
 				youarep2->SetTransform(&mat);
 				youarep2->Begin(D3DXSPRITE_ALPHABLEND);
-				youarep2->Draw(youarep1txt,NULL,NULL,&pc,0xFFFFFFFF);
+				youarep2->Draw(youarep2txt,NULL,NULL,&pc,0xFFFFFFFF);
 				youarep2->End(); 
 			} else {
 				p2connect->SetTransform(&mat);
 				p2connect->Begin(D3DXSPRITE_ALPHABLEND);
-				p2connect->Draw(p1connecttxt,NULL,NULL,&pc,0xFFFFFFFF);
+				p2connect->Draw(p2connecttxt,NULL,NULL,&pc,0xFFFFFFFF);
 				p2connect->End(); 
 			}
 		}
@@ -540,22 +566,71 @@ void HeadsUpDisplay::displayGameStats() {
 	displaytexture(&blackscreen, &blk, &blackscreentxt);
 
 	RECT middleofscreen;
-	SetRect(&middleofscreen, hudTopX+300, hudTopY+300, 1024, 768);
+	SetRect(&middleofscreen, hudTopX+150, hudTopY+250, 1024, 768);
+	RECT middleofscreen2;
+	SetRect(&middleofscreen2, hudTopX+900, hudTopY+250, 1024, 768);
+	RECT middleofscreen3;
+	SetRect(&middleofscreen3, hudTopX+150, hudTopY+100, 1024, 768);
 	sprite1->Begin(D3DXSPRITE_ALPHABLEND);
 	ostringstream ss;
-	ss << "Death by Player:\nPlayer 1: " << CE::get()->getState().playerdeathstat[0] << "\n";
+	ostringstream ss1;
+	ostringstream ss2;
+	ss2 << "Hyperion's Demise\n";
+	ss << "Player 1 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[0] << "\n";
 	if(CE::get()->getState().totalPlayerCount > 1) {
-		ss << "Player 2: " << CE::get()->getState().playerdeathstat[1] << "\n";
+		ss << "Player 2 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[1] << "\n";
 	}
 	if(CE::get()->getState().totalPlayerCount > 2) {
-		ss << "Player 3: " << CE::get()->getState().playerdeathstat[2] << "\n";
+		ss << "Player 3 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[2] << "\n";
 	}
 	if(CE::get()->getState().totalPlayerCount > 3) {
-		ss << "Player 4: " << CE::get()->getState().playerdeathstat[3] << "\n";
+		ss << "Player 4 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[3] << "\n";
 	}
-	ss << "Monster Killed: " << CE::get()->getState().monsterDeathCount;
-    direct3dText->DrawText(sprite1, ss.str().c_str(), -1, &middleofscreen, DT_LEFT|DT_NOCLIP, 0xFFFFFFFF);
+	ss << "\nMonster Kills: \n"; ss1 << "\n" << CE::get()->getState().monsterDeathCount;
+	//DT_NOCLIP
+    direct3dText->DrawText(sprite1, ss.str().c_str(), -1, &middleofscreen, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(100, 100, 100));//0xFFFFFFFF);
+    direct3dText->DrawText(sprite1, ss2.str().c_str(), -1, &middleofscreen3, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(255, 255, 255));//0xFFFFFFFF);
+//    direct3dText->DrawText(sprite1, ss1.str().c_str(), -1, &middleofscreen2, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(0, 100, 0));//0xFFFFFFFF);
+    direct3dText->DrawText(sprite1, ss1.str().c_str(), -1, &middleofscreen2, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(175, 0, 0));//0xFFFFFFFF);
 	sprite1->End();
+}
+
+void HeadsUpDisplay::displayPhase(int phase) 
+{
+	D3DXVECTOR3 test1;
+	
+	test1.x= 10; //CM::get()->find_config_as_float("TEST1_X");
+	test1.y= 880; //CM::get()->find_config_as_float("TEST1_Y");
+	test1.z= 0; //CM::get()->find_config_as_float("TEST1_Z");
+
+	D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);
+	D3DXVECTOR2 scaling(0.8f,0.75f);
+	D3DXMATRIX mat;
+	D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,NULL,0.f,&trans);
+
+	phaseSprite->SetTransform(&mat);
+	phaseSprite->Begin(D3DXSPRITE_ALPHABLEND);
+	switch (phase) {
+		case 1: 
+			phaseSprite->Draw(phase2_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		case 2: 
+			phaseSprite->Draw(phase3_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		case 3: 
+			phaseSprite->Draw(phase4_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		case 4: 
+			phaseSprite->Draw(phase5_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		case 5: 
+			phaseSprite->Draw(phase6_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+		default:
+			phaseSprite->Draw(phase1_texture,NULL,NULL,&test1,0xFFFFFFFF);
+			break;
+	}
+	phaseSprite->End();
 }
 
 #pragma endregion

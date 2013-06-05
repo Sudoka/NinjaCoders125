@@ -38,8 +38,9 @@ void BulletCObj::deserialize(char* newState) {
 	diameter = *(int *)newState;
 	newState = (newState + 4);
 	switch(*(int *)newState) {
-		case BLUE: this->color = Vec3f(0.f, 0.f, 1.f); break;
+		case BLUE: this->color = Vec3f(0.f, 0.2f, 1.f); break;
 		case RED:  this->color = Vec3f(1.f, 0.f, 0.f); break;
+		case GREEN:  this->color = Vec3f(0.f, 1.f, 0.25f); break;
 		default:   this->color = Vec3f(0.f, 1.f, 0.25f); break;
 	}
 	newState = (newState + 4);

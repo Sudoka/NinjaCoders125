@@ -35,8 +35,14 @@ RenderModel* TentacleCObj::getBox() {
 }
 
 bool TentacleCObj::update() {
+	if(rm->getFrameOfRef()->getPos().y > 2900) {
+		rm->setInvisible(true);
+	} else {
+		rm->setInvisible(false);
+	}
 	//portal->setPosition(rm->getFrameOfRef()->getPos());
 	//portal->update(.33);
+	//rm->setInvisible(true);
 	if(fogging || startedFogging)
 	{
 		smoking->fogging = true;
@@ -44,8 +50,7 @@ bool TentacleCObj::update() {
 
 		float change = .00002f;
 		// NOTE: to make fog super quick change .01 to .00004
-		if(densityCounter < .01)
-		{
+		if(densityCounter < .004) { 
 			RE::get()->startFog(density);
 			smoking->setPosition(rm->getFrameOfRef()->getPos());
 			smoking->update(.33f); 

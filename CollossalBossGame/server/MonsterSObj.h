@@ -30,17 +30,26 @@ public:
 	void addPart(MonsterPartSObj* t) { parts.insert(t); }
 	void removePart(MonsterPartSObj* t);
 
-	Frame updatePosition(Frame oldPos);
+	Frame updatePosition(Frame oldPos, ObjectType childType);
 
 	char serialbuffer[100];
+
+	// Logic related to phases (turning features on)
+	static bool attackingOn, gravityOn, fogOn, headsOn, brainsOn;
 
 private:
 	PhysicsModel *pm;
 	int health;
 	int phase; // what phase of the monster you're in
-
+	vector<MonsterPartSObj*> headStorage;
+	vector<MonsterPartSObj*> tentStorage;
 	set<MonsterPartSObj*> parts;
-	vector<Frame> availablePlacements;
+	vector<Frame> availTentaclePlacementsE;
+	vector<Frame> availTentaclePlacementsW;
+	vector<Frame> availHeadPlacementsE;
+	vector<Frame> availHeadPlacementsW;
+	vector<Frame> fixedHeadLocations;
+	vector<Frame> fixedTentacleLocations;
 	//vector<Point_t> placements;
 	uint numParts;
 

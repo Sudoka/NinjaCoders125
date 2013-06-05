@@ -15,6 +15,17 @@ enum MonsterAction {
 	NUM_MONSTER_ACTIONS
 };
 
+/*
+ * Ways our monster can be attacked
+ * Smart Heads will counteract these =P
+ */
+enum PlayerAttack {
+	CHARGE,
+	SHOOT,
+	STUN,
+	NUM_PLAYER_ATTACKS
+};
+
 class MonsterPartSObj :
 	public ServerObject
 {
@@ -34,7 +45,6 @@ public:
 	virtual int serialize(char * buf);
 	virtual bool update();
 
-	virtual ObjectType getType() { return OBJ_TENTACLE; }
 
 	char serialbuffer[100];
 
@@ -43,18 +53,24 @@ public:
 
 	//////////////////// ACTIONS /////////////////////
 
-	// These are the same
-	virtual void move();
-	virtual void death();
-
-	// These are different (should be implemented)
+	// Should be implemented in the children
 	virtual void idle() = 0;
 	virtual void probe() = 0;
 	virtual void attack() = 0;
 	virtual void combo() = 0;
 	virtual void spike() = 0;
-	virtual void rage() = 0; // this might be the same...?
+	virtual void rage() = 0;
+	virtual void move() = 0;
+	virtual void death() = 0;
 
+
+	virtual ObjectType getType() = 0;
+
+	virtual int getModelNumber() = 0;
+	virtual void reset();
+	virtual void reinitialize() = 0;
+	bool takes_double_damage;
+	bool frozen;
 protected:
 	int health;
 	bool isFogging;
@@ -67,6 +83,12 @@ protected:
 	int stateCounter; // keeps track of our frames within each state
 	int slamCounter;  // keeps track of our frames in an individual slam
 	bool currStateDone; // whether or not our current state has gone through it's full cycle
+
+	DIRECTION oldGravDir; // used to know when gravity switched so everyone moves
+
+	// smart heads
+	PlayerAttack lastAttack;
+	int attackerId; // this should be set to -1 when the attacker has been dealt with
 
 	// player targetting
 	int targettingDist;
