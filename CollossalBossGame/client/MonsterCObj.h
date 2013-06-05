@@ -15,6 +15,7 @@ public:
 
 private:
 	int health;
+	int phase;
 	RenderModel *rm;
 };
 

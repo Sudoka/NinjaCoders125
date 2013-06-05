@@ -150,10 +150,10 @@ void ServerNetworkManager::update() {
 				// but how do we get them matching later? maybe the server should send
 				// the client the id back or something?
 				switch(client_id) {
-					case 0:
+					case 1:
 						o = new CyborgSObj(som->genId(), client_id);
 						break;
-					case 1:
+					case 0:
 						o = new ShooterSObj(som->genId(), client_id);
 						break;
 					case 3:

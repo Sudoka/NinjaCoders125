@@ -2,6 +2,7 @@
 #include "PhysicsEngine.h"
 #include "ConfigurationManager.h"
 #include "NetworkData.h"
+#include "MonsterSObj.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +33,7 @@ enum GRAV_ORDER {
 };
 
 bool WorldSObj::update() {
-	if(gravSwitchEnabled) {
+	if(gravSwitchEnabled && MonsterSObj::gravityOn) {
 		DC::get()->print(CONSOLE, "Gravity timer = %d     \r", gravityTimer);
 
 		if(gravityTimer == nullInterval) {
