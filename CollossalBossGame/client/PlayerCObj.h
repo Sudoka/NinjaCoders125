@@ -47,6 +47,7 @@ protected:
 	uint rifleSound;
 	uint swordSound;
 	uint hookshotSound;	
+	uint transformSound;
 
 	//sound volumes
 	float jumpVol;
@@ -54,10 +55,14 @@ protected:
 	float rifleVol;
 	float swordVol;
 	float hookshotVol;
+	float transformVol;
 
 	//channel ids
 	uint hookshotChannel;
 	bool hookshotPlaying;
+	uint transformChannel;
+	bool transformPlaying;
+	
 
 	PlayerSoundState sState;
 	PlayerSoundTrigger sTrig;

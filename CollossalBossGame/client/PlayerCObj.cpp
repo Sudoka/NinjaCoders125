@@ -42,6 +42,11 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	hookshotVol = CM::get()->find_config_as_float("HOOKSHOT_SOUND_VOL");
 	hookshotSound = ss->addSound(s5,true,atten);
 	hookshotPlaying = false;
+	char* s6 = CM::get()->find_config("SCIENTIST_SOUND");
+	atten = CM::get()->find_config_as_float("SCIENTIST_SOUND_ATTEN");
+	transformVol = CM::get()->find_config_as_float("SCIENTIST_SOUND_VOL");
+	transformSound = ss->addSound(s6,true,atten);
+	transformPlaying = false;
 
 	camDist = 0;
 	camPitch = DEFAULT_PITCH_10;
@@ -136,7 +141,7 @@ bool PlayerCObj::update() {
 		} else {
 			hookshotChannel = ss->playLoop3D(hookshotSound,hookshotVol,playerPos,5150,20150);
 			hookshotPlaying = true;
-		}		
+		}
 		break;
 	case SOUND_MECHANIC_HARPOON_OFF:
 		if(hookshotPlaying) {
@@ -144,6 +149,19 @@ bool PlayerCObj::update() {
 			hookshotPlaying = false;
 		}
 		break;
+	case SOUND_SCIENTIST_COPY_ON:
+		if(transformPlaying) {
+			ss->updateSoundPos(transformChannel,playerPos);
+		} else {
+			transformChannel = ss->playLoop3D(transformSound,transformVol,playerPos,2000,24000);
+			transformPlaying = true;
+		}
+		break;
+	case SOUND_SCIENTIST_COPY_OFF:
+		if(transformPlaying) {
+			ss->stopLoop(transformChannel);
+			transformPlaying = false;
+		}
 	}
 
 	return false;

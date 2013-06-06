@@ -89,6 +89,12 @@ private:
 	Vec3f lastPos;
 	clock_t lastTime;
 	clock_t newTime;
+
+	//global music and ambiance
+	//sort of hacky but I don't have time to implement a music player
+	FMOD::Sound *musicLoop;
+	FMOD::Sound *shipSounds;
+
 };
 typedef AudioEngine AE;
 #endif

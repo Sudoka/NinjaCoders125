@@ -41,6 +41,8 @@ void ScientistSObj::initialize() {
 	maxbulletcount = CM::get()->find_config_as_int("SCIENTIST_MAX_BULLET_COUNT");
 
 	this->transformclass = CHAR_CLASS_SCIENTIST;
+
+	transformPlaying = false;
 }
 
 void ScientistSObj::actionAttack() {
@@ -51,7 +53,12 @@ void ScientistSObj::actionCharge(bool buttondown) {
 	if(transformclass != CHAR_CLASS_SCIENTIST) { // You're not the scientist right now
 		transformduration--;
 		if(transformduration < 0) {
-			//TODO_MICHAEL: scientist sound stop
+			
+			if(transformPlaying) {
+				sState = SOUND_SCIENTIST_COPY_OFF;
+				transformPlaying = false;
+			}
+
 			transformclass = CHAR_CLASS_SCIENTIST;
 			this->currenttarget = -1;
 			clearAccessory();
@@ -206,7 +213,12 @@ void ScientistSObj::ScientistActionCharge(bool buttondown) {
 	if(buttondown) {
 		currenttarget = selectplayertarget(this, this->pm->ref->getPos(), rotate(Vec3f(0, -sin(camPitch), cos(camPitch)), pm->ref->getRot()));
 	} else if(currenttarget != -1) {
-		//TODO_MICHAEL: start scientist loop
+		
+		if(!transformPlaying) {
+			sState = SOUND_SCIENTIST_COPY_ON;
+			transformPlaying = true;
+		}
+
 		transformduration = 330;
 		ServerObject * s = SOM::get()->find(currenttarget);
 		if(s != NULL && s->getType() == OBJ_PLAYER) {
