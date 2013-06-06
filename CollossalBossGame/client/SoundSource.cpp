@@ -25,6 +25,12 @@ uint SoundSource::addSound(char* filename, bool is3D) {
 	return soundId;
 }
 
+uint SoundSource::addSound(char* filename, bool is3D, float attenDist) {
+	uint soundId = AE::get()->addSound(filename,is3D,attenDist);
+	sounds.push_back(soundId);
+	return soundId;
+}
+
 /*
  * Plays a sound if the object can play its sound id
  */

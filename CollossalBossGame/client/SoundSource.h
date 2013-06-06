@@ -20,6 +20,7 @@ public:
 
 	//adds an available sound to our object and returns its id
 	uint addSound(char* filename, bool is3D);
+	uint addSound(char* filename, bool is3D, float attenDist);
 
 	//play sound
 	bool playOneShot(uint soundId);

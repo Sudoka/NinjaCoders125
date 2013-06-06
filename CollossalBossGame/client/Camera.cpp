@@ -51,5 +51,5 @@ void Camera::update(const Point_t &tarPos, const Quat_t &tarRot, float pitch) {
 	(viewMatrix)(3, 3) = 1.0f;
 
 	//update the audio engine with new camera data
-	AE::get()->setListenerPos(camPos,camFwd,camUp);
+	AE::get()->setListenerPos(tarPos,camFwd,camUp);
 }

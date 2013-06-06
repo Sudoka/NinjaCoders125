@@ -32,6 +32,15 @@ AudioEngine::AudioEngine() {
 	lastPos.x = 0;
 	lastPos.y = 0;
 	lastPos.z = 0;
+
+	//TESTING 3D
+	char* s1 = CM::get()->find_config("SHIP_HUM");
+	uint ship = this->addSound(s1,true,1.0f);
+	Vec3f pos;
+	pos.x = 0;
+	pos.y = 10;
+	pos.z = 0;
+	//this->playLoop3D(ship,1.0f,pos);
 }
 
 AudioEngine::~AudioEngine() {
@@ -148,6 +157,13 @@ int AudioEngine::startFMOD() {
 	if(fmodErrThrown)
 		return 0;
 
+	//set our distance scalar (in case FMOD units are different than DX)
+	distFactor = CM::get()->find_config_as_float("FMOD_DIST_FACTOR");
+	result = system->set3DSettings(1.0f, distFactor, 1.0f);
+	FMOD_ERRCHECK(result);
+	if(fmodErrThrown)
+		return 0;
+
 	if(computerHasAudio)
 		return 1;
 	else
@@ -157,13 +173,14 @@ int AudioEngine::startFMOD() {
 void AudioEngine::setListenerPos(const Vec3f &listenerPos, const Vec3f &listenerForward, const Vec3f &listenerUp) {
 	newTime = clock();
 	clock_t timeDelta = newTime - lastTime; 
-	vel.x = (listenerPos.x - lastPos.x) * (1000/((float)timeDelta/CLOCKS_PER_SEC));
-	vel.y = (listenerPos.y - lastPos.y) * (1000/((float)timeDelta/CLOCKS_PER_SEC));
-	vel.z = (listenerPos.z - lastPos.z) * (1000/((float)timeDelta/CLOCKS_PER_SEC));
+	//vel.x = (listenerPos.x - lastPos.x) * (1000/((float)timeDelta/CLOCKS_PER_SEC));
+	//vel.y = (listenerPos.y - lastPos.y) * (1000/((float)timeDelta/CLOCKS_PER_SEC));
+	//vel.z = (listenerPos.z - lastPos.z) * (1000/((float)timeDelta/CLOCKS_PER_SEC));
+	vel.x = vel.y = vel.z = 0;
 
-	pos.x = listenerPos.x;
-	pos.y = listenerPos.y;
-	pos.z = listenerPos.z;
+	pos.x = listenerPos.x * distFactor;
+	pos.y = listenerPos.y * distFactor;
+	pos.z = listenerPos.z * distFactor;
 
 	forward.x = listenerForward.x;
 	forward.y = listenerForward.y;
@@ -172,6 +189,8 @@ void AudioEngine::setListenerPos(const Vec3f &listenerPos, const Vec3f &listener
 	up.x = listenerUp.x;
 	up.y = listenerUp.y;
 	up.z = listenerUp.z;
+
+	//DC::get()->print("[Audio] camera pos: (%f,%f,%f)\n",pos.x,pos.y,pos.z);
 
 	system->set3DListenerAttributes(0, &pos, &vel, &forward, &up);
 
@@ -193,6 +212,23 @@ uint AudioEngine::addSound(char* filename, bool is3D) {
 
 	//create a new sound
 	bool created = loadSound(filename, id, is3D);
+	if(created)
+		return id;
+	else
+		return 0;
+}
+
+/*
+ * If the sound is not currently in our soundbank, adds it and returns the soundId
+ */
+uint AudioEngine::addSound(char* filename, bool is3D, float attenuationDist) {
+	uint id = getFileHash(filename);
+	map<uint, FMOD::Sound *>::iterator res = loadedSounds.find(id);
+	if(res != loadedSounds.end()) //sound already exists
+		return id;
+
+	//create a new sound
+	bool created = loadSound(filename, id, is3D, attenuationDist);
 	if(created)
 		return id;
 	else
@@ -227,7 +263,35 @@ bool AudioEngine::loadSound(char* filename, uint soundId, bool is3D) {
 		FMOD_ERRCHECK(result);
 		if(fmodErrThrown)
 			return false;
-		result = sound->set3DMinMaxDistance(0.5f,5000.0f);
+		result = sound->set3DMinMaxDistance(1.0f,10000.0f);
+		FMOD_ERRCHECK(result);
+		if(fmodErrThrown)
+			return false;
+	}
+	else
+	{
+		result = system->createSound(filename, FMOD_DEFAULT, 0, &sound);
+		FMOD_ERRCHECK(result);
+		if(fmodErrThrown)
+			return false;
+	}
+
+	loadedSounds.insert(pair<uint,FMOD::Sound*>(soundId,sound));
+	return true;
+}
+
+/*
+ * Opens a given file as a stream and handles any fmod exceptions that occur
+ */
+bool AudioEngine::loadSound(char* filename, uint soundId, bool is3D, float attenuationDist) {
+	FMOD::Sound *sound;
+	if(is3D)
+	{
+		result = system->createSound(filename, FMOD_3D, 0, &sound);		
+		FMOD_ERRCHECK(result);
+		if(fmodErrThrown)
+			return false;
+		result = sound->set3DMinMaxDistance(attenuationDist,10000.0f);
 		FMOD_ERRCHECK(result);
 		if(fmodErrThrown)
 			return false;
@@ -300,10 +364,11 @@ void AudioEngine::playOneShot3D(uint soundId, float volume, Vec3f &pos) {
 	map<uint,FMOD::Sound*>::iterator res = loadedSounds.find(soundId);
 	FMOD_VECTOR soundVel;
 	FMOD_VECTOR soundPos;
-	//soundPos.x = pos.x;
-	//soundPos.y = pos.y;
-	//soundPos.z = pos.z;
-	soundPos.x = soundPos.y = soundPos.z = 0;
+	soundPos.x = pos.x * distFactor;
+	soundPos.y = pos.y * distFactor;
+	soundPos.z = pos.z * distFactor;
+	DC::get()->print("[Audio] playing sound at: (%f,%f,%f)\n",soundPos.x,soundPos.y,soundPos.z);
+	//soundPos.x = soundPos.y = soundPos.z = 0;
 	soundVel.x = soundVel.y = soundVel.z = 0;
 
 	if(res != loadedSounds.end())
@@ -316,8 +381,8 @@ void AudioEngine::playOneShot3D(uint soundId, float volume, Vec3f &pos) {
 		FMOD_ERRCHECK(result);
 		result = chan->setVolume(volume);
 		FMOD_ERRCHECK(result);
-		//result = chan->set3DAttributes(&soundPos,&soundVel);
-		//FMOD_ERRCHECK(result);
+		result = chan->set3DAttributes(&soundPos,&soundVel);
+		FMOD_ERRCHECK(result);
 		result = chan->setPaused(false);
 		FMOD_ERRCHECK(result);
 	}
@@ -336,6 +401,34 @@ void AudioEngine::playLoop(uint SoundId) {
 		result = sound->setMode(FMOD_LOOP_NORMAL); //loop
 		FMOD_ERRCHECK(result);
 		result = system->playSound(FMOD_CHANNEL_FREE,sound,true,&chan);
+		FMOD_ERRCHECK(result);
+		result = chan->setPaused(false);
+		FMOD_ERRCHECK(result);
+	}
+}
+
+void AudioEngine::playLoop3D(uint soundId, float volume, Vec3f &pos) {
+	map<uint,FMOD::Sound*>::iterator res = loadedSounds.find(soundId);
+	FMOD_VECTOR soundVel;
+	FMOD_VECTOR soundPos;
+	soundPos.x = pos.x * distFactor;
+	soundPos.y = pos.y * distFactor;
+	soundPos.z = pos.z * distFactor;
+	DC::get()->print("[Audio] playing sound at: (%f,%f,%f)\n",soundPos.x,soundPos.y,soundPos.z);
+	//soundPos.x = soundPos.y = soundPos.z = 0;
+	soundVel.x = soundVel.y = soundVel.z = 0;
+
+	if(res != loadedSounds.end())
+	{
+		FMOD::Channel *chan;
+		FMOD::Sound *sound = res->second;
+		result = sound->setMode(FMOD_LOOP_NORMAL); //one shot
+		FMOD_ERRCHECK(result);
+		result = system->playSound(FMOD_CHANNEL_FREE,sound,true,&chan);
+		FMOD_ERRCHECK(result);
+		result = chan->setVolume(volume);
+		FMOD_ERRCHECK(result);
+		result = chan->set3DAttributes(&soundPos,&soundVel);
 		FMOD_ERRCHECK(result);
 		result = chan->setPaused(false);
 		FMOD_ERRCHECK(result);
