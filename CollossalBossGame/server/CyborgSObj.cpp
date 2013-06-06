@@ -17,6 +17,7 @@ CyborgSObj::~CyborgSObj(void)
 void CyborgSObj::initialize() {
 	charge = 0.0f;
 	chargeUpdate = 13.0f/50.0f;
+	chargeAttack = false;
 	delay = 50;
 	canCharge = false;
 	delayCounter = 0;
@@ -33,6 +34,7 @@ void CyborgSObj::actionCharge(bool buttondown) {
 
 	// only charge if you already started or you're out of charge
 	if(canCharge && buttondown/*!this->getFlag(IS_FALLING)*/) {
+		this->subclassstate = PAS_CHARGE;
 		charging = true;
 		charge += chargeUpdate;
 		if(charge > 13.0f) charge = 13.0f;
@@ -58,13 +60,31 @@ void CyborgSObj::actionCharge(bool buttondown) {
 		charge -= chargeUpdate;
 		if(charge < 0.f) charge = 0.f;
 		charging = false;
+
+		// switch to idle once we're done attacking
+		if (this->chargeAttack && this->attackCounter < 30) {
+			this->attackCounter++;			
+			this->subclassstate = PAS_ATTACK;
+		}
+		else // otherwise, decide according to movement
+		{
+			this->subclassstate = PAS_IDLE;
+			this->chargeAttack = false;
+		}
 	}
+
+	this->stopMovement = charging;
 }
 
 void CyborgSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
 	// Reset Damage
 	ObjectType collidedWith = obj->getType();
-	if (collidedWith == OBJ_TENTACLE || collidedWith == OBJ_HEAD) charge = 0;
+	if (collidedWith == OBJ_TENTACLE || collidedWith == OBJ_HEAD) {
+		charge = 0;
+		this->chargeAttack = true;
+		this->attackCounter = 0;
+		this->subclassstate = PAS_ATTACK;
+	}
 
 	PlayerSObj::onCollision(obj, collisionNormal);
 }

@@ -84,6 +84,7 @@ void PlayerSObj::initialize() {
 	charge = 0.0;
 	chargeCap = 13.0f;
 	damage = 0;
+	stopMovement = false;
 	modelAnimationState = PAS_IDLE;
 	ready = false;
 
@@ -159,29 +160,32 @@ bool PlayerSObj::update() {
 			camDist = camDistMax;
 		}
 
-		// Jumping can happen in two cases
-		// 1. Collisions
-		// 2. In the air
-		// This handles in the air, collisions
-		// are handled in OnCollision()
+		if (!this->stopMovement)
+		{
+			// Jumping can happen in two cases
+			// 1. Collisions
+			// 2. In the air
+			// This handles in the air, collisions
+			// are handled in OnCollision()
 
-		// This part discretizes jumps (so no button mashing)
-		jumping = istat.jump && newJump; // isFalling?
-		newJump = !istat.jump;
+			// This part discretizes jumps (so no button mashing)
+			jumping = istat.jump && newJump; // isFalling?
+			newJump = !istat.jump;
 
-		// This part gives us a buffer, so the user can bounce off the wall even 
-		// when they pressed 'jump' before they got there
-		if (jumping) jumpCounter++;
-		else jumpCounter = 0; 
+			// This part gives us a buffer, so the user can bounce off the wall even 
+			// when they pressed 'jump' before they got there
+			if (jumping) jumpCounter++;
+			else jumpCounter = 0; 
 
-		appliedJumpForce = false; // we apply it on collision
+			appliedJumpForce = false; // we apply it on collision
 
-		//Apply a small, continuous force based on time jump is pressed
-		if(jumpForceTimer > 0 && istat.jump) {
-			jumpForceTimer--;
-			pm->applyForce(jumpVec * (jumpForceTimer / jumpDiv));
-		} else {
-			jumpForceTimer = 0;
+			//Apply a small, continuous force based on time jump is pressed
+			if(jumpForceTimer > 0 && istat.jump) {
+				jumpForceTimer--;
+				pm->applyForce(jumpVec * (jumpForceTimer / jumpDiv));
+			} else {
+				jumpForceTimer = 0;
+			}
 		}
 
 		// damage = charging ? chargeDamage : 0;
@@ -212,10 +216,13 @@ bool PlayerSObj::update() {
 		pm->ref->setRot(qRot);
 
 		//Move the player: apply a force in the appropriate direction
-		float fwdMag = sqrt(istat.rightDist * istat.rightDist + istat.forwardDist * istat.forwardDist) * pm->frictCoeff / movDamp;
-		Vec3f total = rotate(Vec3f(0, 0, fwdMag), qRot);
+		if (!this->stopMovement)
+		{
+			float fwdMag = sqrt(istat.rightDist * istat.rightDist + istat.forwardDist * istat.forwardDist) * pm->frictCoeff / movDamp;
+			Vec3f total = rotate(Vec3f(0, 0, fwdMag), qRot);
 		
-		pm->applyForce(total);
+			pm->applyForce(total);
+		}
 
 		// Apply special power
 		actionCharge(istat.attack);
@@ -239,7 +246,6 @@ bool PlayerSObj::update() {
 				this->setAnimationState(PAS_IDLE);
 			}
 		}
-
 	} else if (!GameServer::get()->state.gameover) {
 		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
 		pm->ref->setRot(qRot);
@@ -247,13 +253,14 @@ bool PlayerSObj::update() {
 		damage = 0; // you can't kill things if you're dead xD
 
 		if(!firedeath) {
+			this->setAnimationState(PAS_DEATH);
 			firedeath = true;
 			GameServer::get()->event_player_death(this->clientId);
 			deathtimer = 0;
 		}
 		
 		deathtimer++;
-		if(deathtimer == 50) {
+		if(deathtimer == 73) {
 			firedeath = false;
 			this->PlayerSObj::initialize();
 			this->initialize();
