@@ -174,8 +174,9 @@ bool MonsterPartSObj::update() {
 		attacked = false;
 
 		///////////////////// State logic ///////////////////////
-		//actionState = RAGE_ACTION;
-		
+		/*this->findPlayer();
+		actionState = ATTACK_ACTION;
+		*/
 		switch(actionState)
 		{
 		case IDLE_ACTION:
