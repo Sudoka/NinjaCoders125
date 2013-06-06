@@ -10,6 +10,7 @@
 #include "MonsterPartSObj.h"
 #include "TentacleSObj.h"
 #include "HeadSObj.h"
+#include "WorldSObj.h"
 
 // Logic related to phases (turning features on)
 bool MonsterSObj::attackingOn, MonsterSObj::gravityOn, MonsterSObj::fogOn, MonsterSObj::headsOn, MonsterSObj::brainsOn, MonsterSObj::switchPhase;
@@ -297,7 +298,7 @@ bool MonsterSObj::update() {
 			attackingOn = true;
 			break;
 		case 2:
-			gravityOn = true;
+			setGravityPhase();
 			break;
 		case 3:
 			fogOn = true;
@@ -412,4 +413,15 @@ int MonsterSObj::serialize(char * buf) {
 
 void MonsterSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
 	// should only collide on tentacle this is a container class
+}
+
+void MonsterSObj::setGravityPhase() {
+	//Enable gravity switching
+	gravityOn = true;
+
+	//Set the world object's gravity timer
+	WorldSObj *wobj = dynamic_cast<WorldSObj*>(SOM::get()->find(0));
+	if(wobj != NULL) {
+		wobj->setGravTimer(GRAV_NULL);
+	}
 }

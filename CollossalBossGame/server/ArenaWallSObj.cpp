@@ -19,7 +19,7 @@ ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Poin
 	case NORTH:
 		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "NORTH\n");
 		fxo = -roomWidth / 2;
-		fyo = -85.f;
+		fyo = -87.f;
 		fzo = -roomHeight / 2;
 		scale = 110.0f / 255.0f;
 		div = 5;
@@ -27,7 +27,7 @@ ArenaWallSObj::ArenaWallSObj(uint id, const char* filename, Model modelNum, Poin
 	case SOUTH:
 		DC::get()->print(DEFAULT_FLAGS & ~TIMESTAMP, "SOUTH\n");
 		fxo = -roomWidth / 2;
-		fyo = -85.f;
+		fyo = -87.f;
 		fzo = -roomHeight / 2;
 		scale = 110.0f / 255.0f;
 		div = 5;
