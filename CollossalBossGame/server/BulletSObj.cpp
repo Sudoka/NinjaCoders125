@@ -1,14 +1,19 @@
 #include "BulletSObj.h"
+#include "PlayerSObj.h"
 #include "ServerObjectManager.h"
 #include "ConfigurationManager.h"
 #include "defs.h"
 #include <math.h>
 
-int BulletSObj::TotalBullets = 0;
+int BulletSObj::TotalShooterBullets = 0;
+int BulletSObj::TotalScientistBullets = 0;
 
-BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int dmg, int diameter) : ServerObject(id)
+BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int dmg, int diameter, ServerObject* shooter) : ServerObject(id)
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new Bullet %d ", id);
+
+	this->creator = shooter;
+
 	Box bxVol;
 	Quat_t rot = Quat_t();
 	float negathing = -((float)diameter/2);
@@ -30,14 +35,33 @@ BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce,
 	this->damage = dmg;
 	this->diameter = diameter;
 
-	TotalBullets++;
+	PlayerSObj* pso = reinterpret_cast<PlayerSObj*>(creator);
+	if(pso == NULL) {
+		assert(false && "Creator Error");
+	} else if(pso->getCharacterClass() == CHAR_CLASS_SHOOTER) {
+		TotalShooterBullets++;
+	} else if(pso->getCharacterClass() == CHAR_CLASS_SCIENTIST) {
+		TotalScientistBullets++;
+	} else {
+		assert(false && "More things using the bullet class?");
+	}
+	
 }
 
 
 BulletSObj::~BulletSObj(void)
 {
 	delete pm;
-	TotalBullets--;
+	PlayerSObj* pso = reinterpret_cast<PlayerSObj*>(creator);
+	if(pso == NULL) {
+		assert(false && "Creator Error");
+	} else if(pso->getCharacterClass() == CHAR_CLASS_SHOOTER) {
+		TotalShooterBullets++;
+	} else if(pso->getCharacterClass() == CHAR_CLASS_SCIENTIST) {
+		TotalScientistBullets++;
+	} else {
+		assert(false && "More things using the bullet class?");
+	}
 }
 
 bool BulletSObj::update() {
@@ -70,7 +94,7 @@ int BulletSObj::serialize(char * buf) {
 	// All this ObjectState stuff is extra. TODO: Remove extra. 
 	*(int *)buf = diameter;
 	buf = buf + 4;
-	*(int *)buf = BLUE;
+	*(int *)buf = GREEN;
 	buf = buf + 4;
 
 	ObjectState *state = (ObjectState*)buf;
@@ -99,7 +123,7 @@ int BulletSObj::serialize(char * buf) {
 }
 
 void BulletSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
-	if(obj->getType() == OBJ_BULLET || obj->getType() == OBJ_HARPOON) {
+	if(obj->getType() == OBJ_FIREBALL || obj->getType() == OBJ_BULLET || obj->getType() == OBJ_HARPOON) {
 		return;
 	}
 

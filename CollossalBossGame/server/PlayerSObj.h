@@ -18,7 +18,7 @@ public:
 	virtual CharacterClass getCharacterClass() { return charclass; }
 	virtual void initialize();
 	virtual void onCollision(ServerObject *obj, const Vec3f &collNorm);
-	int getHealth() { return health; } 
+	float getHealth() { return health; } 
 	void setAnimationState(int state) { modelAnimationState = state; }
 	char serialbuffer[100];
 
@@ -29,14 +29,23 @@ public:
 
 	bool attacking, newAttack;
 	uint jumpCounter, attackCounter;
-	int health;
+	int jumpForceTimer;
+	float health;
 	int damage;
 	bool ready;
 	CharacterClass charclass;
 	bool jumping;
-protected:
+	bool zoomed;
+	
+	//For the scientist buff
+	int scientistBuffCounter;
+	bool scientistBuffDecreasing;
 
 	uint clientId;
+
+protected:
+	PlayerAnimationState subclassstate;
+	int deathtimer;
 	PhysicsModel *pm;
 	inputstatus istat;
 	Point_t lastCollision;
@@ -44,9 +53,11 @@ protected:
 	bool charging, newCharge;
 	float charge;
 	// Configuration options
-	float jumpDist;
+	float jumpDist, jumpDiv;
 	float chargeForce, chargeUpdate, chargeCap;
 	int movDamp;
+	bool jumpflag;
+	int jumpcycle;
 
 	//Rotational tracking
 	float t;
@@ -56,6 +67,7 @@ protected:
 	float yaw;
 	float camYaw;
 	float camPitch;
+	float camDist, camDistMin, camDistMax;
 	Quat_t camRot;
 	Quat_t initUpRot;
 	Quat_t finalUpRot;
@@ -63,6 +75,7 @@ protected:
 	Box bxStaticVol;
 	bool camLocked;
 	float camKp, camKpFast, camKpSlow;
+	Vec3f jumpVec;
 
 	//Sounds
 	PlayerSoundState sState;
@@ -71,7 +84,8 @@ protected:
 	bool firedeath;
 	int gravityTimer;
 	int modelAnimationState;
-	int swordDamage, chargeDamage;
+	int swordDamage;
+	float chargeDamage;
 
 	void  calcUpVector(Quat_t *upRot);
 	void  controlCamera(const Quat_t &upRot);
@@ -79,5 +93,8 @@ protected:
 
 	virtual void actionCharge(bool buttondown) = 0;
 	virtual void actionAttack() = 0;
+
+	// hot keys
+	bool oldSwitchPhase;
 };
 

@@ -21,6 +21,12 @@ HeadSObj::HeadSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj
 	idleBoxes[1] = CM::get()->find_config_as_box("BOX_HEAD_MID");
 	idleBoxes[2] = CM::get()->find_config_as_box("BOX_HEAD_TIP");
 
+	shootBoxes[0] = CM::get()->find_config_as_box("BOX_HEAD_BASE_SHOOT"); 
+	shootBoxes[1] = CM::get()->find_config_as_box("BOX_HEAD_MID_SHOOT");
+	shootBoxes[2] = CM::get()->find_config_as_box("BOX_HEAD_TIP_SHOOT");
+
+	rageRoarProb = CM::get()->find_config_as_int("RAGE_ROAR_CHANCE");
+
 	CollisionModel *cm = getCollisionModel();
 
 	for (int i=0; i<3; i++) {
@@ -35,165 +41,437 @@ HeadSObj::~HeadSObj(void)
 {
 }
 
+void HeadSObj::reinitialize() {
+	CollisionModel *cm = getCollisionModel();
+	for (int i=0; i<3; i++) {
+		assert((cm->add(new AabbElement(idleBoxes[i])) == i) && "Your physics model is out of sync with the rest of the world...");
+	}
+}
+
 void HeadSObj::idle() {
-	// Keep initial idle boxes
-	Box origBase = idleBoxes[0];
-	Box origMiddle = idleBoxes[1];
-	Box origTip = idleBoxes[2];
+	modelAnimationState = M_PROBE; // M_IDLE;
+
+	CollisionModel *cm = getCollisionModel();
+	Box base =	 ((AabbElement*)cm->get(0))->bx;
+	Box middle = ((AabbElement*)cm->get(1))->bx;
+	Box tip =	 ((AabbElement*)cm->get(2))->bx;
+
+	Vec3f changePosT = Vec3f();
 
 	//get the actual axis
 	Vec4f axis = this->getPhysicsModel()->ref->getRot();
-	origBase.rotate(axis);
-	origMiddle.rotate(axis);
-	origTip.rotate(axis);
 
-	CollisionModel *cm = getCollisionModel();
-	((AabbElement*)cm->get(0))->bx = origBase;
-	((AabbElement*)cm->get(1))->bx = origMiddle;
-	((AabbElement*)cm->get(2))->bx = origTip;
+	if (stateCounter == 0)
+	{
+		// Keep initial idle boxes
+		Box origBase = idleBoxes[0];
+		Box origMiddle = idleBoxes[1];
+		Box origTip = idleBoxes[2];
 
-	currStateDone = true;
+		base.setPos(axis.rotateToThisAxis(origBase.getPos()));
+		base.setSize(axis.rotateToThisAxis(origBase.getSize()));
+
+		middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+		middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+
+		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+	}
+	else if (stateCounter < 30) { changePosT.x += .5; }
+	else if (stateCounter < 44) { changePosT.x -= 1; }
+	else if (stateCounter < 58) { changePosT.x -= .75; }
+	else if (stateCounter < 60) { /* stay still */ }
+	else if (stateCounter < 80) { changePosT.x += .5; }
+	else {
+		// Return to initial idle boxes
+		Box origBase = idleBoxes[0];
+		Box origMiddle = idleBoxes[1];
+		Box origTip = idleBoxes[2];
+
+		base.setPos(axis.rotateToThisAxis(origBase.getPos()));
+		base.setSize(axis.rotateToThisAxis(origBase.getSize()));
+
+		middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+		middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+
+		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+	}
+
+	// Rotate the relative change according to where we're facing
+	changePosT = axis.rotateToThisAxis(changePosT);
+	tip.setRelPos(changePosT);
+
+	// Set new collision boxes
+	((AabbElement*)cm->get(0))->bx = *(base.fix());
+	((AabbElement*)cm->get(1))->bx = *(middle.fix());
+	((AabbElement*)cm->get(2))->bx = *(tip.fix());
+
+	currStateDone = (stateCounter == 85); // 44
 }
 
 void HeadSObj::probe() {
-	// Keep initial idle boxes
-	Box origBase = idleBoxes[0];
-	Box origMiddle = idleBoxes[1];
-	Box origTip = idleBoxes[2];
+	modelAnimationState = M_IDLE; // M_PROBE;
+
+	CollisionModel *cm = getCollisionModel();
+	Box base =	 ((AabbElement*)cm->get(0))->bx;
+	Box middle = ((AabbElement*)cm->get(1))->bx;
+	Box tip =	 ((AabbElement*)cm->get(2))->bx;
+
+	Vec3f changePosT = Vec3f();
 
 	//get the actual axis
 	Vec4f axis = this->getPhysicsModel()->ref->getRot();
-	origBase.rotate(axis);
-	origMiddle.rotate(axis);
-	origTip.rotate(axis);
 
-	CollisionModel *cm = getCollisionModel();
-	((AabbElement*)cm->get(0))->bx = origBase;
-	((AabbElement*)cm->get(1))->bx = origMiddle;
-	((AabbElement*)cm->get(2))->bx = origTip;
+	if (stateCounter == 0)
+	{
+		// Keep initial idle boxes
+		Box origBase = idleBoxes[0];
+		Box origMiddle = idleBoxes[1];
+		Box origTip = idleBoxes[2];
 
-	currStateDone = true;
+		base.setPos(axis.rotateToThisAxis(origBase.getPos()));
+		base.setSize(axis.rotateToThisAxis(origBase.getSize()));
+
+		middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+		middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+
+		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+	}
+	else if (stateCounter < 55) { changePosT.x -= 1; }
+	else if (stateCounter < 60) { /* stay still for a sec */ }
+	else if (stateCounter < 74) { changePosT.x += 3; }
+	else if (stateCounter < 104) { changePosT.x += 2; }
+	else if (stateCounter < 136) { changePosT.x -= 1; }
+	else {
+		// Return to initial idle boxes
+		Box origBase = idleBoxes[0];
+		Box origMiddle = idleBoxes[1];
+		Box origTip = idleBoxes[2];
+
+		base.setPos(axis.rotateToThisAxis(origBase.getPos()));
+		base.setSize(axis.rotateToThisAxis(origBase.getSize()));
+
+		middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+		middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+
+		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+	}
+
+	// Rotate the relative change according to where we're facing
+	changePosT = axis.rotateToThisAxis(changePosT);
+	tip.setRelPos(changePosT);
+
+	// Set new collision boxes
+	((AabbElement*)cm->get(0))->bx = *(base.fix());
+	((AabbElement*)cm->get(1))->bx = *(middle.fix());
+	((AabbElement*)cm->get(2))->bx = *(tip.fix());
+
+	currStateDone = (stateCounter == 163); // 80
 }
 
+#define SHOOT_CYCLE 85 // 43
+
 void HeadSObj::shootFireball() {
-	// For now, keep initial idle boxes
-	Box origBase = idleBoxes[0];
-	Box origMiddle = idleBoxes[1];
-	Box origTip = idleBoxes[2];
+	modelAnimationState = M_ENTER; // M_ATTACK
+
+	CollisionModel *cm = getCollisionModel();
+	Box base =	 ((AabbElement*)cm->get(0))->bx;
+	Box middle = ((AabbElement*)cm->get(1))->bx;
+	Box tip =	 ((AabbElement*)cm->get(2))->bx;
+
+	Vec3f changePosT = Vec3f(), changePosM = Vec3f();
 
 	//get the actual axis
 	Vec4f axis = this->getPhysicsModel()->ref->getRot();
-	origBase.rotate(axis);
-	origMiddle.rotate(axis);
-	origTip.rotate(axis);
 
-	CollisionModel *cm = getCollisionModel();
-	((AabbElement*)cm->get(0))->bx = origBase;
-	((AabbElement*)cm->get(1))->bx = origMiddle;
-	((AabbElement*)cm->get(2))->bx = origTip;
+	// Set up initial collision boxes
+	if (stateCounter % SHOOT_CYCLE == 0)
+	{
+		Box origBase = shootBoxes[0];
+		Box origMiddle = shootBoxes[1];
+		Box origTip = shootBoxes[2];
 
-	// Find our head position
-	Box headBox = ((AabbElement*)getCollisionModel()->get(2))->bx;
-	Vec3f headPos = headBox.getPos() + this->getPhysicsModel()->ref->getPos();
+		base.setPos(axis.rotateToThisAxis(origBase.getPos()));
+		base.setSize(axis.rotateToThisAxis(origBase.getSize()));
 
-	// If there was no player, pick a random target
-	if (!this->playerFound) this->playerPos = Vec3f(-100 + rand()%200,-100 + rand()%200,-100 + rand()%200) + headPos;
+		middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+		middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
 
-	// Determine our bullet path
-	Vec3f bulletPath = this->playerPos - headPos;
-	bulletPath.normalize();
+		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+	}
+	else if (stateCounter % SHOOT_CYCLE < 10) { changePosT.y += 1;	/* middle stays */	}
+	else if (stateCounter % SHOOT_CYCLE < 19) { changePosT.y += 1.75;	changePosM.y += 1;	}
+	else if (stateCounter % SHOOT_CYCLE < 25) {  /* head stays */		changePosM.y += 1;	}
+	else if (stateCounter % SHOOT_CYCLE < 30) { changePosT.y -= 5;	/* middle stays */	}
+	else if (stateCounter % SHOOT_CYCLE < 35) { changePosT.y -= 2;	changePosM.y -= 3;	}
+	else if (stateCounter % SHOOT_CYCLE < 50) { /* head stays */		/* middle stays */	}
+	else if (stateCounter % SHOOT_CYCLE < 72) { changePosT.y += .5;	/* middle stays */	}
+	else {
+		// Return to initial boxes
+		Box origBase = shootBoxes[0];
+		Box origMiddle = shootBoxes[1];
+		Box origTip = shootBoxes[2];
 
-	// move the bullet a little bit along our path, just enough so it clears the head
-	Vec3f offset = bulletPath * this->headBoxSize * 1.5; // 1.5 is sqrt(2), ask franklin for the math behind it
-	Vec3f bulletPos = headPos + offset;
+		base.setPos(axis.rotateToThisAxis(origBase.getPos()));
+		base.setSize(axis.rotateToThisAxis(origBase.getSize()));
 
-	FireBallSObj * fbso = new FireBallSObj(	SOM::get()->genId(), 
-											(Model)-1, bulletPos, 
-											bulletPath * this->fireballForce, 
-											this->fireballDamage, 
-											this->fireballDiameter);
-	SOM::get()->add(fbso);
+		middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+		middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+
+		tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+		tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+	}
+
+	// Rotate the relative change according to where we're facing
+	changePosT = axis.rotateToThisAxis(changePosT);
+	changePosM = axis.rotateToThisAxis(changePosM);
+
+	tip.setRelPos(changePosT);
+	middle.setRelPos(changePosM);
+
+	// Set new collision boxes
+	((AabbElement*)cm->get(0))->bx = *(base.fix());
+	((AabbElement*)cm->get(1))->bx = *(middle.fix());
+	((AabbElement*)cm->get(2))->bx = *(tip.fix());
+
+	
+	// We actually shoot in a specific frame
+	if (stateCounter % SHOOT_CYCLE == 40)
+	{
+		//fireball sound
+		sTrig = SOUND_HEAD_SHOOT;
+
+		// Find our head position
+		Box headBox = tip;
+		Vec3f headPos = headBox.getPos() + this->getPhysicsModel()->ref->getPos();
+
+		// If there was no player, pick a random target
+		if (!this->playerFound) {
+			Vec3f randTarget = Vec3f(-100.f + (float)(rand()%200),-100.f + (float)(rand()%200), (float)(rand()%100));
+			randTarget = axis.rotateToThisAxis(randTarget);
+			this->playerPos = randTarget + headPos;
+		}
+		else if (this->attackerId != -1)
+		{
+			// Just so we're AWESOME, re-target that darn attacker =P
+			this->playerPos = SOM::get()->find(this->attackerId)->getPhysicsModel()->ref->getPos();
+
+			// At this point, the attacker has been dealt with
+			this->attackerId = -1;
+		}
+		// Fix playerPos so we don't aim at the feet
+		this->playerPos += PE::get()->getGravVec()*-20;
+
+		// Determine our bullet path
+		Vec3f bulletPath = this->playerPos - headPos;
+		bulletPath.normalize();
+
+		// move the bullet a little bit along our path, just enough so it clears the head
+		Vec3f offset = bulletPath * ((float)this->headBoxSize * 1.5f); // 1.5 is sqrt(2), ask franklin for the math behind it
+		Vec3f bulletPos = headPos + offset;
+
+		FireBallSObj * fbso = new FireBallSObj(	SOM::get()->genId(), 
+												(Model)-1, bulletPos, 
+												bulletPath * (float)this->fireballForce, 
+												this->fireballDamage, 
+												this->fireballDiameter);
+		SOM::get()->add(fbso);
+	}
 }
 
 void HeadSObj::attack() {
-	// First, create our bullet
-	if (stateCounter == 0)
-	{
-		shootFireball();
-	}
+	// Shoot!
+	shootFireball();
 
-	currStateDone = (stateCounter == SHOOT_CYCLE);
+	currStateDone = (stateCounter == SHOOT_CYCLE - 1);
 }
 
 #define NUM_SHOTS 4
 void HeadSObj::combo() {
 	// Fire away!
-	if (stateCounter%SHOOT_CYCLE == 0) {
-		this->playerFound = false; // force shootFireball() to pick a random target xD
-		shootFireball();
-	}
+	this->playerFound = false; // force shootFireball() to pick a random target xD
+	shootFireball();
 
+	// This makes us fire multiple times!
 	currStateDone = stateCounter >= SHOOT_CYCLE*NUM_SHOTS;
 }
 
 void HeadSObj::spike() {
-	// Keep initial idle boxes
-	Box origBase = idleBoxes[0];
-	Box origMiddle = idleBoxes[1];
-	Box origTip = idleBoxes[2];
+	// this is horrendous, fix me if you can :(
+	// note this doesn't work if we want them to rotate with gravity I think...
+	// if we're in the bottom floor, don't do spike!
+	if (this->getPhysicsModel()->ref->getPos().y < 100) {
+		currStateDone = true;
+	}
+	else
+	{
+		modelAnimationState = M_EXIT; // M_SPIKE;
 
-	//get the actual axis
-	Vec4f axis = this->getPhysicsModel()->ref->getRot();
-	origBase.rotate(axis);
-	origMiddle.rotate(axis);
-	origTip.rotate(axis);
+		CollisionModel *cm = getCollisionModel();
+		Box base =	 ((AabbElement*)cm->get(0))->bx;
+		Box middle = ((AabbElement*)cm->get(1))->bx;
+		Box tip =	 ((AabbElement*)cm->get(2))->bx;
 
-	CollisionModel *cm = getCollisionModel();
-	((AabbElement*)cm->get(0))->bx = origBase;
-	((AabbElement*)cm->get(1))->bx = origMiddle;
-	((AabbElement*)cm->get(2))->bx = origTip;
+		Vec3f changePosT = Vec3f(), changePosM = Vec3f();
+		Vec3f changePropM = Vec3f();
 
-	currStateDone = true;
+		//get the actual axis
+		Vec4f axis = this->getPhysicsModel()->ref->getRot();
+
+		if (stateCounter == 0)
+		{
+			// Keep initial idle boxes
+			Box origBase = idleBoxes[0];
+			Box origMiddle = idleBoxes[1];
+			Box origTip = idleBoxes[2];
+
+			base.setPos(axis.rotateToThisAxis(origBase.getPos()));
+			base.setSize(axis.rotateToThisAxis(origBase.getSize()));
+
+			middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+			middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+
+			tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+			tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+		}
+		else if (stateCounter < 15) { changePosT.y += 3.f;		changePropM.y += 2.67f;	}
+		else if (stateCounter < 23) { changePosT.y -= 5.625f;	changePropM.y -= 5.f;		}
+		else if (stateCounter < 26) { changePosT.y -= 10.f;		changePropM.y -= 5.f;	}
+		else if (stateCounter < 35) { changePosT.y -= 10.f;		changePosM.y -= 5.f;		}
+		else if (stateCounter < 40) { changePosT.y += 4.44f;	/* middle stays */		}
+		else if (stateCounter < 62) { changePosT.y += 4.44f;	changePosM.y += 2.f;		}
+		else {
+			// Return to initial idle boxes
+			Box origBase = idleBoxes[0];
+			Box origMiddle = idleBoxes[1];
+			Box origTip = idleBoxes[2];
+
+			base.setPos(axis.rotateToThisAxis(origBase.getPos()));
+			base.setSize(axis.rotateToThisAxis(origBase.getSize()));
+
+			middle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+			middle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+
+			tip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+			tip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+		}
+
+		// Rotate the relative change according to where we're facing
+		changePosT = axis.rotateToThisAxis(changePosT);
+		changePosM = axis.rotateToThisAxis(changePosM);
+
+		changePropM = axis.rotateToThisAxis(changePropM);
+
+		tip.setRelPos(changePosT);
+		middle.setRelPos(changePosM);
+
+		middle.setRelSize(changePropM);
+
+		// Set new collision boxes
+		((AabbElement*)cm->get(0))->bx = *(base.fix());
+		((AabbElement*)cm->get(1))->bx = *(middle.fix());
+		((AabbElement*)cm->get(2))->bx = *(tip.fix());
+
+		currStateDone = stateCounter >= 77; // 39
+	}
 }
 
 // FOR NOW this is the same as in the tentacle
 void HeadSObj::rage() {
-	//modelAnimationState = M_RAGE;
+	modelAnimationState = M_DEATH; // M_RAGE;
 
 	// First, we create the wave object
 	if (stateCounter == 0) {
+
+		//angry roar! only the head can roar when raging.
+		if((rand() % 100) < rageRoarProb)
+		{
+			roar();
+		}	
+
 		Vec4f axis = this->getPhysicsModel()->ref->getRot();
-		Vec3f changePos = Vec3f(0,0,-120);
+		Vec3f changePos = Vec3f(0,0,20);
 		changePos = axis.rotateToThisAxis(changePos);
 		SOM::get()->add(new RageSObj(SOM::get()->genId(), pm->ref->getPos() + changePos));
+
+		// for now, keep our initial idle collision boxes
+		Box origBase = idleBoxes[0];
+		Box origMiddle = idleBoxes[1];
+		Box origTip = idleBoxes[2];
+
+		origBase.setPos(axis.rotateToThisAxis(origBase.getPos()));
+		origBase.setSize(axis.rotateToThisAxis(origBase.getSize()));
+
+		origMiddle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
+		origMiddle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
+
+		origTip.setPos(axis.rotateToThisAxis(origTip.getPos()));
+		origTip.setSize(axis.rotateToThisAxis(origTip.getSize()));
+
+		CollisionModel *cm = getCollisionModel();
+		((AabbElement*)cm->get(0))->bx = *(origBase.fix());
+		((AabbElement*)cm->get(1))->bx = *(origMiddle.fix());
+		((AabbElement*)cm->get(2))->bx = *(origTip.fix());
+
+		// At this point, the attacker has been dealt with
+		this->attackerId = -1;
 	}
 
-	// for now, keep our initial idle collision boxes
-	Box origBase = idleBoxes[0];
-	Box origMiddle = idleBoxes[1];
-	Box origTip = idleBoxes[2];
-
-	//get the actual axis
-	Vec4f axis = this->getPhysicsModel()->ref->getRot();
-
-	origBase.setPos(axis.rotateToThisAxis(origBase.getPos()));
-	origBase.setSize(axis.rotateToThisAxis(origBase.getSize()));
-
-	origMiddle.setPos(axis.rotateToThisAxis(origMiddle.getPos()));
-	origMiddle.setSize(axis.rotateToThisAxis(origMiddle.getSize()));
-
-	origTip.setPos(axis.rotateToThisAxis(origTip.getPos()));
-	origTip.setSize(axis.rotateToThisAxis(origTip.getSize()));
-
-	CollisionModel *cm = getCollisionModel();
-	((AabbElement*)cm->get(0))->bx = *(origBase.fix());
-	((AabbElement*)cm->get(1))->bx = *(origMiddle.fix());
-	((AabbElement*)cm->get(2))->bx = *(origTip.fix());
-
 	// when the object dies we're done raging
-	currStateDone = stateCounter >= RageSObj::lifetime;
+	currStateDone = stateCounter >= max(RageSObj::lifetime, 60); // 60
+}
+
+void HeadSObj::move() {
+	// No collision boxes when you move, you are ethereal xD
+	if (stateCounter == 0)
+	{
+		CollisionModel *cm = getCollisionModel();
+		((AabbElement*)cm->get(0))->bx = Box();
+		((AabbElement*)cm->get(1))->bx = Box();
+		((AabbElement*)cm->get(2))->bx = Box();
+	}
+
+	// Wriggle out
+	if (stateCounter <= 28) // 29
+	{
+		modelAnimationState = M_SPIKE; // M_EXIT;
+	}
+	// Switch positions
+	if (stateCounter == 29)
+	{
+		Frame* currFrame = this->getPhysicsModel()->ref;
+		Frame newFrame = this->overlord->updatePosition(*currFrame, this->getType());
+		currFrame->setPos(newFrame.getPos());
+		currFrame->setRot(newFrame.getRot());
+	}
+	// Wriggle back in
+	if (stateCounter > 28)
+	{
+		modelAnimationState = M_ATTACK; // M_ENTER;
+	}
+
+	currStateDone = (stateCounter == 59); // 29 + 31
+}
+
+void HeadSObj::death() {
+	modelAnimationState = M_RAGE; // M_DEATH;
+
+	// No collision boxes in death
+	if (stateCounter == 0)
+	{
+		CollisionModel *cm = getCollisionModel();
+		((AabbElement*)cm->get(0))->bx = Box();
+		((AabbElement*)cm->get(1))->bx = Box();
+		((AabbElement*)cm->get(2))->bx = Box();
+	}
+
+	currStateDone = (stateCounter == 68); // 69
 }
 
 void HeadSObj::roar() {
-	//TODO
+	sTrig = SOUND_HEAD_ROAR;
 }

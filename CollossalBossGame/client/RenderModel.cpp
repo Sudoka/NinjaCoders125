@@ -16,8 +16,8 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 	char *filename = NULL;
 	Vec3f scale;
 	Vec3f initRot;
-	bool isInvisible = false;
-	modelState = IDLE;
+	isInvisible = false;
+	modelState = PAS_IDLE;
 	switch(modelNum) {
 	case -1: 
 		//container object
@@ -54,6 +54,26 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 		scale = CM::get()->find_config_as_point("MODEL_HEAD1_SCALE");
 		initRot = CM::get()->find_config_as_point("MODEL_HEAD1_ROTATION");
 		break;
+	case MDL_HEAD_2:
+		filename = CM::get()->find_config("MODEL_HEAD2");
+		scale = CM::get()->find_config_as_point("MODEL_HEAD2_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_HEAD2_ROTATION");
+		break;
+	case MDL_HEAD_3:
+		filename = CM::get()->find_config("MODEL_HEAD3");
+		scale = CM::get()->find_config_as_point("MODEL_HEAD3_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_HEAD3_ROTATION");
+		break;
+	case MDL_HEAD_4:
+		filename = CM::get()->find_config("MODEL_HEAD4");
+		scale = CM::get()->find_config_as_point("MODEL_HEAD4_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_HEAD4_ROTATION");
+		break;
+	case MDL_HEAD_5:
+		filename = CM::get()->find_config("MODEL_HEAD5");
+		scale = CM::get()->find_config_as_point("MODEL_HEAD5_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_HEAD5_ROTATION");
+		break;
 	case MDL_FLOOR:
 		filename = CM::get()->find_config("MODEL_FLOOR");
 		scale = CM::get()->find_config_as_point("MODEL_FLOOR_SCALE");
@@ -84,6 +104,11 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 		scale = CM::get()->find_config_as_point("MODEL_SOUTH_WALL_SCALE");
 		initRot = CM::get()->find_config_as_point("MODEL_SOUTH_WALL_ROTATION");
 		break;
+	case MDL_ELEVATOR:
+		filename = CM::get()->find_config("MODEL_ELEVATOR");
+		scale = CM::get()->find_config_as_point("MODEL_ELEVATOR_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_ELEVATOR_ROTATION");
+		break;
 	case MDL_PLAYER_1:
 		filename = CM::get()->find_config("MODEL_PLAYER1");
 		scale = CM::get()->find_config_as_point("MODEL_PLAYER1_SCALE");
@@ -103,6 +128,21 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 		filename = CM::get()->find_config("MODEL_PLAYER4");
 		scale = CM::get()->find_config_as_point("MODEL_PLAYER4_SCALE");
 		initRot = CM::get()->find_config_as_point("MODEL_PLAYER4_ROTATION");
+		break;
+	case MDL_PLAYER_1_1:
+		filename = CM::get()->find_config("MODEL_PLAYER1_1");
+		scale = CM::get()->find_config_as_point("MODEL_PLAYER1_1_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_PLAYER1_1_ROTATION");
+		break;
+	case MDL_PLAYER_2_1:
+		filename = CM::get()->find_config("MODEL_PLAYER2_1");
+		scale = CM::get()->find_config_as_point("MODEL_PLAYER2_1_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_PLAYER2_1_ROTATION");
+		break;
+	case MDL_PLAYER_3_1:
+		filename = CM::get()->find_config("MODEL_PLAYER3_1");
+		scale = CM::get()->find_config_as_point("MODEL_PLAYER3_1_SCALE");
+		initRot = CM::get()->find_config_as_point("MODEL_PLAYER3_1_ROTATION");
 		break;
 	case MDL_TEST_BOX:
 		filename = CM::get()->find_config("MODEL_TEST_BOX");
@@ -160,6 +200,9 @@ RenderModel::~RenderModel(void)
 }
 
 void RenderModel::render() {
+	//Don't render if invisible
+	if(isInvisible) return;
+
 	// negative id are for invisible/container objects
 	if(modelId >= 0)
 	{
@@ -192,7 +235,7 @@ void RenderModel::render() {
 	//Draw Boxes
 	if(colBoxes.size() > 0)
 	{
-		for (int i=0; i<colBoxes.size(); i++)
+		for (unsigned int i=0; i<colBoxes.size(); i++)
 		{
 			Box curr = colBoxes[i];
 

@@ -61,16 +61,24 @@ enum Model {
     MDL_TENTACLE_4,
     MDL_TENTACLE_5,
 	MDL_HEAD_1,
+	MDL_HEAD_2,
+	MDL_HEAD_3,
+	MDL_HEAD_4,
+	MDL_HEAD_5,
     MDL_FLOOR,
     MDL_CEILING,
 	MDL_EAST_WALL,
 	MDL_WEST_WALL,
 	MDL_NORTH_WALL,
+	MDL_ELEVATOR,
 	MDL_SOUTH_WALL,
     MDL_PLAYER_1,
 	MDL_PLAYER_2,
 	MDL_PLAYER_3,
 	MDL_PLAYER_4,
+	MDL_PLAYER_1_1,
+	MDL_PLAYER_2_1,
+	MDL_PLAYER_3_1,
 	MDL_TEST_BOX,
 	MDL_TEST_CRATE, 
 	MDL_TEST_PYRAMID,
@@ -90,8 +98,10 @@ enum ObjectType {
 	OBJ_PLAYER,
 	OBJ_MONSTER,
 	OBJ_TENTACLE,
+	OBJ_HEAD,
 	OBJ_RAGE,
 	OBJ_BULLET,
+	OBJ_FIREBALL,
 	OBJ_HARPOON,
 	OBJ_STUNGUN,
 	NUM_OBJS
@@ -101,10 +111,12 @@ enum ObjectType {
  * These enums are used mostly for specifying sound loops
  */
 enum PlayerSoundState {
-	SOUND_PLAYER_SLIENT,
-	SOUND_PLAYER_WALK,
-	SOUND_PLAYER_FALL, //maybe?
-	SOUND_CYBORG_CHARGE //might have to make it so you can charge and walk
+	SOUND_PLAYER_SILENT,
+	SOUND_MECHANIC_HARPOON_ON,
+	SOUND_MECHANIC_HARPOON_OFF,
+	SOUND_SCIENTIST_COPY_ON,
+	SOUND_SCIENTIST_COPY_OFF
+	//SOUND_CYBORG_CHARGE //might have to make it so you can charge and walk
 };
 
 enum MonsterSoundState {
@@ -134,9 +146,9 @@ enum PlayerSoundTrigger {
 	SOUND_PLAYER_JUMP, //on impact or vocal jump like link?
 	SOUND_PLAYER_HIT, 
 	SOUND_PLAYER_HURT, //may be the same as hit, but for now keep separate
-	SOUND_CYBORG_ATTACK, //swoosh sound
-	SOUND_CYBORG_ATTACK_IMPACT, //sword clash after swoosh
-	SOUND_SHOOT_GUN, 
+	SOUND_CYBORG_SWORD, //swoosh sound
+	SOUND_CYBORG_CHARGE,
+	SOUND_SHOOTER_FIRE, 
 	SOUND_SHOOT_GRAPPLE
 };
 
@@ -145,7 +157,6 @@ enum MonsterSoundTrigger {
 	SOUND_TENTACLE_SLAM,
 	SOUND_TENTACLE_ROAR,
 	SOUND_HEAD_SHOOT,
-	SOUND_HEAD_RAGE,
 	SOUND_HEAD_SPIKE,
 	SOUND_HEAD_ROAR
 };
@@ -199,15 +210,26 @@ struct CreateHeader {
 /*
  * State information for the player not encoded by the position
  */
+enum PlayerBooleanStates {
+	PLAYER_NONE = 0x0,
+	PLAYER_ZOOM = 0x1,
+	PLAYER_NUM_STATES
+};
+
 struct PlayerState {
     Model modelNum;
 	int health;
 	int ready;
-	int charge;
+	float charge;
+	int scientisttransformdelay;
+	int scientisttransformduration;
 	int animationstate;
 	PlayerSoundState sState;
 	PlayerSoundTrigger sTrig;
 	Quat_t camRot;
+	float camPitch;
+	float camDist;
+	int bStates;	//General state variable where different booleans can be concatenated
 };
 
 /*
@@ -240,6 +262,7 @@ struct WorldState {
 struct MonsterState {
 	//Model modelNum;
 	int health;
+	int phase;
 };
 
 /*
@@ -274,11 +297,18 @@ enum MonsterAnimationState {
  * Types of player animation states
  */
 enum PlayerAnimationState {
-	IDLE = 0,
-	WALK = 1,
-	JUMP = 2,
-	ATK  = 3,
-	DEAD = 4
+	PAS_IDLE = 11,
+	PAS_WALK = 10,
+	PAS_JUMP = 9,
+	PAS_FLOATING_UP = 8,
+	PAS_UP_DOWN_TRANSITION = 7,
+	PAS_FALLING_DOWN = 6,
+	PAS_DEAD = 5,
+	PAS_CHARGE_BEGIN = 4,
+	PAS_CHARGE = 3,
+	PAS_READY_BEGIN = 2,
+	PAS_READY = 1,
+	PAS_ATTACK  = 0,
 };
 
 enum BulletColor {

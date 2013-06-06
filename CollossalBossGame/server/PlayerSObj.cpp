@@ -5,6 +5,11 @@
 #include "WallSObj.h"
 #include "defs.h"
 #include "PhysicsEngine.h"
+#include "BulletSObj.h"
+#include "FireBallSObj.h"
+#include "MonsterSObj.h"
+
+#define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
 
 PlayerSObj::PlayerSObj(uint id, uint clientId, CharacterClass cc) : ServerObject(id) {
 	// Save parameters here
@@ -18,16 +23,19 @@ PlayerSObj::PlayerSObj(uint id, uint clientId, CharacterClass cc) : ServerObject
 
 	// Other re-initializations (things that don't depend on parameters, like config)
 	this->initialize();
+
+	this->oldSwitchPhase = false;
 }
 
 
 void PlayerSObj::initialize() {
 	// Configuration options
 	jumpDist = CM::get()->find_config_as_float("JUMP_DIST");
+	jumpDiv = CM::get()->find_config_as_float("JUMP_DIV");
 	movDamp = CM::get()->find_config_as_int("MOV_DAMP");
 	chargeForce = CM::get()->find_config_as_float("CHARGE_FORCE");
 	swordDamage = CM::get()->find_config_as_int("SWORD_DAMAGE");
-	chargeDamage = CM::get()->find_config_as_int("CHARGE_DAMAGE");
+	chargeDamage = CM::get()->find_config_as_float("CHARGE_DAMAGE");
 	chargeUpdate = CM::get()->find_config_as_float("CHARGE_UPDATE");
 	this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 
@@ -37,8 +45,10 @@ void PlayerSObj::initialize() {
 	Point_t pos = Point_t(0, 5, 10);
 	bxStaticVol = CM::get()->find_config_as_box("BOX_PLAYER");//Box(-10, 0, -10, 20, 20, 20);
 
-	if(pm != NULL)
+	if(pm != NULL) {
 		delete pm;
+		getCollisionModel()->clean();
+	}
 
 	pm = new PhysicsModel(pos, Quat_t(), CM::get()->find_config_as_float("PLAYER_MASS"));
 	getCollisionModel()->add(new AabbElement(bxStaticVol));
@@ -72,7 +82,7 @@ void PlayerSObj::initialize() {
 	charge = 0.0;
 	chargeCap = 13.0f;
 	damage = 0;
-	modelAnimationState = IDLE;
+	modelAnimationState = PAS_IDLE;
 	ready = false;
 
 	lastGravDir = DOWN;
@@ -82,16 +92,27 @@ void PlayerSObj::initialize() {
 	initUpRot = Quat_t();
 	finalUpRot = Quat_t();
 	camYaw = 0;
-	camPitch = 0;
+	camPitch = DEFAULT_PITCH_10;
 	camKpSlow = CM::get()->find_config_as_float("CAM_KP_SLOW");
 	camKpFast = CM::get()->find_config_as_float("CAM_KP_FAST");
 	camKp = camKpSlow;
+	camDistMin = CM::get()->find_config_as_float("CAM_FIRST_PERSON_DIST");
+	camDistMax = camDist = CM::get()->find_config_as_float("CAM_DIST");
+
+	scientistBuffCounter = 0;
+	scientistBuffDecreasing = false;
+	zoomed = false;
+	jumpForceTimer = 0;
+	setFlag(IS_DIRTY, true);
+
+	subclassstate = PAS_IDLE;
+
+	sState = SOUND_PLAYER_SILENT;
 }
 
 PlayerSObj::~PlayerSObj(void) {
 	delete pm;
 }
-
 
 bool PlayerSObj::update() {
 
@@ -99,25 +120,20 @@ bool PlayerSObj::update() {
 		ready = true;
 	}
 
-	if (istat.quit) {
+	if (istat.start && istat.quit) {
 		return true; // delete me!
 	}
 	Point_t myPos = pm->ref->getPos();
 	CollisionModel *cm = getCollisionModel();
-	DC::get()->print(LOGFILE | TIMESTAMP, "Player pos: (%f,%f,%f), collSize = %d\n", myPos.x, myPos.y, myPos.z, cm->getEnd() - cm->getStart());
+	//DC::get()->print(LOGFILE | TIMESTAMP, "Player pos: (%f,%f,%f), collSize = %d\n", myPos.x, myPos.y, myPos.z, cm->getEnd() - cm->getStart());
 
 	
 	Quat_t upRot;
 	calcUpVector(&upRot);
 	controlCamera(upRot);
-	sState = SOUND_PLAYER_SLIENT;
 	sTrig = SOUND_PLAYER_NO_NEW_TRIG;
 
-	bool f = this->getFlag(IS_STATIC);
-	bool g = this->getFlag(IS_FLOATING);
-	bool h = this->getFlag(IS_FALLING);
-
-	if(this->health > 0)
+	if(this->health > 0 && !GameServer::get()->state.gameover)
 	{
 		firedeath = false;
 
@@ -132,6 +148,14 @@ bool PlayerSObj::update() {
 			if(this->targetlockon == -1) this->acquireTarget();
 		} else {
 			this->targetlockon = -1;
+		}
+
+
+		zoomed = istat.zoom;	//this logic may or may not change
+		if(zoomed) {
+			camDist = camDistMin;
+		} else {
+			camDist = camDistMax;
 		}
 
 		// Jumping can happen in two cases
@@ -149,36 +173,45 @@ bool PlayerSObj::update() {
 		if (jumping) jumpCounter++;
 		else jumpCounter = 0; 
 
-		//this is HACKY! HELP ME!!!!!!
-		//if(jumpCounter == 1)
-
 		appliedJumpForce = false; // we apply it on collision
+
+		//Apply a small, continuous force based on time jump is pressed
+		if(jumpForceTimer > 0 && istat.jump) {
+			jumpForceTimer--;
+			pm->applyForce(jumpVec * (jumpForceTimer / jumpDiv));
+		} else {
+			jumpForceTimer = 0;
+		}
 
 		// damage = charging ? chargeDamage : 0;
 
 		//Update the yaw rotation of the player (about the default up vector)
 		if(fabs(istat.forwardDist) > 0.0f || fabs(istat.rightDist) > 0.0f) {
 			yaw = camYaw + istat.rotAngle;
+		} else if(zoomed) {
+			yaw = camYaw;
 		}
+
 		if(istat.camLock) {
-			camPitch = 0.f;
+			camPitch = DEFAULT_PITCH_10;
 		} else {
-			camPitch += istat.rotVert;
-		}
-		if (camPitch > M_PI / 2.f) {
-			camPitch = (float)M_PI / 2.f;
-		} else if(camPitch < -M_PI / 4) {
-			camPitch = (float)-M_PI / 4.f;
+			if(istat.zoom) {
+				camPitch -= istat.rotVert;
+			} else {
+				camPitch += istat.rotVert;
+			}
+			if (camPitch > M_PI / 2.f) {
+				camPitch = (float)M_PI / 2.f;
+			} else if(camPitch < -M_PI / 2) {
+				camPitch = (float)-M_PI / 2.f;
+			}
 		}
 
 		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
 		pm->ref->setRot(qRot);
 
 		//Move the player: apply a force in the appropriate direction
-		float rawRight = istat.rightDist / movDamp;
-		float rawForward = istat.forwardDist / movDamp;
-		float fwdMag = sqrt(rawRight *rawRight + rawForward * rawForward);
-		//Vec3f total = rotate(Vec3f(rawRight, 0, rawForward), qRot);
+		float fwdMag = sqrt(istat.rightDist * istat.rightDist + istat.forwardDist * istat.forwardDist) * pm->frictCoeff / movDamp;
 		Vec3f total = rotate(Vec3f(0, 0, fwdMag), qRot);
 		
 		pm->applyForce(total);
@@ -186,25 +219,72 @@ bool PlayerSObj::update() {
 		// Apply special power
 		actionCharge(istat.attack);
 
+		Vec3f projectiontoup = (pm->vel * (PE::get()->getGravDir()*-1)) * (PE::get()->getGravDir()*-1);
+		Vec3f planarmovement = pm->vel - projectiontoup;
+		float upvectormagnitude = magnitude(projectiontoup);
+
 		// change animation according to state
-		if(pm->vel.x <= 0.25 && pm->vel.x >= -0.25 && pm->vel.z <= 0.25 && pm->vel.z >= -0.25) {
-			this->setAnimationState(IDLE);
-		} else {
-			this->setAnimationState(WALK);
+		if(subclassstate != PAS_IDLE) {
+			this->setAnimationState(subclassstate);
+		} else if((jumping && !this->getFlag(IS_FALLING)) || jumpflag) {
+			// IF THE PLAYER PRESSED JUMP, GO THROUGH THE JUMP ANIMATION FOR X CYCLES OR HOWEVER LONG JUMPING TAKES
+			jumpflag = true;
+			jumpcycle++;
+			if(jumpcycle == 8) {
+				jumpflag = false;
+			}
+			this->setAnimationState(PAS_JUMP);
+		} else { // There's no immediate state you need to be in, so you're moving. Here's the motions
+			if(upvectormagnitude > 0.25f) {
+				this->setAnimationState(PAS_FLOATING_UP);
+			} else if(upvectormagnitude < -0.25f) {
+				this->setAnimationState(PAS_FALLING_DOWN);
+			} else if(magnitude(planarmovement) > 0.25f) {
+				this->setAnimationState(PAS_WALK);
+			} else {
+				this->setAnimationState(PAS_IDLE);
+			}
 		}
-	} else {
+
+	} else if (!GameServer::get()->state.gameover) {
 		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
 		pm->ref->setRot(qRot);
 
 		damage = 0; // you can't kill things if you're dead xD
 
-		// TODO Franklin: THE PLAYER IS DEAD. WHAT DO?
-		// NOTE: Player should probably be also getting their client id.
 		if(!firedeath) {
 			firedeath = true;
-			GameServer::get()->event_player_death(this->getId());
+			GameServer::get()->event_player_death(this->clientId);
+			deathtimer = 0;
+		}
+		
+		deathtimer++;
+		if(deathtimer == 50) {
+			firedeath = false;
+			this->PlayerSObj::initialize();
+			this->initialize();
+			this->ready = true;
 		}
 	}
+
+	if (this->scientistBuffDecreasing)
+	{
+		this->attacking = true;
+		this->scientistBuffCounter -= 1;
+		if (this->scientistBuffCounter == 0) {
+			this->scientistBuffDecreasing = false;
+			this->attacking = false;
+		}
+	}
+
+	if(istat.d_north)	{ PE::get()->setGravDir(NORTH); }
+	if(istat.d_east)	{ PE::get()->setGravDir(EAST); }
+	if(istat.d_up)		{ PE::get()->setGravDir(UP); }
+	if(istat.d_south)	{ PE::get()->setGravDir(SOUTH); }
+	if(istat.d_west)	{ PE::get()->setGravDir(WEST); }
+	if(istat.d_down)	{ PE::get()->setGravDir(DOWN); }
+	
+	setFlag(IS_DIRTY, true);	//This is probably a safe assumption
 
 	return false;
 }
@@ -246,7 +326,7 @@ void PlayerSObj::controlCamera(const Quat_t &upRot) {
 		}
 
 		//Update the camera-lock state: Locked to or unlocked from the player
-		if(istat.camLock) {
+		if(istat.camLock && !zoomed) {
 			camLocked = true;
 		} else if(camLocked && fabs(istat.rotHoriz) > 0) {
 			camLocked = false;
@@ -301,12 +381,20 @@ int PlayerSObj::serialize(char * buf) {
 	}
 	state->health = health;
 	state->ready = ready;
-	state->charge = (int)charge;
+	state->charge = charge;
 	if (SOM::get()->debugFlag) DC::get()->print("CURRENT MODEL STATE %d\n",this->modelAnimationState);
 	state->animationstate = this->modelAnimationState;
 	state->sState = this->sState;
 	state->sTrig = this->sTrig;
 	state->camRot = this->camRot;
+	state->camPitch = this->camPitch;
+	state->camDist = this->camDist;
+
+	//'or together any boolean states
+	state->bStates = PLAYER_NONE;
+	if(zoomed) {
+		state->bStates |= PLAYER_ZOOM;
+	}
 
 	if (SOM::get()->collisionMode)
 	{
@@ -334,30 +422,42 @@ void PlayerSObj::deserialize(char* newInput)
 {
 	inputstatus* newStatus = reinterpret_cast<inputstatus*>(newInput);
 	istat = *newStatus;
-	if (istat.start && this->health > 0) {
-		GameServer::get()->event_reset(this->getId());
-	} else if(istat.start) {
+
+	if(istat.start) {
 		this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 		this->pm->ref->setPos(Point_t());
 	}
+
+	MonsterSObj::switchPhase = istat.switchPhase && !this->oldSwitchPhase;
+	oldSwitchPhase = istat.switchPhase;
 }
 
 void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
-	if(obj->getType() == OBJ_BULLET) {
-		this->health-=3;
+	// If you're not invincible, deal damage
+	if (!this->getFlag(IS_INVINCIBLE))
+	{
+		if(obj->getType() == OBJ_BULLET) {
+			BulletSObj* bullet = reinterpret_cast<BulletSObj*>(obj);
+			this->health-=bullet->damage;
+		}
+		if(obj->getType() == OBJ_FIREBALL) {
+			FireBallSObj* fireball = reinterpret_cast<FireBallSObj*>(obj);
+			this->health-=fireball->damage;
+		}
+		if(obj->getType() == OBJ_HARPOON) {
+			return;
+		}
+		if(obj->getType() == OBJ_RAGE) {
+			this->health-=.0001;
+		}
+		if(obj->getFlag(IS_HARMFUL) && !(attacking))
+			this->health-=3;
+		if(obj->getFlag(IS_HEALTHY))
+			this->health++;
+
 		if(this->health < 0) health = 0;
 		if(this->health > 100) health = 100;
 	}
-	if(obj->getType() == OBJ_HARPOON) {
-		return;
-	}
-	if(obj->getFlag(IS_HARMFUL) && !(attacking))
-		this->health-=3;
-	if(obj->getFlag(IS_HEALTHY))
-		this->health++;
-	if(this->health < 0) health = 0;
-	if(this->health > 100) health = 100;
-
 	
 	// If I started jumping a little bit ago, that's a jump
 	// appliedJumpForce is because OnCollision gets called twice
@@ -369,39 +469,13 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 		pm->vel -= pm->vel * dirAxis(PE::get()->getGravDir());
 
 		//Apply jump force
-		Vec3f jumpVec = collNorm - PE::get()->getGravVec();
+		jumpVec = collNorm - PE::get()->getGravVec();
 		jumpVec.normalize();
-		pm->applyForce(jumpVec * jumpDist);
+		jumpForceTimer = jumpDist;
+		pm->applyForce(jumpVec * (jumpForceTimer / jumpDiv));
 
 		//play jump sound
 		sTrig = SOUND_PLAYER_JUMP;
-#if 0
-		// surface bouncing
-		// Get the collNorm from the surface
-		float bounceDamp = 0.05f;
-
-		Vec3f incident = pm->ref->getPos() - lastCollision;
-
-		// incident is zero, so we just jump upwards
-		// this happens when you jump of the same surface
-		// you were at before (so the floor, or when you
-		// slide off the wall and then jump)
-		if ((incident.x < .01 && incident.x > -.01)
-			|| (incident.y < .01 && incident.y > -.01)
-			|| (incident.z < .01 && incident.z > -.01))
-		{
-			Vec3f force = (PE::get()->getGravVec() * -1) + collNorm;
-			pm->vel = Vec3f();
-			pm->applyForce(force*jumpDist);
-		}
-		// we have incident! so we bounce
-		else
-		{
-			// http://www.3dkingdoms.com/weekly/weekly.php?a=2
-			// optimize: *= ^= better!
-			pm->vel = (collNorm * (((incident ^ collNorm) * -2.f )) + incident) * bounceDamp;
-		}
-#endif
 		appliedJumpForce = true;
 	}
 
@@ -422,7 +496,7 @@ void PlayerSObj::acquireTarget() {
 		if((ObjectType)i == OBJ_WORLD || (ObjectType)i == OBJ_MONSTER) continue;
 		SOM::get()->findObjects((ObjectType)i, &allobjs);
 	}
-	for(int i = 0; i < allobjs.size(); i++) {
+	for(unsigned int i = 0; i < allobjs.size(); i++) {
 		Vec3f temppos = allobjs[i]->getPhysicsModel()->ref->getPos();
 		Vec3f tempdir = temppos - currpos;
 		tempdir.normalize();

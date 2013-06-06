@@ -56,11 +56,44 @@ bool SoundSource::playOneShot3D(uint soundId, float volume, Vec3f &pos) {
 		it++) {
 			if(*it == soundId)
 			{
-				//AE::get()->playOneShot(soundId);
-				DC::get()->print("[Audio] Sound playing at: (%f,%f,%f)\n",pos.x,pos.y,pos.z);
 				AE::get()->playOneShot3D(soundId,volume,pos);
 				return true;
 			}
 	}
 	return false;
+}
+
+/*
+ * Plays a looped sound and returns a reference to the channel for future modification
+ * loop start and end are in miliseconds
+ */
+uint SoundSource::playLoop3D(uint soundId, float volume, Vec3f &pos, uint loopstart, uint loopend) {
+	uint channelId;
+
+	for(vector<uint>::iterator it = sounds.begin();
+		it != sounds.end();
+		it++) {
+			if(*it == soundId)
+			{
+				channelId = AE::get()->playLoop3D(soundId,volume,pos,loopstart,loopend);
+				return channelId;
+			}
+	}
+	return 0;
+}
+
+/*
+ * Moves the sound to the given location
+ */
+bool SoundSource::updateSoundPos(uint channelId, Vec3f &newPos) {
+	AE::get()->setChannelPos(channelId, newPos);
+	return true;
+}
+
+/*
+ * Stops the loop and frees the channel to be used again
+ */
+bool SoundSource::stopLoop(uint channelId) {
+	AE::get()->stopChannel(channelId);
+	return true;
 }

@@ -28,21 +28,40 @@ public:
 
 	int ready;
 
-private:
+protected:
 	RenderModel * box;
 	int camHeight;
 	int health;
+	int bStates;
 	float charge;
 	RenderModel *rm;
 	SoundSource *ss;
-	float cameraPitch;
+	float camPitch;
+	float camDist;
 	Quat_t camRot;
-	ChargeEffect* chargingEffect;
+	int camOffset;
 
-	//sounds
+	//sound ids
 	uint jumpsound;
+	uint chargeSound;
+	uint rifleSound;
+	uint swordSound;
+	uint hookshotSound;	
+
+	//sound volumes
+	float jumpVol;
+	float chargeVol;
+	float rifleVol;
+	float swordVol;
+	float hookshotVol;
+
+	//channel ids
+	uint hookshotChannel;
+	bool hookshotPlaying;
+
 	PlayerSoundState sState;
 	PlayerSoundTrigger sTrig;
+
 #if HMAP_TEST
 	///////////////////////////////////////////////////////////////
 	//TEST

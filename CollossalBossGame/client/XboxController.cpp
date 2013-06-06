@@ -42,12 +42,40 @@ void XboxController::sendInput() {
 
 		// Map input to actions
 		istat.jump =			(gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
-		istat.specialPower =	(gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
+		istat.specialPower =	false;//(gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
 		istat.quit =			(gamepad.wButtons & XINPUT_GAMEPAD_BACK) != 0;
 		istat.start =			(gamepad.wButtons & XINPUT_GAMEPAD_START) != 0;
 		istat.attack =			(gamepad.bRightTrigger) != 0;
-		istat.camLock =			(gamepad.bLeftTrigger);
+		istat.camLock =			(gamepad.bLeftTrigger != 0);
+		istat.zoom =            (gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
+		istat.switchPhase =     (gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0;
+	
+		istat.d_north = (gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) 
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_Y)
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_X)
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_B);
 
+		istat.d_east =  (gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT)
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_B);
+
+
+		istat.d_up =    (gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) 
+			&& (gamepad.wButtons & XINPUT_GAMEPAD_Y) 
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_X)
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_B);
+
+		istat.d_south = (gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) 
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_Y)
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_X)
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_B);
+
+		istat.d_west =  (gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT)
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_B);
+
+		istat.d_down =  (gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) 
+			&& (gamepad.wButtons & XINPUT_GAMEPAD_Y) 
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_X)
+			&& !(gamepad.wButtons & XINPUT_GAMEPAD_B);
 
 		// Get joystick positions
 		float x = gamepad.sThumbLX,
@@ -93,6 +121,7 @@ void XboxController::sendInput() {
 	}
 	//Send the input data, zero'd if nothing is there
 	ClientNetworkManager::get()->sendData(OBJECT_MANAGER, reinterpret_cast<char*>(&istat), sizeof(inputstatus), COM::get()->player_id);
+	ClientNetworkManager::get()->sendData(GAMESTATE_MANAGER, reinterpret_cast<char*>(&istat), sizeof(inputstatus), COM::get()->player_id);
 }
 
 bool XboxController::isConnected()

@@ -143,6 +143,10 @@ typedef enum OBJ_FLAG {
 	IS_HEALTHY,
 	IS_HARMFUL,
 	IS_WALL,
+	IS_INVINCIBLE,
+	
+	//Object Manager flags
+	IS_DIRTY,			//Set to true if the object needs to be sent to the client this round
 
 	//Physics flags
 	IS_STATIC,

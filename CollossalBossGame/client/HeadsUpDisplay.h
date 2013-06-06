@@ -18,6 +18,7 @@ public:
 
 	void displayText(string hudText, string monsterHUDText);
 	void displayHealthBars(int playerHealth, int monsterHealth, float charge);
+	void displayPhase(int phase);
 
 	void displayBackground();
 	void displayGameOver();
@@ -26,6 +27,8 @@ public:
 	void displaySceneSelect();
 	void displayLoadingScreen();
 	void displayClassSelect();
+	void displayGameStats();
+	void displayCross(int width, int height);
 private:
 	bool * gamestart;
 	ID3DXFont* direct3dText; // the pointer to the device class
@@ -39,6 +42,12 @@ private:
 	IDirect3DTexture9 *mechanicHelp_texture;
 	IDirect3DTexture9 *scientistHelp_texture;
 	IDirect3DTexture9 *shooterHelp_texture;
+	IDirect3DTexture9 *phase1_texture;
+	IDirect3DTexture9 *phase2_texture;
+	IDirect3DTexture9 *phase3_texture;
+	IDirect3DTexture9 *phase4_texture;
+	IDirect3DTexture9 *phase5_texture;
+	IDirect3DTexture9 *phase6_texture;
 
 	int hudTopX, hudTopY;
 
@@ -46,6 +55,8 @@ private:
 	LPD3DXLINE monsterLine;
 	LPD3DXLINE chargeLine;
 	LPD3DXLINE backgroundLine;
+	LPD3DXLINE crossUp;
+	LPD3DXLINE crossAcross;
 
 	LPD3DXSPRITE sprite;
 	LPD3DXSPRITE sprite1;
@@ -64,7 +75,9 @@ private:
 	LPD3DXSPRITE pressstart;
 	LPD3DXSPRITE playerready;
 	LPD3DXSPRITE blackbackground;
+	LPD3DXSPRITE blackscreen;
 	LPD3DXSPRITE youwin;
+	LPD3DXSPRITE phaseSprite;
 	IDirect3DTexture9 *p1connecttxt;
 	IDirect3DTexture9 *p2connecttxt;
 	IDirect3DTexture9 *p3connecttxt;
@@ -76,6 +89,7 @@ private:
 	IDirect3DTexture9 *pressstarttxt;
 	IDirect3DTexture9 *playerreadytxt;
 	IDirect3DTexture9 *blackbackgroundtxt;
+	IDirect3DTexture9 *blackscreentxt;
 	IDirect3DTexture9 *youwintxt;
 
 	clock_t initTime;

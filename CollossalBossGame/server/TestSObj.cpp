@@ -3,37 +3,62 @@
 #include <math.h>
 #include "ConfigurationManager.h"
 
-TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir) : ServerObject(id) {
+TestSObj::TestSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, int dir, bool floating) : ServerObject(id) {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new TestSObj %d\n", id);
 	setFlag(IS_FALLING,1);
 	int mass = 100;
 	this->dir = dir;
 	this->modelNum = modelNum;
+
+	CollisionModel *cm = getCollisionModel();
+
 	switch (modelNum) {
 		case MDL_TEST_CRATE:
-			mass = 20;
+			testBoxIndex = cm->add(new AabbElement(Box( -20, -20, -20, 40, 40, 40)));
+			mass = (rand() % 20) + 10;
+			break;
 		case MDL_TEST_BOX:
 			// bxVol = CM::get()->find_config_as_box("BOX_CUBE");//Box(-5, 0, -5, 10, 10, 10);
-			bxVol = Box( -10, -10, -10, 20, 20, 20);
+			testBoxIndex = cm->add(new AabbElement(Box( -30, -30, -30, 60, 60, 60)));
 			break;
 		case MDL_TEST_PYRAMID:
-			bxVol = CM::get()->find_config_as_box("BOX_PYRAMID");//Box(-20, 0, -20, 40, 40, 40);
+			//bxVol = CM::get()->find_config_as_box("BOX_PYRAMID");//Box(-20, 0, -20, 40, 40, 40);
+			testBoxIndex = cm->add(new AabbElement(CM::get()->find_config_as_box("BOX_PYRAMID")));
 			//pm->setColBox(CB_LARGE);
 			break;
 		case MDL_TEST_PLANE:
 #define WALL_WIDTH 150
-			bxVol = Box(-WALL_WIDTH / 2, 0, -WALL_WIDTH / 2,
-					WALL_WIDTH, 10, WALL_WIDTH);
+			testBoxIndex = cm->add(new AabbElement(Box(-WALL_WIDTH / 2, 0, -WALL_WIDTH / 2,
+														WALL_WIDTH, 10, WALL_WIDTH)));
+			//bxVol = Box(-WALL_WIDTH / 2, 0, -WALL_WIDTH / 2,
+			//		WALL_WIDTH, 10, WALL_WIDTH);
 			//pm->setColBox(CB_FLAT);
 			break;
+		case MDL_ELEVATOR:
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_BASE").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_LEFT").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_RIGHT").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_BACK").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_TOP").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_1").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_2").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_3").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_M_4").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_L").rotate(rot)->fix())));
+			cm->add(new AabbElement(*(CM::get()->find_config_as_box("BOX_ELEV_FRONT_R").rotate(rot)->fix())));
+		
+			setFlag(IS_STATIC, true);
+			break;
 		default:
-			bxVol = Box();
+			//bxVol = Box();
 			break;
 	}
 
-	pm = new PhysicsModel(pos, rot, mass);
-	testBoxIndex = getCollisionModel()->add(new AabbElement(bxVol));
+	pm = new PhysicsModel(pos, rot, (float)mass);
 	t = 0;
+	this->floating = floating;
+	dist = -2.5;
+	counter = 0;
 }
 
 
@@ -50,8 +75,11 @@ bool TestSObj::update() {
 	 * South = -Z (towards player start)
 	 * West  = -X (left of player start)
 	 */
+	
+	int xPos;
 	switch(dir) {
 	case TEST_STILL:
+		setFlag(IS_FALLING,true);
 		break;
 	case TEST_NORTH:
 		pm->applyForce(Vec3f(0, 0, MOVE_AMT * sin((float)t / DIV)));
@@ -63,14 +91,47 @@ bool TestSObj::update() {
 		pm->applyForce(Vec3f(0, 0, -MOVE_AMT * sin((float)t / DIV)));
 		break;
 	case TEST_WEST:
-		pm->applyForce(Vec3f(-MOVE_AMT * sin((float)t / DIV), 0, 0));
+		//pm->applyForce(Vec3f(-MOVE_AMT * sin((float)t / DIV), 0, 0));
+		xPos = pm->ref->getPos().x;
+		if(xPos == 600)
+		{
+			if(counter == 150)	
+			{
+				counter = 0;
+				dist = -2.5;
+			}
+			else 
+			{
+				dist = 0;
+				counter++;
+			}
+		}
+		if(xPos == -600)
+		{
+			if(counter == 150)	
+			{
+				counter = 0;
+				dist = 2.5;
+			}
+			else 
+			{
+				dist = 0;
+				counter++;
+			}
+		}
+		
+		pm->ref->setPos(pm->ref->getPos() + Vec3f(dist,0,0));
 		break;
 	default:
-		pm->applyForce(Vec3f(0, -MOVE_AMT * sin((float)t / DIV), 0));
+		//pm->applyForce(Vec3f(0, -MOVE_AMT * sin((float)t / DIV), 0));
+		//int xPos = pm->ref->getPos().x;
+		//if(xPos == 600) dist = -5;
+		//if(xPos == -600) dist = 5;
+		//pm->ref->setPos(pm->ref->getPos() + Vec3f(dist,0,0));
 		break;
 	}
 	++t;
-	pm->frictCoeff = 1.3;
+	pm->frictCoeff = 1.3f;
 	// update box randomly
 	//bxVol.w++;
 	//bxVol.l++;
@@ -78,7 +139,7 @@ bool TestSObj::update() {
 	//bxVol.y--;
 	//pm->updateBox(testBoxIndex, bxVol);
 
-
+	if(floating) setFlag(IS_FLOATING, true);
 
 	return false;
 }

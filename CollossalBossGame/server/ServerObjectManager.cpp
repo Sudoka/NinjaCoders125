@@ -60,6 +60,13 @@ void ServerObjectManager::update() {
 			for(objIter = lsObjsThatMoved.begin(); objIter != lsObjsThatMoved.end(); ++objIter) {
 				PE::get()->applyPhysics(*objIter, it->second);
 			}
+
+			//Object needs to be sent if the object's state has changed, but it has not moved
+			if(it->second->getFlag(IS_DIRTY)) {
+				//Send this object to the server and mark as clean
+				lsObjsToSend.push_back(pair<CommandTypes,ServerObject*>(CMD_UPDATE,it->second));
+				it->second->setFlag(IS_DIRTY, false);
+			}
 		}
 	}
 
@@ -84,6 +91,7 @@ void ServerObjectManager::update() {
 			if(it->first == (*objIter)->getId()) {
 				//Send this object to the server
 				lsObjsToSend.push_back(pair<CommandTypes,ServerObject*>(CMD_UPDATE,*objIter));
+				it->second->setFlag(IS_DIRTY, false);
 				break;
 			} else {
 				PE::get()->applyPhysics(*objIter, it->second);
@@ -155,8 +163,6 @@ void ServerObjectManager::sendState()
 	}
 	lsObjsToSend.clear();
 	//DC::get()->print("Total data sent to client is %d\n", totalData);
-	SNM::get()->getSendBuffer();
-	SNM::get()->sendToAll(COMPLETE, 0);
 /*
 	for(map<uint, ServerObject *>::iterator it = mObjs.begin();
 			it != mObjs.end();

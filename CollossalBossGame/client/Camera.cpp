@@ -2,9 +2,9 @@
 #include "DebugConsole.h"
 #include "AudioEngine.h"
 
-Camera::Camera(float distance)
+Camera::Camera()
 {
-	viewDistance = distance;
+	viewDistance = 0;	//Should be set on first update
 }
 
 
@@ -13,12 +13,13 @@ Camera::~Camera(void)
 }
 
 
-void Camera::update(const Point_t &tarPos, const Quat_t &tarRot, float pitch) {
+void Camera::update(const Point_t &tarPos, const Quat_t &tarRot, float pitch, float distance) {
 	Vec3f camRight = rotateRight(tarRot);
 	Quat_t pitchRot = Quat_t(camRight, pitch);	//Rotate by pitch amount
 
 	Vec3f camUp = rotate(rotateUp(tarRot), pitchRot),
 		  camFwd = rotate(rotateFwd(tarRot), pitchRot);
+	viewDistance = distance;
 	
 
 	//Correct vectors

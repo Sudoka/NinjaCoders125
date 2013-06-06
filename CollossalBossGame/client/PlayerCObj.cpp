@@ -1,5 +1,4 @@
 #include "PlayerCObj.h"
-#include "RenderEngine.h"
 #include "NetworkData.h"
 #include "ClientObjectManager.h"
 #include "ClientEngine.h"
@@ -7,8 +6,9 @@
 #include "defs.h"
 #include <math.h>
 #include <sstream>
+#include "RenderEngine.h"
 
-#define DEFAULT_PITCH 0.174532925f	//10 degrees or stg like that
+#define DEFAULT_PITCH_10 0.30550876f	//10 degrees or stg like that
 
 PlayerCObj::PlayerCObj(uint id, char *data) :
 	ClientObject(id, OBJ_PLAYER)
@@ -18,43 +18,42 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	this->health = state->health;
 	this->charge = state->charge;
 	rm = new RenderModel(Point_t(),Quat_t(), state->modelNum);
+
+	//sound
 	ss = new SoundSource();
 	char* s1 = CM::get()->find_config("LINK");
-	jumpsound = ss->addSound(s1,false);
-	cameraPitch = DEFAULT_PITCH;
-	ready = false;
-	chargingEffect = new ChargeEffect(10);
-	// Register with RE, SO SMART :O
-	RE::get()->addParticleEffect(chargingEffect);
-	this->camHeight = 0;
+	float atten = CM::get()->find_config_as_float("LINK_ATTEN");
+	jumpVol = CM::get()->find_config_as_float("LINK_VOL");
+	jumpsound = ss->addSound(s1,true,atten);
+	char* s2 = CM::get()->find_config("CHARGE_SOUND");
+	atten = CM::get()->find_config_as_float("CHARGE_SOUND_ATTEN");
+	chargeVol = CM::get()->find_config_as_float("CHARGE_SOUND_VOL");
+	chargeSound = ss->addSound(s2,true,atten);
+	char* s3 = CM::get()->find_config("RIFLE_SOUND");
+	atten = CM::get()->find_config_as_float("RIFLE_SOUND_ATTEN");
+	rifleVol = CM::get()->find_config_as_float("RIFLE_SOUND_VOL");
+	rifleSound = ss->addSound(s3,true,atten);
+	char* s4 = CM::get()->find_config("SWORD_SOUND");
+	atten = CM::get()->find_config_as_float("SWORD_SOUND_ATTEN");
+	swordVol = CM::get()->find_config_as_float("SWORD_SOUND_VOL");
+	swordSound = ss->addSound(s4,true,atten);
+	char* s5 = CM::get()->find_config("HOOKSHOT_SOUND");
+	atten = CM::get()->find_config_as_float("HOOKSHOT_SOUND_ATTEN");
+	hookshotVol = CM::get()->find_config_as_float("HOOKSHOT_SOUND_VOL");
+	hookshotSound = ss->addSound(s5,true,atten);
+	hookshotPlaying = false;
 
-#if HMAP_TEST
-	///////////////////////////////////////////////////////////////
-	//TEST
-	HMap *hmap = new HMap("../floor_hmap.bmp", 6, 5.0f / 255);
-	const float fxo = -CM::get()->find_config_as_float("ROOM_WIDTH") / 2,
-				fyo = 0,//CM::get()->find_config_as_float("ROOM_HEIGHT") / 2,
-				fzo = -CM::get()->find_config_as_float("ROOM_DEPTH") / 2;
-	int skip = 10;
-	Point_t pos = Point_t();
-	for(int x = 0; x < hmap->getWidth(); x += skip) {
-		pos.x = x * hmap->getUnitLength() + fxo;
-		for(int z = 0; z < hmap->getLength(); z += skip) {
-			pos.y = hmap->getHeightAt(x, z) + fyo;
-			pos.z = z * hmap->getUnitLength() + fzo;
-			hmapPts.push_back(pos);
-		}
-	}
-	delete hmap;
-	///////////////////////////////////////////////////////////////
-#endif
+	camDist = 0;
+	camPitch = DEFAULT_PITCH_10;
+	ready = false;
+	this->camHeight = CM::get()->find_config_as_int("CAM_HEIGHT");
+	this->camOffset = 0;
 }
 
 PlayerCObj::~PlayerCObj(void)
 {
 	delete rm;
 	delete ss;
-	RE::get()->removeParticleEffect(chargingEffect);
 
 	// todo, figure out what it should be then config
 	camHeight = 0;
@@ -73,43 +72,78 @@ void PlayerCObj::showStatus()
 bool PlayerCObj::update() {
 	//Move the camera to follow the player
 	if(COM::get()->player_id == getId()) {
+		rm->setInvisible(bStates & PLAYER_ZOOM);
+		RE::get()->setFPV(bStates & PLAYER_ZOOM); 
 		XboxController *xctrl = CE::getController();
 		if(xctrl->isConnected()) {
+			/*
 			if(xctrl->getState().Gamepad.bLeftTrigger) {
-				cameraPitch = DEFAULT_PITCH; //10
+				camPitch = DEFAULT_PITCH_10; //10
 			} else if(fabs((float)xctrl->getState().Gamepad.sThumbRY) > DEADZONE) {
-				cameraPitch += atan(((float)xctrl->getState().Gamepad.sThumbRY / (JOY_MAX * 8)));
-				if (cameraPitch > M_PI / 2.f) {
-					cameraPitch = (float)M_PI / 2.f;
-				} else if(cameraPitch < -M_PI / 4) {
-					cameraPitch = (float)-M_PI / 4.f;
+				camPitch += atan(((float)xctrl->getState().Gamepad.sThumbRY / (JOY_MAX * 8)));
+				if (camPitch > M_PI / 2.f) {
+					camPitch = (float)M_PI / 2.f;
+				} else if(camPitch < -M_PI / 4) {
+					camPitch = (float)-M_PI / 4.f;
 				}
 			}
+			*/
 
-			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
-			if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
+			//camHeight
+			if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_X)) RE::get()->brightness+= 0.01f;
+			if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_X)) RE::get()->brightness-= 0.01f;
+
+			if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camHeight++;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camHeight--;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camOffset--;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camOffset++;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_X)) 
+			{
+				camHeight = CM::get()->find_config_as_int("CAM_HEIGHT");
+				camOffset = 0;
+			}
 		}
 
 		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;
 
-		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*camHeight;
-		RE::get()->getCamera()->update(objPos, camRot, cameraPitch);
+		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*(float)camHeight;
+		RE::get()->getCamera()->update(objPos, camRot, camPitch, camDist + camOffset);
 		showStatus();
-		chargingEffect->setPosition(objPos, charge);
-		chargingEffect->update(.33);
-
-
-#if HMAP_TEST
-		///////////////////////////////////////////////////////////////
-		//TEST
-		RE::get()->getColBxPts()->addParticles(hmapPts);
-		///////////////////////////////////////////////////////////////
-#endif
 	}
 
-	if(this->sTrig == SOUND_PLAYER_JUMP)
-	{
-		ss->playOneShot(jumpsound);
+	Vec3f playerPos = rm->getFrameOfRef()->getPos();
+	//one shot sfx
+	switch(this->sTrig) {
+	case SOUND_PLAYER_JUMP:
+		ss->playOneShot3D(jumpsound,jumpVol,playerPos);
+		break;
+	case SOUND_CYBORG_CHARGE:
+		ss->playOneShot3D(chargeSound,chargeVol,playerPos);
+		break;
+	case SOUND_SHOOTER_FIRE:
+		ss->playOneShot3D(rifleSound,rifleVol,playerPos);
+		break;
+	case SOUND_CYBORG_SWORD:
+		ss->playOneShot3D(swordSound,swordVol,playerPos);
+		break;
+	}
+
+	//looping sfx
+	switch(this->sState) {
+	case SOUND_MECHANIC_HARPOON_ON:
+		if(hookshotPlaying) {
+			ss->updateSoundPos(hookshotChannel,playerPos);
+		} else {
+			hookshotChannel = ss->playLoop3D(hookshotSound,hookshotVol,playerPos,5150,20150);
+			hookshotPlaying = true;
+		}		
+		break;
+	case SOUND_MECHANIC_HARPOON_OFF:
+		if(hookshotPlaying) {
+			ss->stopLoop(hookshotChannel);
+			hookshotPlaying = false;
+		}
+		break;
 	}
 
 	return false;
@@ -123,6 +157,9 @@ void PlayerCObj::deserialize(char* newState) {
 	this->sState = state->sState;
 	this->sTrig = state->sTrig;
 	camRot = state->camRot;
+	camPitch = state->camPitch;
+	camDist = state->camDist;
+	bStates = state->bStates;
 
 	if(this->ready == false) {
 		RE::get()->gamestarted = false;

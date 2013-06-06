@@ -18,6 +18,8 @@ ShooterSObj::~ShooterSObj(void)
 
 void ShooterSObj::initialize() {
 	// Configuration options
+	bulletdamage = CM::get()->find_config_as_int("BULLET_DAMAGE");
+	maxbulletcount = CM::get()->find_config_as_int("SHOOTER_MAX_BULLET_COUNT");
 }
 
 void ShooterSObj::actionAttack() {
@@ -25,7 +27,7 @@ void ShooterSObj::actionAttack() {
 }
 
 void ShooterSObj::actionCharge(bool buttondown) {
-	if(buttondown && BulletSObj::TotalBullets < 5) {
+	if(buttondown && BulletSObj::TotalShooterBullets < maxbulletcount) {
 		charging = true;
 		charge += chargeUpdate;
 	} else {
@@ -36,11 +38,11 @@ void ShooterSObj::actionCharge(bool buttondown) {
 			float forwardforce = cos(anglepi);
 			float diameter = 10*(charge/3);
 			Vec3f offset = rotate(Vec3f(0, upforce * diameter * sqrt(2.0f), forwardforce * diameter * sqrt(2.0f)), pm->ref->getRot());
-			Vec3f position = Vec3f(mechpos.x, mechpos.y + 15, mechpos.z) + offset;
+			Vec3f gravity = dirVec(PE::get()->getGravDir())*-1;
+			Vec3f position = mechpos + gravity*15 + offset;
 
-			// todo clean up or config or something
-			const int bulletDamage = 3;
-			BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1, position, offset, bulletDamage, (int)diameter);
+			BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1, position, offset, bulletdamage, (int)diameter, this);
+			sTrig = SOUND_SHOOTER_FIRE;
 			SOM::get()->add(bso);
 
 			charging = false;

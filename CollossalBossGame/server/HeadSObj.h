@@ -2,8 +2,6 @@
 #include "MonsterPartSObj.h"
 #include "MonsterSObj.h"
 
-#define SHOOT_CYCLE 30
-
 class HeadSObj : public MonsterPartSObj
 {
 public:
@@ -17,10 +15,15 @@ public:
 	virtual void combo();
 	virtual void spike();
 	virtual void rage();
+	virtual void move();
+	virtual void death();
 
-	//sounds
+	//sounds TODO_MICHAEL: remove me?
 	virtual void roar();
 
+	virtual ObjectType getType() { return OBJ_HEAD; }
+	virtual int getModelNumber() { return this->modelNum; }
+	virtual void reinitialize();
 private:
 	int fireballForce;
 	int fireballDamage;
@@ -29,5 +32,10 @@ private:
 
 	// Helper Actions
 	void shootFireball();
+
+	int rageRoarProb;
+
+	// Collision boxes
+	Box shootBoxes[3]; // stores first position for the shoot boxes
 };
 

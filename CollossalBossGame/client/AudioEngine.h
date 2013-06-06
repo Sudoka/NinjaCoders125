@@ -40,8 +40,15 @@ public:
 	void playOneShot(uint soundId);
 	void playOneShot(uint soundId, float volume);
 	void playOneShot3D(uint soundId, float volume, Vec3f &pos);
-	void playLoop(uint soundId);
-	void playLoop3D(uint soundId, float volume, Vec3f &pos);
+	uint playLoop(uint soundId);
+	uint playLoop3D(uint soundId, float volume, Vec3f &pos, uint loopstart, uint loopend); //returns a channel id
+
+	//channel update methods
+	void pauseChannel(uint channelId);
+	void playChannel(uint channelId);
+	void stopChannel(uint channelId);
+	void setChannelVol(uint channelId, float vol);
+	void setChannelPos(uint channelId, Vec3f &pos);
 
 private:
 	//Constructors/destructors are private
@@ -60,6 +67,7 @@ private:
 	//hash table for our sounds and music streams
 	map<uint, FMOD::Sound *> loadedSounds;
 	map<uint, FMOD::Channel *> channels;
+	uint channelCount;
 
 	//FMOD objects
 	FMOD::System	 *system;

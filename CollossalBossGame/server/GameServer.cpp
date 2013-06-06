@@ -4,7 +4,9 @@
 #include "ServerObjectManager.h"
 // #include "NetworkData.h"
 #include "PhysicsEngine.h"
+#include "PlayerSObj.h"
 #include "game.h"
+#include "Action.h"
 #include <Windows.h>
 #include <assert.h>
 #include <iostream>
@@ -50,6 +52,13 @@ void GameServer::gameLoop() {
 
 	// Send state to client
 	SOM::get()->sendState();
+
+	// Send current game state
+	this->sendGameState();
+
+	// Complete Send
+	SNM::get()->getSendBuffer();
+	SNM::get()->sendToAll(COMPLETE, 0);
 }
 
 /* the main function on the server side, initalizes the server loop
@@ -84,51 +93,27 @@ void GameServer::run() {
 void GameServer::sendGameState() {
 	char * buf = SNM::get()->getSendBuffer();
 	int dlen = state.serialize(buf);
-	SNM::get()->sendToAll(GAMESTATE_MANAGER, -1, dlen);
+	SNM::get()->sendToAll(GAMESTATE_MANAGER, dlen);
 }
 
-void GameServer::recieveInput(char * buf) {
-	GameData gd;
-	memcpy(&gd, buf, sizeof(GameData));
-
-	if(gd.hardreset) {
-		event_hard_reset(gd.playerid);
-	}
-	switch(state.currentState) {
-		case GAME_CONNECTING:
-			break;
-		case GAME_SCENE_SELECT:
-			if(gd.left && (state.getplayerindex(gd.playerid) == 0)) { state.sceneselection--; }
-			if(gd.right && (state.getplayerindex(gd.playerid) == 0)) { state.sceneselection++; }
- 			if(gd.start) { 
-				state.currentState = GAME_LOADING; 
-				// Initialize the world depending on the current scene selection.
-				gameInit();
+void GameServer::recieveInput(char * buf, int pid) {
+	inputstatus istat;
+	memcpy(&istat, buf, sizeof(inputstatus));
+	if(istat.start && istat.quit) {
+		// Do nothing
+	} else if(istat.quit) {
+		state.gameover = true;
+	} else if(istat.start) {
+		if(state.gameover) {
+			vector<ServerObject *> rawr;
+			SOM::get()->findObjects(OBJ_PLAYER, &rawr);
+			for(unsigned int i = 0; i < rawr.size(); i++) {
+				PlayerSObj * p = reinterpret_cast<PlayerSObj *>(rawr[i]);
+				if(p) { p->ready = false; }
 			}
-			break;
-		case GAME_LOADING:
-			if(gd.clientready) { state.clientready(gd.playerid); }
-			break;
-		case GAME_CLASS_SELECT:
-			if(gd.left || gd.right) {
-				state.classselect(gd.playerid, gd.right, gd.left);
-			}
-			if(gd.right) { state.sceneselection++; }
-			break;
-		case GAME_START:
-			if(gd.start) { state.playerready(gd.playerid); }
-			break;
-		case GAME_RUNNING:
-			break;
-		case GAME_END:
-			if(gd.start) { event_reset(gd.playerid); }
-			break;
-		default:
-			cout << "Odd State" << endl;
-	}
-
-	if(state.currentState == GAME_SCENE_SELECT || state.currentState == GAME_CLASS_SELECT) {
-
+			state.gameover = false;
+		}
+		state.playerready(pid);
 	}
 }
 

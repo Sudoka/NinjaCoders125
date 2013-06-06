@@ -15,6 +15,8 @@ public:
 
 private:
 	int health;
+	int phase;
+	//TODO_MICHAEL: add phase tracker thing
 	RenderModel *rm;
 };
 

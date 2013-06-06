@@ -2,6 +2,7 @@
 #include "PhysicsEngine.h"
 #include "ConfigurationManager.h"
 #include "NetworkData.h"
+#include "MonsterSObj.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +14,7 @@ WorldSObj::WorldSObj(uint id) : ServerObject(id) {
 	gravityInterval = CM::get()->find_config_as_int("GRAVITY_SWITCH_INTERVAL");
 	nullInterval = CM::get()->find_config_as_int("GRAVITY_NULL_INTERVAL");
 	gravityTimer = 0;
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 	gravSwitchEnabled = true;
 }
 
@@ -32,7 +33,7 @@ enum GRAV_ORDER {
 };
 
 bool WorldSObj::update() {
-	if(gravSwitchEnabled) {
+	if(gravSwitchEnabled && MonsterSObj::gravityOn) {
 		DC::get()->print(CONSOLE, "Gravity timer = %d     \r", gravityTimer);
 
 		if(gravityTimer == nullInterval) {
@@ -62,46 +63,10 @@ bool WorldSObj::update() {
 				PE::get()->setGravDir(DOWN);
 				break;
 			}
+			setFlag(IS_DIRTY, true);
 		} else {
 			gravityTimer++;
 		}
-
-
-		/*
-		gravityTimer++;
-
-		//Initial gravity-switching test
-		static char cdir = '?';
-		if(gravityTimer == gravityInterval * GRAV_ORDER_N) {
-			PE::get()->setGravDir(NORTH);
-			gravDir = NORTH;
-			cdir = 'N';
-		} else if(gravityTimer == gravityInterval * GRAV_ORDER_E) {
-			PE::get()->setGravDir(EAST);
-			gravDir = EAST;
-			cdir = 'E';
-		} else if(gravityTimer == gravityInterval * GRAV_ORDER_U) {
-			PE::get()->setGravDir(UP);
-			gravDir = UP;
-			cdir = 'U';
-		} else if(gravityTimer == gravityInterval * GRAV_ORDER_S) {
-			PE::get()->setGravDir(SOUTH);
-			gravDir = SOUTH;
-			cdir = 'S';
-		} else if(gravityTimer == gravityInterval * GRAV_ORDER_W) {
-			PE::get()->setGravDir(WEST);
-			gravDir = WEST;
-			cdir = 'W';
-		} else if(gravityTimer == gravityInterval * GRAV_ORDER_D) {
-			PE::get()->setGravDir(DOWN);
-			gravDir = DOWN;
-			cdir = 'D';
-		}
-		if(gravityTimer >= gravityInterval * (GRAV_ORDER_END - 1)) {
-			gravityTimer = 0;
-		}
-		DC::get()->print(CONSOLE, "%c Gravity timer = %d     \r", cdir, gravityTimer);
-		*/
 	}
 
 	return false;
@@ -111,4 +76,18 @@ int WorldSObj::serialize(char * buf) {
 	WorldState *state = (WorldState*)buf;
 	state->gravDir = PE::get()->getGravDir();
 	return sizeof(WorldState);
+}
+
+void WorldSObj::setGravTimer(GravityInterval i) {
+	switch(i) {
+	case GRAV_SWITCH:
+		gravityTimer = gravityInterval - 1;
+		break;
+	case GRAV_NULL:
+		gravityTimer = nullInterval - 1;
+		break;
+	default:
+		gravityTimer = 0;
+		break;
+	}
 }

@@ -41,6 +41,8 @@ AudioEngine::AudioEngine() {
 	pos.y = 10;
 	pos.z = 0;
 	//this->playLoop3D(ship,1.0f,pos);
+
+	channelCount = 0;
 }
 
 AudioEngine::~AudioEngine() {
@@ -389,9 +391,9 @@ void AudioEngine::playOneShot3D(uint soundId, float volume, Vec3f &pos) {
 }
 
 /*
- * Plays a sample as a loop (mostly for streams)
+ * Plays a sample as a loop (mostly for streams) and returns a channel id
  */
-void AudioEngine::playLoop(uint SoundId) {
+uint AudioEngine::playLoop(uint SoundId) {
 	
 	map<uint,FMOD::Sound*>::iterator res = loadedSounds.find(SoundId);
 	if(res != loadedSounds.end())
@@ -404,10 +406,16 @@ void AudioEngine::playLoop(uint SoundId) {
 		FMOD_ERRCHECK(result);
 		result = chan->setPaused(false);
 		FMOD_ERRCHECK(result);
+		
+		channelCount++;
+		channels.insert(pair<uint,FMOD::Channel*>(channelCount,chan));
+		return channelCount;
 	}
+	
+	return 0;
 }
 
-void AudioEngine::playLoop3D(uint soundId, float volume, Vec3f &pos) {
+uint AudioEngine::playLoop3D(uint soundId, float volume, Vec3f &pos, uint loopstart, uint loopend) {
 	map<uint,FMOD::Sound*>::iterator res = loadedSounds.find(soundId);
 	FMOD_VECTOR soundVel;
 	FMOD_VECTOR soundPos;
@@ -430,7 +438,75 @@ void AudioEngine::playLoop3D(uint soundId, float volume, Vec3f &pos) {
 		FMOD_ERRCHECK(result);
 		result = chan->set3DAttributes(&soundPos,&soundVel);
 		FMOD_ERRCHECK(result);
+		result = chan->setLoopPoints(loopstart, FMOD_TIMEUNIT_MS, loopend, FMOD_TIMEUNIT_MS);
+		FMOD_ERRCHECK(result);
 		result = chan->setPaused(false);
+		FMOD_ERRCHECK(result);
+
+		channelCount++;
+		channels.insert(pair<uint,FMOD::Channel*>(channelCount,chan));
+		return channelCount;
+	}
+}
+
+void AudioEngine::pauseChannel(uint channelId) {
+	map<uint,FMOD::Channel*>::iterator res = channels.find(channelId);
+
+	if(res != channels.end())
+	{
+		FMOD::Channel* chan = res->second;
+		result = chan->setPaused(true);
+		FMOD_ERRCHECK(result);
+	}
+}
+
+void AudioEngine::playChannel(uint channelId) {
+	map<uint,FMOD::Channel*>::iterator res = channels.find(channelId);
+
+	if(res != channels.end())
+	{
+		FMOD::Channel* chan = res->second;
+		result = chan->setPaused(false);
+		FMOD_ERRCHECK(result);
+	}
+}
+
+void AudioEngine::stopChannel(uint channelId) {
+	map<uint,FMOD::Channel*>::iterator res = channels.find(channelId);
+
+	if(res != channels.end())
+	{
+		FMOD::Channel* chan = res->second;
+		result = chan->stop();
+		FMOD_ERRCHECK(result);
+	}
+}
+
+void AudioEngine::setChannelVol(uint channelId, float vol) {
+	map<uint,FMOD::Channel*>::iterator res = channels.find(channelId);
+
+	if(res != channels.end())
+	{
+		FMOD::Channel* chan = res->second;
+		result = chan->setVolume(vol);
+		FMOD_ERRCHECK(result);
+	}
+}
+
+void AudioEngine::setChannelPos(uint channelId, Vec3f &pos) {
+	map<uint,FMOD::Channel*>::iterator res = channels.find(channelId);
+
+	FMOD_VECTOR channelVel;
+	FMOD_VECTOR channelPos;
+	channelPos.x = pos.x * distFactor;
+	channelPos.y = pos.y * distFactor;
+	channelPos.z = pos.z * distFactor;
+	channelVel.x = channelVel.y = channelVel.z = 0;
+
+	if(res != channels.end())
+	{
+		FMOD::Channel* chan = res->second;
+		result = chan->set3DAttributes(&channelPos, &channelVel);
 		FMOD_ERRCHECK(result);
 	}
 }
@@ -441,7 +517,7 @@ void AudioEngine::playLoop3D(uint soundId, float volume, Vec3f &pos) {
 uint AudioEngine::getFileHash(char* filename)
 {
 	uint hash = 0;
-	for(int i = 0; i < strlen(filename); i++)
+	for(unsigned int i = 0; i < strlen(filename); i++)
 		hash = 65599 * hash + filename[i];
 	return hash ^ (hash >> 16);
 }

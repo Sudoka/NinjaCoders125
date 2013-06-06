@@ -41,7 +41,13 @@ PhysicsEngine::~PhysicsEngine(void)
 bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	float dt = TIMESTEP;
 
-	if(obj->getFlag(IS_STATIC)) return true;
+	if(obj->getFlag(IS_STATIC)) {
+		PhysicsModel *mdl = obj->getPhysicsModel();
+		if(mdl != NULL) {
+			mdl->lastPos = mdl->ref->getPos();
+		}
+		return true;
+	}
 
 	PhysicsModel *mdl = obj->getPhysicsModel();
 
@@ -56,9 +62,10 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	}
 	
 	Vec3f surfaceShift = Vec3f();
+
 	if(!obj->getFlag(IS_FALLING) && !obj->getFlag(IS_FLOATING)) {
 		ServerObject *obj = SOM::get()->find(mdl->surfaceId);
-		if(obj != NULL) {
+		if(obj != NULL && obj->getPhysicsModel() != NULL) {
 			PhysicsModel *mdlSurf = obj->getPhysicsModel();
 			surfaceShift = mdlSurf->ref->getPos() - mdlSurf->lastPos;
 		}
@@ -93,15 +100,17 @@ bool PhysicsEngine::applyPhysics(ServerObject *obj) {
 	if(fabs(dx) > 0 || fabs(dy) > 0 || fabs(dz) > 0) {
 		obj->setFlag(IS_FALLING, true);
 		mdl->frictCoeff = frictAir;
+		return true;
 	}
 
-	return true;	//We'll add a detection for has-moved later
+	return false;
 }
 
 void PhysicsEngine::applyPhysics(ServerObject *obj1, ServerObject *obj2) {
 	CollisionModel *cmdl1 = obj1->getCollisionModel();
 	if( obj1->getPhysicsModel() == NULL ||
-		obj2->getPhysicsModel() == NULL) {
+		obj2->getPhysicsModel() == NULL ||
+		(obj1->getFlag(IS_STATIC) && obj2->getFlag(IS_STATIC))) {
 			return;
 	}
 
@@ -178,13 +187,11 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, HMap
 		case CMDL_AABB:
 			bx = ((AabbElement*)(*cur))->bx + obj2->getPhysicsModel()->ref->getPos();
 			if(areColliding(&shift, &dir, bx, pos, *el)) {
-				//TODO: Replace with appropriate collision code!
-				//getCollisionInfo(&shift, &dir, el->bxTotalVolume + pos, bx);
-				handleCollision(obj1, obj2, shift, dir);
+				handleCollision(obj2, obj1, shift, dir);
 			}
 			break;
 		case CMDL_HMAP:
-			DC::get()->print("WARNING: HMap on HMap collision- skipping\n");
+			//DC::get()->print("WARNING: HMap on HMap collision- skipping\n");
 			break;
 		default:
 			//Unrecognized collision type
@@ -203,19 +210,18 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	Vec3f shift1, shift2, axis;
 
 	//Passable or static collision objects should not be moved because of a collision
-	if((obj1->getFlag(IS_PASSABLE) || obj2->getFlag(IS_PASSABLE)) ||
-			(obj1->getFlag(IS_STATIC) && obj2->getFlag(IS_STATIC))) {
+	if((obj1->getFlag(IS_PASSABLE) || obj2->getFlag(IS_PASSABLE))) {
 		obj1->onCollision(obj2, Vec3f());
 		obj2->onCollision(obj1, Vec3f());
 		return;
 	}
 
 	//Handle not-falling status
-	if(flip(dir) == gravDir) {
+	if(flip(dir) == gravDir && (obj2->getFlag(IS_STATIC) || obj2->getFlag(IS_FLOATING) || !obj2->getFlag(IS_FALLING))) {
 		obj1->setFlag(IS_FALLING, false);
 		obj1->getPhysicsModel()->frictCoeff = frictGround;
 		obj1->getPhysicsModel()->surfaceId = obj2->getId();
-	} else if((dir) == gravDir) {
+	} else if((dir) == gravDir && (obj1->getFlag(IS_STATIC) || obj1->getFlag(IS_FLOATING) || !obj1->getFlag(IS_FALLING))) {
 		obj2->setFlag(IS_FALLING, false);
 		obj2->getPhysicsModel()->frictCoeff = frictGround;
 		obj2->getPhysicsModel()->surfaceId = obj1->getId();
@@ -236,6 +242,13 @@ void PhysicsEngine::handleCollision(ServerObject *obj1, ServerObject *obj2, cons
 	//Move the objects by the specified amount
 	mdl1->ref->translate(shift1);
 	mdl2->ref->translate(shift2);
+
+#define floatingConstant 2
+
+	if(this->gravMag == 0.0f) {
+		mdl1->applyForce(dirVec(dir) * floatingConstant);
+		mdl2->applyForce(dirVec(flip(dir)) * floatingConstant);
+	}
 
 	//Inform the logic module of the collision event
 	obj1->onCollision(obj2, dirVec(dir));

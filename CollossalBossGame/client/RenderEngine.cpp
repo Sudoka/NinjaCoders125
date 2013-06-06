@@ -96,10 +96,17 @@ void RenderEngine::renderInitalization()
 		D3DDEVTYPE_HAL,
 		windowHandle,
 //		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-		D3DCREATE_MIXED_VERTEXPROCESSING,
-//		D3DCREATE_HARDWARE_VERTEXPROCESSING,
+//		D3DCREATE_MIXED_VERTEXPROCESSING,
+		D3DCREATE_HARDWARE_VERTEXPROCESSING,
 		&deviceInfo,
 		&direct3dDevice);
+
+	RECT rect;
+	if(GetWindowRect(windowHandle, &rect))
+	{
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+	}
 
 
 	D3DXMATRIX matProj;
@@ -112,7 +119,6 @@ void RenderEngine::renderInitalization()
 	direct3dDevice->SetRenderState( D3DRS_CULLMODE, D3DCULL_CCW );
 
 	// Fill in a light structure defining our light
-	D3DLIGHT9 light;
 	ZeroMemory( &light, sizeof(D3DLIGHT9) );
 	light.Type       = D3DLIGHT_DIRECTIONAL;
 	light.Diffuse.r  = 1.0f;
@@ -120,6 +126,10 @@ void RenderEngine::renderInitalization()
 	light.Diffuse.b  = 1.0f;
 	light.Diffuse.a  = 1.0f;
 	light.Range      = 500.0f;
+	light.Ambient.r = brightness;
+	light.Ambient.g = brightness;
+	light.Ambient.b = brightness;
+	light.Ambient.a = brightness;
 	// Create a direction for our light - it must be normalized  
 	D3DXVECTOR3 vecDir;
 	vecDir = D3DXVECTOR3(-1.0f,-0.1f,0.5);
@@ -130,7 +140,6 @@ void RenderEngine::renderInitalization()
 
 	
 	// Fill in a light structure defining our light
-	D3DLIGHT9 light2;
 	ZeroMemory( &light2, sizeof(D3DLIGHT9) );
 	light2.Type       = D3DLIGHT_DIRECTIONAL;
 	light2.Diffuse.r  = 1.0f;
@@ -138,6 +147,10 @@ void RenderEngine::renderInitalization()
 	light2.Diffuse.b  = 1.0f;
 	light2.Diffuse.a  = 1.0f;
 	light2.Range      = 500.0f;
+	light2.Ambient.r = brightness;
+	light2.Ambient.g = brightness;
+	light2.Ambient.b = brightness;
+	light2.Ambient.a = brightness;
 	// Create a direction for our light - it must be normalized  
 	D3DXVECTOR3 vecDir1;
 	vecDir1 = D3DXVECTOR3(1.0f,-0.1f,-0.5);
@@ -189,10 +202,10 @@ void RenderEngine::gamestartdisplaylogic() {
  */
 RenderEngine::RenderEngine() {
 	// Set configuration options
-	cameraDist = CM::get()->find_config_as_float("CAM_DIST");
 	debugFlag = CM::get()->find_config_as_bool("RENDER_DEBUG_FLAG");
 
 	startWindow();
+	brightness = CM::get()->find_config_as_float("BRIGHTNESS");
 	renderInitalization();	//start initialization
 	xAnimator=CreateXAnimator(direct3dDevice);	//get our animator
 
@@ -200,13 +213,14 @@ RenderEngine::RenderEngine() {
 	colBxPts = new CollisionBoxPoints();
 	this->addParticleEffect(colBxPts);
 
-	cam = new Camera(cameraDist);
+	cam = new Camera();
 	hud = new HeadsUpDisplay(direct3dDevice, &gamestarted);
 	hudText = "DEFAULT";
 	monsterHUDText = "DEFAULT";
 
 	this->gamestarted = false;
 	this->fogging = false;
+	enableB = CM::get()->find_config_as_bool("ENABLE_BRIGHTNESS");
 }
 
 
@@ -219,15 +233,23 @@ RenderEngine::~RenderEngine() {
 	direct3dDevice->Release(); // close and release the 3D device
 	direct3dInterface->Release(); // close and release Direct3D
 	this->removeParticleEffect(colBxPts);
-
+	//delete this->xAnimator;
 	delete hud;
 	delete cam;
+	delete xAnimator;
 }
+
 
 void RenderEngine::drawHUD() {
 	if(gamestarted) {
-		hud->displayText(this->hudText,this->monsterHUDText);
-		hud->displayHealthBars(this->healthPts, this->monsterHealthPts, this->charge);
+		if(CE::get()->getState().gameover) {
+			hud->displayGameStats();
+		} else {
+			hud->displayText(this->hudText,this->monsterHUDText);
+			hud->displayHealthBars(this->healthPts, this->monsterHealthPts, this->charge);
+			hud->displayPhase(this->monsterPhase);
+			if(this->fpv) hud->displayCross(width, height);
+		}
 	}
 	else
 	{
@@ -258,7 +280,52 @@ void RenderEngine::renderThis(ClientObject *obj) {
 * Bryan
 */
 void RenderEngine::render() {
-	this->colBxPts->update(.33);
+	if(enableB){
+		// Fill in a light structure defining our light
+		ZeroMemory( &light, sizeof(D3DLIGHT9) );
+		light.Type       = D3DLIGHT_DIRECTIONAL;
+		light.Diffuse.r  = 1.0f;
+		light.Diffuse.g  = 1.0f;
+		light.Diffuse.b  = 1.0f;
+		light.Diffuse.a  = 1.0f;
+		light.Range      = 500.0f;
+		light.Ambient.r = brightness;
+		light.Ambient.g = brightness;
+		light.Ambient.b = brightness;
+		light.Ambient.a = brightness;
+		// Create a direction for our light - it must be normalized  
+		D3DXVECTOR3 vecDir;
+		vecDir = D3DXVECTOR3(-1.0f,-0.1f,0.5);
+		D3DXVec3Normalize( (D3DXVECTOR3*)&light.Direction, &vecDir );
+
+		// Tell the device about the light and turn it on
+		direct3dDevice->SetLight( 0, &light );
+
+	
+		// Fill in a light structure defining our light
+		ZeroMemory( &light2, sizeof(D3DLIGHT9) );
+		light2.Type       = D3DLIGHT_DIRECTIONAL;
+		light2.Diffuse.r  = 1.0f;
+		light2.Diffuse.g  = 1.0f;
+		light2.Diffuse.b  = 1.0f;
+		light2.Diffuse.a  = 1.0f;
+		light2.Range      = 500.0f;
+		light2.Ambient.r = brightness;
+		light2.Ambient.g = brightness;
+		light2.Ambient.b = brightness;
+		light2.Ambient.a = brightness;
+		// Create a direction for our light - it must be normalized  
+		D3DXVECTOR3 vecDir1;
+		vecDir1 = D3DXVECTOR3(1.0f,-0.1f,-0.5);
+		D3DXVec3Normalize( (D3DXVECTOR3*)&light2.Direction, &vecDir1 );
+
+		// Tell the device about the light and turn it on
+		direct3dDevice->SetLight( 1, &light2 );
+
+		direct3dDevice->LightEnable( 0, TRUE ); 
+		direct3dDevice->LightEnable( 1, TRUE ); 
+	}
+	this->colBxPts->update(.33f);
 	direct3dDevice->SetTransform(D3DTS_VIEW, cam->getViewMatrix()); // Update view
 	direct3dDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_COLORVALUE(0.0f, 0.0f, 0.0, 0.0f), 1.0f, 0);
 
@@ -279,7 +346,7 @@ void RenderEngine::render() {
 	direct3dDevice->Present(0, 0, 0, 0); // displays the created frame
 
 	//Clear collision-box particles
-	this->colBxPts->update(.33);
+	this->colBxPts->update(.33f);
 }
 
 // todo take time

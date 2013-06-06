@@ -35,6 +35,13 @@ private:
 
 	//sound ids
 	uint roarsound;
+	uint headRoarSound;
+	uint shootSound;
+	
+	//sound volumes
+	float tentRoarVol;
+	float headRoarVol;
+	float headShootVol;
 	//uint slamsound;
 };
 
