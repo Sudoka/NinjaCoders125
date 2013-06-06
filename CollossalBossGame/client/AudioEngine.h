@@ -50,6 +50,12 @@ public:
 	void setChannelVol(uint channelId, float vol);
 	void setChannelPos(uint channelId, Vec3f &pos);
 
+	//music and ambiance
+	void playAmbiance();
+	void stopAmbiance();
+	void playMusic();
+	void stopMusic();
+
 private:
 	//Constructors/destructors are private
 	AudioEngine();
@@ -91,9 +97,14 @@ private:
 	clock_t newTime;
 
 	//global music and ambiance
-	//sort of hacky but I don't have time to implement a music player
+	//sort of hacky but I don't have time to implement a music player -Michael
 	FMOD::Sound *musicLoop;
-	FMOD::Sound *shipSounds;
+	FMOD::Sound *ambianceLoop;
+	FMOD::Channel *musicChannel;
+	FMOD::Channel *ambianceChannel;
+
+	float musicVol;
+	float ambianceVol;
 
 };
 typedef AudioEngine AE;

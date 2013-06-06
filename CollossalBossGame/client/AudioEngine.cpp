@@ -33,16 +33,17 @@ AudioEngine::AudioEngine() {
 	lastPos.y = 0;
 	lastPos.z = 0;
 
-	//TESTING 3D
-	char* s1 = CM::get()->find_config("SHIP_HUM");
-	uint ship = this->addSound(s1,true,1.0f);
-	Vec3f pos;
-	pos.x = 0;
-	pos.y = 10;
-	pos.z = 0;
-	//this->playLoop3D(ship,1.0f,pos);
-
 	channelCount = 0;
+
+	//initialize music and ambiance
+	char* mus = CM::get()->find_config("MUSIC");
+	musicVol = CM::get()->find_config_as_float("MUSIC_VOL");
+	result = system->createStream(mus, FMOD_LOOP_NORMAL, 0, &musicLoop);
+	FMOD_ERRCHECK(result);
+	char* hum = CM::get()->find_config("SHIP_HUM");
+	ambianceVol = CM::get()->find_config_as_float("SHIP_HUM_VOL");
+	result = system->createStream(hum, FMOD_LOOP_NORMAL, 0, &ambianceLoop);
+	FMOD_ERRCHECK(result);
 }
 
 AudioEngine::~AudioEngine() {
@@ -520,4 +521,54 @@ uint AudioEngine::getFileHash(char* filename)
 	for(unsigned int i = 0; i < strlen(filename); i++)
 		hash = 65599 * hash + filename[i];
 	return hash ^ (hash >> 16);
+}
+
+/*
+ * Plays music
+ */
+void AudioEngine::playMusic() {
+	result = system->playSound(FMOD_CHANNEL_FREE, musicLoop, true, &musicChannel);
+	FMOD_ERRCHECK(result);
+	result = musicChannel->setVolume(musicVol);
+	FMOD_ERRCHECK(result);
+	result = musicChannel->setPaused(false);
+	FMOD_ERRCHECK(result);
+}
+
+/*
+ * Stops music
+ */
+void AudioEngine::stopMusic() {
+	bool playing;
+	result = musicChannel->isPlaying(&playing);
+	FMOD_ERRCHECK(result);
+
+	if(playing) {
+		musicChannel->stop();
+	}
+}
+
+/*
+ * plays ambiance
+ */
+void AudioEngine::playAmbiance() {
+	result = system->playSound(FMOD_CHANNEL_FREE, ambianceLoop, true, &ambianceChannel);
+	FMOD_ERRCHECK(result);
+	result = ambianceChannel->setVolume(ambianceVol);
+	FMOD_ERRCHECK(result);
+	result = ambianceChannel->setPaused(false);
+	FMOD_ERRCHECK(result);
+}
+
+/*
+ * Stops ambiance
+ */
+void AudioEngine::stopAmbiance() {
+	bool playing;
+	result = ambianceChannel->isPlaying(&playing);
+	FMOD_ERRCHECK(result);
+
+	if(playing) {
+		ambianceChannel->stop();
+	}
 }
