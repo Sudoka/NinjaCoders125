@@ -25,6 +25,7 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	camPitch = DEFAULT_PITCH_10;
 	ready = false;
 	this->camHeight = CM::get()->find_config_as_int("CAM_HEIGHT");
+	this->camOffset = 0;
 }
 
 PlayerCObj::~PlayerCObj(void)
@@ -66,14 +67,25 @@ bool PlayerCObj::update() {
 			}
 			*/
 
-			//if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
-			//if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
+			//camHeight
+			if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_X)) RE::get()->brightness+= 0.01f;
+			if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_X)) RE::get()->brightness-= 0.01f;
+
+			if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camHeight++;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camHeight--;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camOffset--;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camOffset++;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_X)) 
+			{
+				camHeight = CM::get()->find_config_as_int("CAM_HEIGHT");
+				camOffset = 0;
+			}
 		}
 
 		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;
 
 		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*(float)camHeight;
-		RE::get()->getCamera()->update(objPos, camRot, camPitch, camDist);
+		RE::get()->getCamera()->update(objPos, camRot, camPitch, camDist + camOffset);
 		showStatus();
 	}
 

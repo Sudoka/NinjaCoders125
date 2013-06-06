@@ -26,4 +26,5 @@ struct inputstatus {
 	float rotAngle; // Right Joystick
 	float rotVert, rotHoriz;
 	bool d_north, d_east, d_up, d_south, d_west, d_down;
+	bool switchPhase;
 };

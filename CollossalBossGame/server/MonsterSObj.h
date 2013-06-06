@@ -35,7 +35,7 @@ public:
 	char serialbuffer[100];
 
 	// Logic related to phases (turning features on)
-	static bool attackingOn, gravityOn, fogOn, headsOn, brainsOn;
+	static bool attackingOn, gravityOn, fogOn, headsOn, brainsOn, switchPhase;
 
 private:
 	PhysicsModel *pm;

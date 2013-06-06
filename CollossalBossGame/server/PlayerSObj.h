@@ -90,5 +90,8 @@ protected:
 
 	virtual void actionCharge(bool buttondown) = 0;
 	virtual void actionAttack() = 0;
+
+	// hot keys
+	bool oldSwitchPhase;
 };
 

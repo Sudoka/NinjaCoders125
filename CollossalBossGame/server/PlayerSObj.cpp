@@ -7,7 +7,7 @@
 #include "PhysicsEngine.h"
 #include "BulletSObj.h"
 #include "FireBallSObj.h"
-
+#include "MonsterSObj.h"
 
 #define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
 
@@ -23,6 +23,8 @@ PlayerSObj::PlayerSObj(uint id, uint clientId, CharacterClass cc) : ServerObject
 
 	// Other re-initializations (things that don't depend on parameters, like config)
 	this->initialize();
+
+	this->oldSwitchPhase = false;
 }
 
 
@@ -397,6 +399,9 @@ void PlayerSObj::deserialize(char* newInput)
 		this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 		this->pm->ref->setPos(Point_t());
 	}
+
+	MonsterSObj::switchPhase = istat.switchPhase && !this->oldSwitchPhase;
+	oldSwitchPhase = istat.switchPhase;
 }
 
 void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {

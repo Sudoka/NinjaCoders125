@@ -12,11 +12,13 @@
 #include "HeadSObj.h"
 
 // Logic related to phases (turning features on)
-bool MonsterSObj::attackingOn, MonsterSObj::gravityOn, MonsterSObj::fogOn, MonsterSObj::headsOn, MonsterSObj::brainsOn;
+bool MonsterSObj::attackingOn, MonsterSObj::gravityOn, MonsterSObj::fogOn, MonsterSObj::headsOn, MonsterSObj::brainsOn, MonsterSObj::switchPhase;
 
 MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 {
 	if(SOM::get()->debugFlag) DC::get()->print("Created new MonsterObj %d\n", id);
+
+	MonsterSObj::switchPhase = true; // begins the first phase
 
 	this->health = 0;
 	// todo make null make sure it works
@@ -269,7 +271,7 @@ bool MonsterSObj::update() {
 		health /= numParts;
 	}
 
-	if (numTentacles == 0) {
+	if (MonsterSObj::switchPhase) {
 		phase = (phase+1)%6;
 
 		// Turn features on based on phase
@@ -305,6 +307,16 @@ bool MonsterSObj::update() {
 			// DONT YOU DARE
 		}
 
+		// Kill off all the ones we didn't get to xD
+		for (set<MonsterPartSObj*>::iterator it = parts.begin();
+			it != parts.end();
+			++it)
+			(*it)->setHealth(0);
+	}
+
+	// Keep spawning tentacles
+	if (numTentacles == 0)
+	{
 		// Make sure we've got enough positions
 		//assert(availTentaclePlacements.size() >= numParts && availHeadPlacements.size() >= numParts && "You ran out of positions for your tentacles!");
 
@@ -344,7 +356,6 @@ bool MonsterSObj::update() {
 			// SOM::get()->add(newPart);
 		}
 	}
-
 
 	// Decide if we want our tentacles to fog
 	if (fogOn) {
