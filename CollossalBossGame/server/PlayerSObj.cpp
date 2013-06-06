@@ -373,10 +373,10 @@ int PlayerSObj::serialize(char * buf) {
 		case CHAR_CLASS_SHOOTER:
 			state->modelNum = (Model)(MDL_PLAYER_2);
 			break;
-		case CHAR_CLASS_SCIENTIST:
+		case CHAR_CLASS_MECHANIC:
 			state->modelNum = (Model)(MDL_PLAYER_3);
 			break;
-		case CHAR_CLASS_MECHANIC:
+		case CHAR_CLASS_SCIENTIST:
 			state->modelNum = (Model)(MDL_PLAYER_4);
 			break;
 	}
@@ -387,7 +387,7 @@ int PlayerSObj::serialize(char * buf) {
 	state->animationstate = this->modelAnimationState;
 	// This is super hacky, it's because animations are exported backwards, and the shooter
 	// has less animations than the cyborg -__-
-	if(this->getCharacterClass() == CHAR_CLASS_SHOOTER) state->animationstate-=2;
+	if(this->charclass == CHAR_CLASS_SHOOTER || this->charclass == CHAR_CLASS_MECHANIC) state->animationstate-=2;
 	if (state->animationstate < 0) state->animationstate = 0; // again...blame the hackyness, this is just in case
 	state->sState = this->sState;
 	state->sTrig = this->sTrig;

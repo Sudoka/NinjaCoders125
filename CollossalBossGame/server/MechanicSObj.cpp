@@ -40,11 +40,13 @@ void MechanicSObj::fireHarpoon() {
 }
 
 void MechanicSObj::actionCharge(bool buttondown) {
+
 	if(!delaytrigger) delaycounter++;
 	if(!(delaycounter % delay)) delaytrigger = true;
 	HarpoonSObj * hso = reinterpret_cast<HarpoonSObj *>(SOM::get()->find(this->harpoon));
 	if(buttondown) {
 		if(delaytrigger && !charging && (this->harpoon == -1 || hso == NULL)) {
+			this->subclassstate = PAS_CHARGE;
 			fireHarpoon();
 		} else {
 			if(hso == NULL) {
@@ -59,7 +61,7 @@ void MechanicSObj::actionCharge(bool buttondown) {
 				if(charge < 0) {
 					this->clearAccessory();
 					charge = 0.0f;
-					
+					this->subclassstate = PAS_IDLE;	
 				}
 			} else if(hso->state == HS_HARPOON) {
 				if(!charging) {
@@ -75,6 +77,7 @@ void MechanicSObj::actionCharge(bool buttondown) {
 			charge = 0.0f;
 		}
 		charging = false;
+		this->subclassstate = PAS_IDLE;
 	}
 }
 
