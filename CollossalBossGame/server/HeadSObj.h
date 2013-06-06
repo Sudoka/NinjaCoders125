@@ -20,6 +20,7 @@ public:
 
 	virtual ObjectType getType() { return OBJ_HEAD; }
 	virtual int getModelNumber() { return this->modelNum; }
+	virtual void reinitialize();
 private:
 	int fireballForce;
 	int fireballDamage;

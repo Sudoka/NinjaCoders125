@@ -19,6 +19,7 @@ ShooterSObj::~ShooterSObj(void)
 void ShooterSObj::initialize() {
 	// Configuration options
 	bulletdamage = CM::get()->find_config_as_int("BULLET_DAMAGE");
+	maxbulletcount = CM::get()->find_config_as_int("SHOOTER_MAX_BULLET_COUNT");
 }
 
 void ShooterSObj::actionAttack() {
@@ -26,7 +27,7 @@ void ShooterSObj::actionAttack() {
 }
 
 void ShooterSObj::actionCharge(bool buttondown) {
-	if(buttondown && BulletSObj::TotalBullets < 5) {
+	if(buttondown && BulletSObj::TotalShooterBullets < maxbulletcount) {
 		charging = true;
 		charge += chargeUpdate;
 	} else {

@@ -26,8 +26,6 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 	currStateDone = true; // no states have started yet
 	modelAnimationState = M_IDLE;
 
-	GameServer::get()->state.monsterspawn();
-
 	this->takes_double_damage = false;
 	this->frozen = false;
 
@@ -42,14 +40,13 @@ void MonsterPartSObj::reset() {
 	this->modelAnimationState = M_IDLE;
 	this->takes_double_damage = false;
 	this->oldGravDir = PE::get()->getGravDir();
+	// Remove collision boxes
+	this->getCollisionModel()->clean();
 }
-
 
 MonsterPartSObj::~MonsterPartSObj(void)
 {
 	delete pm;
-	
-	GameServer::get()->state.monsterdeath();
 }
 
 bool MonsterPartSObj::update() {

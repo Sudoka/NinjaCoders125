@@ -69,6 +69,7 @@ public:
 
 	virtual int getModelNumber() = 0;
 	virtual void reset();
+	virtual void reinitialize() = 0;
 	bool takes_double_damage;
 	bool frozen;
 protected:

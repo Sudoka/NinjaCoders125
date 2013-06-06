@@ -52,10 +52,12 @@ MonsterSObj::MonsterSObj(uint id, uint numParts) : ServerObject(id)
 	// Initialize Tentacles and Head Objects to prevent ingame lag between phases
 	for (uint i=0; i<numParts; i++) {
 		MonsterPartSObj * newHead = new HeadSObj(SOM::get()->genId(), (Model)(i + MDL_HEAD_1), fixedHeadLocations[i].getPos(), fixedHeadLocations[i].getRot(), this);
+		newHead->reset();
 		newHead->frozen = true;
 		this->headStorage.push_back(newHead);
 		SOM::get()->add(newHead);
 		MonsterPartSObj * newTentacle = new TentacleSObj(SOM::get()->genId(), (Model)(i + MDL_TENTACLE_1), fixedTentacleLocations[i].getPos(), fixedTentacleLocations[i].getRot(), this);
+		newTentacle->reset();
 		newTentacle->frozen = true;
 		this->tentStorage.push_back(newTentacle);
 		SOM::get()->add(newTentacle);
@@ -77,7 +79,11 @@ void MonsterSObj::setupAvailablePlacements()
 	////////////////////////// TENTACLES //////////////////////////
 
 	// Floor
-	int adjustment = 60;
+	int adjustment = 30;
+	/*Frame f = Frame(Vec3f(370, 45+adjustment, -220), Quat_t(Vec3f(1, 0, 0), M_PI/2));
+	availTentaclePlacementsW.push_back(f);
+	availTentaclePlacementsE.push_back(f);
+	*/
 	availTentaclePlacementsW.push_back(Frame(Vec3f(-265, 45+adjustment, 120), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
 	availTentaclePlacementsE.push_back(Frame(Vec3f(370, 45+adjustment, -220), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
 	availTentaclePlacementsE.push_back(Frame(Vec3f(75, 45+adjustment, -20), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
@@ -138,6 +144,7 @@ void MonsterSObj::setupAvailablePlacements()
 	availHeadPlacementsW.push_back(Frame(Vec3f(-106.25f, 50.f, 360.f), Quat_t()));
 	availHeadPlacementsE.push_back(Frame(Vec3f(106.25f, 50.f, 360.f), Quat_t()));
 	availHeadPlacementsE.push_back(Frame(Vec3f(140.25f, 157.5f, 360.f), Quat_t()));
+	
 }
 
 void MonsterSObj::removePart(MonsterPartSObj* t)
@@ -165,6 +172,7 @@ void MonsterSObj::removePart(MonsterPartSObj* t)
 		assert(false && "HERPDERP");
 	}
 	t->reset();
+	GameServer::get()->state.monsterdeath();
 }
 
 /**
@@ -348,11 +356,13 @@ bool MonsterSObj::update() {
 
 				newPart = this->tentStorage[i];
 			}
-				
+			newPart->reset();
+			newPart->reinitialize();
 			newPart->getPhysicsModel()->ref->setPos(currPlace.getPos());
 			newPart->getPhysicsModel()->ref->setRot(currPlace.getRot());
 			newPart->frozen = false;
 			this->addPart(newPart);
+			GameServer::get()->state.monsterspawn();
 			// SOM::get()->add(newPart);
 		}
 	}

@@ -1,10 +1,12 @@
 #include "BulletSObj.h"
+#include "PlayerSObj.h"
 #include "ServerObjectManager.h"
 #include "ConfigurationManager.h"
 #include "defs.h"
 #include <math.h>
 
-int BulletSObj::TotalBullets = 0;
+int BulletSObj::TotalShooterBullets = 0;
+int BulletSObj::TotalScientistBullets = 0;
 
 BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce, int dmg, int diameter, ServerObject* shooter) : ServerObject(id)
 {
@@ -33,14 +35,33 @@ BulletSObj::BulletSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForce,
 	this->damage = dmg;
 	this->diameter = diameter;
 
-	TotalBullets++;
+	PlayerSObj* pso = reinterpret_cast<PlayerSObj*>(creator);
+	if(pso == NULL) {
+		assert(false && "Creator Error");
+	} else if(pso->getCharacterClass() == CHAR_CLASS_SHOOTER) {
+		TotalShooterBullets++;
+	} else if(pso->getCharacterClass() == CHAR_CLASS_SCIENTIST) {
+		TotalScientistBullets++;
+	} else {
+		assert(false && "More things using the bullet class?");
+	}
+	
 }
 
 
 BulletSObj::~BulletSObj(void)
 {
 	delete pm;
-	TotalBullets--;
+	PlayerSObj* pso = reinterpret_cast<PlayerSObj*>(creator);
+	if(pso == NULL) {
+		assert(false && "Creator Error");
+	} else if(pso->getCharacterClass() == CHAR_CLASS_SHOOTER) {
+		TotalShooterBullets++;
+	} else if(pso->getCharacterClass() == CHAR_CLASS_SCIENTIST) {
+		TotalScientistBullets++;
+	} else {
+		assert(false && "More things using the bullet class?");
+	}
 }
 
 bool BulletSObj::update() {

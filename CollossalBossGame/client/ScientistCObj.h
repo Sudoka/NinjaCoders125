@@ -3,6 +3,7 @@
 #include "PlayerCObj.h"
 #include "HarpoonCObj.h"
 #include "BeamEffect.h"
+#include "RenderEngine.h"
 
 class ScientistCObj : public PlayerCObj
 {
@@ -17,6 +18,12 @@ private:
 	int transformdelay;
 	int transformduration;
 	int transformtargetid;
+	CharacterClass transformedclassprevious;
 	CharacterClass transformedclass;
 	BeamEffect* be;
+
+	RenderModel * rm1;
+	RenderModel * rm2;
+	RenderModel * rm3;
+	RenderModel * rm4;
 };

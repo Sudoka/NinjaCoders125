@@ -270,7 +270,7 @@ void HeadsUpDisplay::displayHealthBars(int playerHealth, int monsterHealth, floa
 		//charge bar
 		D3DXVECTOR2 clines[] = {D3DXVECTOR2(healthBarPos[0], healthBarPos[1]+40.f), D3DXVECTOR2(healthBarPos[0]+charge/100.0f*healthBarSize , healthBarPos[1]+40.f)};
 		chargeLine->SetWidth(15.0f);
-		chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(0), (int)(255.0 * (charge) / 100.0), (int)(255.0 * charge / 100.0)));
+		chargeLine->Draw(clines, 2, D3DCOLOR_ARGB(255, (int)(255.0 * (100 - charge) / 100.0), (int)(255.0 * (charge) / 100.0), (int)(255.0 * charge / 100.0)));
 
 	}
 	
@@ -444,12 +444,12 @@ void HeadsUpDisplay::displayStart()
 			} else if (playernumber == 2) {
 				youarep2->SetTransform(&mat);
 				youarep2->Begin(D3DXSPRITE_ALPHABLEND);
-				youarep2->Draw(youarep1txt,NULL,NULL,&pc,0xFFFFFFFF);
+				youarep2->Draw(youarep2txt,NULL,NULL,&pc,0xFFFFFFFF);
 				youarep2->End(); 
 			} else {
 				p2connect->SetTransform(&mat);
 				p2connect->Begin(D3DXSPRITE_ALPHABLEND);
-				p2connect->Draw(p1connecttxt,NULL,NULL,&pc,0xFFFFFFFF);
+				p2connect->Draw(p2connecttxt,NULL,NULL,&pc,0xFFFFFFFF);
 				p2connect->End(); 
 			}
 		}
