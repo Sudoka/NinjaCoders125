@@ -10,6 +10,7 @@
 #include "MonsterPartSObj.h"
 #include "TentacleSObj.h"
 #include "HeadSObj.h"
+#include "WorldSObj.h"
 
 // Logic related to phases (turning features on)
 bool MonsterSObj::attackingOn, MonsterSObj::gravityOn, MonsterSObj::fogOn, MonsterSObj::headsOn, MonsterSObj::brainsOn, MonsterSObj::switchPhase;
@@ -80,39 +81,36 @@ void MonsterSObj::setupAvailablePlacements()
 
 	// Floor
 	int adjustment = 30;
-	/*Frame f = Frame(Vec3f(370, 45+adjustment, -220), Quat_t(Vec3f(1, 0, 0), M_PI/2));
-	availTentaclePlacementsW.push_back(f);
-	availTentaclePlacementsE.push_back(f);
-	*/
+	
 	availTentaclePlacementsW.push_back(Frame(Vec3f(-265, 45+adjustment, 120), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
 	availTentaclePlacementsE.push_back(Frame(Vec3f(370, 45+adjustment, -220), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
 	availTentaclePlacementsE.push_back(Frame(Vec3f(75, 45+adjustment, -20), Quat_t(Vec3f(1, 0, 0), M_PI/2)));
 
 	
 	// East Wall (non-window)
-	availTentaclePlacementsE.push_back(Frame(Vec3f(585.5-adjustment, 85, 75), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(585.5-adjustment, 90, 75), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
 	availTentaclePlacementsE.push_back(Frame(Vec3f(585.5-adjustment, 220, -160), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
-
+	/*
 	// North Wall
-	availTentaclePlacementsE.push_back(Frame(Vec3f(140.25, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacementsE.push_back(Frame(Vec3f(106.25, 50, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacementsW.push_back(Frame(Vec3f(-106.25, 50, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacementsE.push_back(Frame(Vec3f(318.75, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacementsE.push_back(Frame(Vec3f(532.5, 250.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacementsW.push_back(Frame(Vec3f(-73.25, 245.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacementsW.push_back(Frame(Vec3f(-570.5, 258.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
-	availTentaclePlacementsW.push_back(Frame(Vec3f(-553.5, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(-135.25, 155.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(106.25, 70, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-106.25, 70, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(538.75, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(505.5, 250.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(143.25, 265.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-520.5, 248.15, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-313.5, 147.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
 	
 	// South Wall
 	
-	availTentaclePlacementsE.push_back(Frame(Vec3f(553.5, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacementsE.push_back(Frame(Vec3f(570.5, 258.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacementsE.push_back(Frame(Vec3f(73.25, 245.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacementsW.push_back(Frame(Vec3f(-532.5, 250.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacementsW.push_back(Frame(Vec3f(-318.75, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacementsE.push_back(Frame(Vec3f(106.25, 50, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacementsW.push_back(Frame(Vec3f(-106.25, 50, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	availTentaclePlacementsW.push_back(Frame(Vec3f(-140.25, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(523.5, 220.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(320.5, 145.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(140.25, 155.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-512.5, 230.15, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-523.75, 147.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsE.push_back(Frame(Vec3f(106.25, 55, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-106.25, 55, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
+	availTentaclePlacementsW.push_back(Frame(Vec3f(-140.25, 252.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
 
 	////////////////////////// HEADS //////////////////////////
 	// Floor
@@ -297,7 +295,7 @@ bool MonsterSObj::update() {
 			attackingOn = true;
 			break;
 		case 2:
-			gravityOn = true;
+			setGravityPhase();
 			break;
 		case 3:
 			fogOn = true;
@@ -412,4 +410,15 @@ int MonsterSObj::serialize(char * buf) {
 
 void MonsterSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
 	// should only collide on tentacle this is a container class
+}
+
+void MonsterSObj::setGravityPhase() {
+	//Enable gravity switching
+	gravityOn = true;
+
+	//Set the world object's gravity timer
+	WorldSObj *wobj = dynamic_cast<WorldSObj*>(SOM::get()->find(0));
+	if(wobj != NULL) {
+		wobj->setGravTimer(GRAV_NULL);
+	}
 }

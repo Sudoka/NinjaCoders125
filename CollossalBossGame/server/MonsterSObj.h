@@ -54,6 +54,7 @@ private:
 	uint numParts;
 
 	void setupAvailablePlacements();
+	void setGravityPhase();
 
 	//TentacleState state;
 

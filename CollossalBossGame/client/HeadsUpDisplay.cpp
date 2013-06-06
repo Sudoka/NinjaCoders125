@@ -599,8 +599,8 @@ void HeadsUpDisplay::displayPhase(int phase)
 {
 	D3DXVECTOR3 test1;
 	
-	test1.x= 10; //CM::get()->find_config_as_float("TEST1_X");
-	test1.y= 880; //CM::get()->find_config_as_float("TEST1_Y");
+	test1.x= 0; //CM::get()->find_config_as_float("TEST1_X");
+	test1.y= 850; //CM::get()->find_config_as_float("TEST1_Y");
 	test1.z= 0; //CM::get()->find_config_as_float("TEST1_Z");
 
 	D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);

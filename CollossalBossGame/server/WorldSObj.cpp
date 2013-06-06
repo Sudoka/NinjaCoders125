@@ -77,3 +77,17 @@ int WorldSObj::serialize(char * buf) {
 	state->gravDir = PE::get()->getGravDir();
 	return sizeof(WorldState);
 }
+
+void WorldSObj::setGravTimer(GravityInterval i) {
+	switch(i) {
+	case GRAV_SWITCH:
+		gravityTimer = gravityInterval - 1;
+		break;
+	case GRAV_NULL:
+		gravityTimer = nullInterval - 1;
+		break;
+	default:
+		gravityTimer = 0;
+		break;
+	}
+}
