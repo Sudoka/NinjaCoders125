@@ -82,7 +82,7 @@ void PlayerSObj::initialize() {
 	charge = 0.0;
 	chargeCap = 13.0f;
 	damage = 0;
-	modelAnimationState = IDLE;
+	modelAnimationState = PAS_IDLE;
 	ready = false;
 
 	lastGravDir = DOWN;
@@ -104,6 +104,8 @@ void PlayerSObj::initialize() {
 	zoomed = false;
 	jumpForceTimer = 0;
 	setFlag(IS_DIRTY, true);
+
+	subclassstate = PAS_IDLE;
 }
 
 PlayerSObj::~PlayerSObj(void) {
@@ -216,12 +218,33 @@ bool PlayerSObj::update() {
 		// Apply special power
 		actionCharge(istat.attack);
 
+		Vec3f projectiontoup = (pm->vel * (PE::get()->getGravDir()*-1)) * (PE::get()->getGravDir()*-1);
+		Vec3f planarmovement = pm->vel - projectiontoup;
+		float upvectormagnitude = magnitude(projectiontoup);
+
 		// change animation according to state
-		if(pm->vel.x <= 0.25 && pm->vel.x >= -0.25 && pm->vel.z <= 0.25 && pm->vel.z >= -0.25) {
-			this->setAnimationState(IDLE);
-		} else {
-			this->setAnimationState(WALK);
+		if(subclassstate != PAS_IDLE) {
+			this->setAnimationState(subclassstate);
+		} else if((jumping && !this->getFlag(IS_FALLING)) || jumpflag) {
+			// IF THE PLAYER PRESSED JUMP, GO THROUGH THE JUMP ANIMATION FOR X CYCLES OR HOWEVER LONG JUMPING TAKES
+			jumpflag = true;
+			jumpcycle++;
+			if(jumpcycle == 8) {
+				jumpflag = false;
+			}
+			this->setAnimationState(PAS_JUMP);
+		} else { // There's no immediate state you need to be in, so you're moving. Here's the motions
+			if(upvectormagnitude > 0.25f) {
+				this->setAnimationState(PAS_FLOATING_UP);
+			} else if(upvectormagnitude < -0.25f) {
+				this->setAnimationState(PAS_FALLING_DOWN);
+			} else if(magnitude(planarmovement) > 0.25f) {
+				this->setAnimationState(PAS_WALK);
+			} else {
+				this->setAnimationState(PAS_IDLE);
+			}
 		}
+
 	} else if (!GameServer::get()->state.gameover) {
 		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
 		pm->ref->setRot(qRot);

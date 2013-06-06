@@ -301,11 +301,18 @@ enum MonsterAnimationState {
  * Types of player animation states
  */
 enum PlayerAnimationState {
-	IDLE = 0,
-	WALK = 1,
-	JUMP = 2,
-	ATK  = 3,
-	DEAD = 4
+	PAS_IDLE = 11,
+	PAS_WALK = 10,
+	PAS_JUMP = 9,
+	PAS_FLOATING_UP = 8,
+	PAS_UP_DOWN_TRANSITION = 7,
+	PAS_FALLING_DOWN = 6,
+	PAS_DEAD = 5,
+	PAS_CHARGE_BEGIN = 4,
+	PAS_CHARGE = 3,
+	PAS_READY_BEGIN = 2,
+	PAS_READY = 1,
+	PAS_ATTACK  = 0,
 };
 
 enum BulletColor {
