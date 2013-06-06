@@ -8,7 +8,7 @@
 #include <sstream>
 #include "RenderEngine.h"
 
-#define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
+#define DEFAULT_PITCH_10 0.30550876f	//10 degrees or stg like that
 
 PlayerCObj::PlayerCObj(uint id, char *data) :
 	ClientObject(id, OBJ_PLAYER)
