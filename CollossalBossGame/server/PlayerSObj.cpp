@@ -385,6 +385,10 @@ int PlayerSObj::serialize(char * buf) {
 	state->charge = charge;
 	if (SOM::get()->debugFlag) DC::get()->print("CURRENT MODEL STATE %d\n",this->modelAnimationState);
 	state->animationstate = this->modelAnimationState;
+	// This is super hacky, it's because animations are exported backwards, and the shooter
+	// has less animations than the cyborg -__-
+	if(this->getCharacterClass() == CHAR_CLASS_SHOOTER) state->animationstate-=2;
+	if (state->animationstate < 0) state->animationstate = 0; // again...blame the hackyness, this is just in case
 	state->sState = this->sState;
 	state->sTrig = this->sTrig;
 	state->camRot = this->camRot;
