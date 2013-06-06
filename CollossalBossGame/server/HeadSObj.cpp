@@ -25,6 +25,8 @@ HeadSObj::HeadSObj(uint id, Model modelNum, Point_t pos, Quat_t rot, MonsterSObj
 	shootBoxes[1] = CM::get()->find_config_as_box("BOX_HEAD_MID_SHOOT");
 	shootBoxes[2] = CM::get()->find_config_as_box("BOX_HEAD_TIP_SHOOT");
 
+	rageRoarProb = CM::get()->find_config_as_int("RAGE_ROAR_CHANCE");
+
 	CollisionModel *cm = getCollisionModel();
 
 	for (int i=0; i<3; i++) {
@@ -240,6 +242,9 @@ void HeadSObj::shootFireball() {
 	// We actually shoot in a specific frame
 	if (stateCounter % SHOOT_CYCLE == 40)
 	{
+		//fireball sound
+		sTrig = SOUND_HEAD_SHOOT;
+
 		// Find our head position
 		Box headBox = tip;
 		Vec3f headPos = headBox.getPos() + this->getPhysicsModel()->ref->getPos();
@@ -381,6 +386,13 @@ void HeadSObj::rage() {
 
 	// First, we create the wave object
 	if (stateCounter == 0) {
+
+		//angry roar! only the head can roar when raging.
+		if((rand() % 100) < rageRoarProb)
+		{
+			roar();
+		}	
+
 		Vec4f axis = this->getPhysicsModel()->ref->getRot();
 		Vec3f changePos = Vec3f(0,0,20);
 		changePos = axis.rotateToThisAxis(changePos);
@@ -458,4 +470,8 @@ void HeadSObj::death() {
 	}
 
 	currStateDone = (stateCounter == 68); // 69
+}
+
+void HeadSObj::roar() {
+	sTrig = SOUND_HEAD_ROAR;
 }

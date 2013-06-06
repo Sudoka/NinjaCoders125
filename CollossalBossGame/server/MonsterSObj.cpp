@@ -90,7 +90,7 @@ void MonsterSObj::setupAvailablePlacements()
 	// East Wall (non-window)
 	availTentaclePlacementsE.push_back(Frame(Vec3f(585.5-adjustment, 90, 75), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
 	availTentaclePlacementsE.push_back(Frame(Vec3f(585.5-adjustment, 220, -160), Quat_t(Vec3f(0, 1, 0), M_PI/2)));
-	/*
+	
 	// North Wall
 	availTentaclePlacementsE.push_back(Frame(Vec3f(-135.25, 155.5, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
 	availTentaclePlacementsE.push_back(Frame(Vec3f(106.25, 70, -300+adjustment), Quat_t(Vec3f(1, 0, 0), M_PI)));
@@ -111,7 +111,7 @@ void MonsterSObj::setupAvailablePlacements()
 	availTentaclePlacementsE.push_back(Frame(Vec3f(106.25, 55, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
 	availTentaclePlacementsW.push_back(Frame(Vec3f(-106.25, 55, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
 	availTentaclePlacementsW.push_back(Frame(Vec3f(-140.25, 252.5, 300-adjustment), Quat_t(Vec3f(0, 0, 0), 0)));
-	*/
+	
 	////////////////////////// HEADS //////////////////////////
 	// Floor
 	availHeadPlacementsW.push_back(Frame(Vec3f(-265.f, -20.f, 140.f), Quat_t(Vec3f(1.f, 0, 0), (float)3*M_PI/10)));

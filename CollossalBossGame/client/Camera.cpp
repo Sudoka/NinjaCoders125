@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "DebugConsole.h"
+#include "AudioEngine.h"
 
 Camera::Camera()
 {
@@ -49,4 +50,7 @@ void Camera::update(const Point_t &tarPos, const Quat_t &tarRot, float pitch, fl
 	(viewMatrix)(1, 3) = 0.0f;
 	(viewMatrix)(2, 3) = 0.0f;
 	(viewMatrix)(3, 3) = 1.0f;
+
+	//update the audio engine with new camera data
+	AE::get()->setListenerPos(tarPos,camFwd,camUp);
 }

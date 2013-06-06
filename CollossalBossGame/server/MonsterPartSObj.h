@@ -65,6 +65,9 @@ public:
 	virtual void death() = 0;
 
 
+	//trigger the roar sound TODO_MICHAEL: remove me?
+	virtual void roar() = 0;
+
 	virtual ObjectType getType() = 0;
 
 	virtual int getModelNumber() = 0;
@@ -72,6 +75,7 @@ public:
 	virtual void reinitialize() = 0;
 	bool takes_double_damage;
 	bool frozen;
+
 protected:
 	int health;
 	bool isFogging;
@@ -99,5 +103,9 @@ protected:
 
 	// Collision Boxes in common
 	Box idleBoxes[3]; // stores initial idle collision boxes
+
+	MonsterSoundTrigger sTrig;
+	MonsterSoundState sState;
+	int roarProb;
 };
 

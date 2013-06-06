@@ -21,5 +21,7 @@ protected:
 
 private:
 	void fireHarpoon();
+
+	bool hookshotPlaying;
 };
 

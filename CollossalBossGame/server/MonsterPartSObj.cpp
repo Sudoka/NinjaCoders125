@@ -24,6 +24,9 @@ MonsterPartSObj::MonsterPartSObj(uint id, Model modelNum, Point_t pos, Quat_t ro
 	attacked = false; // haven't been attacked yet
 	attackerId = -1;
 	currStateDone = true; // no states have started yet
+
+	roarProb = CM::get()->find_config_as_int("ROAR_CHANCE"); //so we don't annoy ppls with constantly roaring
+
 	modelAnimationState = M_IDLE;
 
 	this->takes_double_damage = false;
@@ -50,9 +53,9 @@ MonsterPartSObj::~MonsterPartSObj(void)
 }
 
 bool MonsterPartSObj::update() {
+	sTrig = SOUND_MONSTER_NO_NEW_TRIG;
 	if (!GameServer::get()->state.gameover && !this->frozen) {
 		stateCounter++;
-
 		////////////////// State transitions /////////////////////
 
 		// MUAHAHAHA PREPARE TO DIE
@@ -120,6 +123,11 @@ bool MonsterPartSObj::update() {
 					// we're angry!
 					if (MonsterSObj::attackingOn && (rand() % 100) < angryProb) 
 					{
+						//angry roar!
+						if((rand() % 100) < roarProb) //roarprob set in config
+						{
+							roar();
+						}
 						// fight or flight?
 						int moveProb = gravSwitch? 95 : 15;
 
@@ -169,6 +177,9 @@ bool MonsterPartSObj::update() {
 				}
 			}
 		}
+
+	///////////////////// State logic ///////////////////////
+	//actionState = MOVE_ACTION;
 		
 		// Reset attack every time we change states, onCollision re-sets it
 		attacked = false;
@@ -286,6 +297,8 @@ int MonsterPartSObj::serialize(char * buf) {
 	state->animationState = this->modelAnimationState;
 	state->fog = this->isFogging;
 	state->animationFrame = -1;
+	state->sTrig = this->sTrig;
+	state->sState = this->sState;
 
 	if (SOM::get()->collisionMode)
 	{

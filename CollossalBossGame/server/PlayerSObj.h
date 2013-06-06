@@ -18,7 +18,7 @@ public:
 	virtual CharacterClass getCharacterClass() { return charclass; }
 	virtual void initialize();
 	virtual void onCollision(ServerObject *obj, const Vec3f &collNorm);
-	int getHealth() { return health; } 
+	float getHealth() { return health; } 
 	void setAnimationState(int state) { modelAnimationState = state; }
 	char serialbuffer[100];
 
@@ -44,7 +44,9 @@ public:
 	uint clientId;
 
 protected:
+	PlayerAnimationState subclassstate;
 	int deathtimer;
+	int attacktimer;
 	PhysicsModel *pm;
 	inputstatus istat;
 	Point_t lastCollision;
@@ -55,6 +57,8 @@ protected:
 	float jumpDist, jumpDiv;
 	float chargeForce, chargeUpdate, chargeCap;
 	int movDamp;
+	bool jumpflag;
+	int jumpcycle;
 
 	//Rotational tracking
 	float t;
@@ -79,6 +83,7 @@ protected:
 	PlayerSoundTrigger sTrig;
 
 	bool firedeath;
+	bool stopMovement;
 	int gravityTimer;
 	int modelAnimationState;
 	int swordDamage;

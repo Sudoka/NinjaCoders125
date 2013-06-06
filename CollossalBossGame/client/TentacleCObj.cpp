@@ -15,6 +15,24 @@ TentacleCObj::TentacleCObj(uint id, char *data) : ClientObject(id, OBJ_TENTACLE)
 	fogging = false;
 	density = 0.f;
 	densityCounter = 0.f;
+
+	//set up sounds
+	ss = new SoundSource();
+	DC::get()->print("[Audio] Loading Tentacle Roar...\n");
+	char* s1 = CM::get()->find_config("TENTACLE_ROAR");
+	float atten = CM::get()->find_config_as_float("TENTACLE_ROAR_ATTEN");
+	tentRoarVol = CM::get()->find_config_as_float("TENTACLE_ROAR_VOL");
+	roarsound = ss->addSound(s1,true,atten);
+	DC::get()->print("[Audio] Loading Head Roar...\n");
+	char* s2 = CM::get()->find_config("HEAD_ROAR");
+	atten = CM::get()->find_config_as_float("HEAD_ROAR_ATTEN");
+	headRoarVol = CM::get()->find_config_as_float("HEAD_ROAR_VOL");
+	headRoarSound = ss->addSound(s2,true,atten);
+	DC::get()->print("[Audio] Loading Fireball Sound...\n");
+	char* s3 = CM::get()->find_config("FIREBALL_SOUND");
+	atten = CM::get()->find_config_as_float("FIREBALL_SOUND_ATTEN");
+	headShootVol = CM::get()->find_config_as_float("FIREBALL_SOUND_VOL");
+	shootSound = ss->addSound(s3,true,atten);
 }
 
 TentacleCObj::~TentacleCObj(void)
@@ -35,6 +53,22 @@ RenderModel* TentacleCObj::getBox() {
 }
 
 bool TentacleCObj::update() {
+
+	Vec3f soundPos;
+	switch(this->sTrig) {
+	case SOUND_TENTACLE_ROAR:
+		soundPos = this->getRenderModel()->getFrameOfRef()->getPos();
+		ss->playOneShot3D(roarsound,tentRoarVol,soundPos);
+		break;
+	case SOUND_HEAD_ROAR:
+		soundPos = this->getRenderModel()->getFrameOfRef()->getPos();
+		ss->playOneShot3D(headRoarSound,headRoarVol,soundPos);
+		break;
+	case SOUND_HEAD_SHOOT:
+		soundPos = this->getRenderModel()->getFrameOfRef()->getPos();
+		ss->playOneShot3D(shootSound,headShootVol,soundPos);
+	}
+
 	if(rm->getFrameOfRef()->getPos().y > 2900) {
 		rm->setInvisible(true);
 	} else {
@@ -101,4 +135,6 @@ void TentacleCObj::deserialize(char* newState) {
 	{
 		rm->getFrameOfRef()->deserialize(newState + sizeof(MonsterPartState));
 	}
+	this->sTrig = state->sTrig;
+	this->sState = state->sState;
 }

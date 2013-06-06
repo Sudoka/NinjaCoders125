@@ -16,6 +16,10 @@ public:
 private:
 	int health;
 	int phase;
+	
+	bool phaseOneStart;
+	bool phaseTwoStart;
+
 	RenderModel *rm;
 };
 

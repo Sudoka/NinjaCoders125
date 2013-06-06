@@ -23,8 +23,29 @@ AudioEngine::AudioEngine() {
 		break;
 	case 1:
 		DC::get()->print("[Audio] Init successful\n");
-	}	
+	}
 
+	//initialize our listener
+	vel.x = 0;
+	vel.y = 0;
+	vel.z = 0;
+	lastPos.x = 0;
+	lastPos.y = 0;
+	lastPos.z = 0;
+
+	channelCount = 0;
+
+	//initialize music and ambiance
+	DC::get()->print("[Audio] Loading Music...\n");
+	char* mus = CM::get()->find_config("MUSIC");
+	musicVol = CM::get()->find_config_as_float("MUSIC_VOL");
+	result = system->createStream(mus, FMOD_LOOP_NORMAL, 0, &musicLoop);
+	FMOD_ERRCHECK(result);
+	DC::get()->print("[Audio] Loading Ambiance...\n");
+	char* hum = CM::get()->find_config("SHIP_HUM");
+	ambianceVol = CM::get()->find_config_as_float("SHIP_HUM_VOL");
+	result = system->createStream(hum, FMOD_LOOP_NORMAL, 0, &ambianceLoop);
+	FMOD_ERRCHECK(result);
 }
 
 AudioEngine::~AudioEngine() {
@@ -141,10 +162,44 @@ int AudioEngine::startFMOD() {
 	if(fmodErrThrown)
 		return 0;
 
+	//set our distance scalar (in case FMOD units are different than DX)
+	distFactor = CM::get()->find_config_as_float("FMOD_DIST_FACTOR");
+	result = system->set3DSettings(1.0f, distFactor, 1.0f);
+	FMOD_ERRCHECK(result);
+	if(fmodErrThrown)
+		return 0;
+
 	if(computerHasAudio)
 		return 1;
 	else
 		return 0;
+}
+
+void AudioEngine::setListenerPos(const Vec3f &listenerPos, const Vec3f &listenerForward, const Vec3f &listenerUp) {
+	newTime = clock();
+	clock_t timeDelta = newTime - lastTime; 
+	//vel.x = (listenerPos.x - lastPos.x) * (1000/((float)timeDelta/CLOCKS_PER_SEC));
+	//vel.y = (listenerPos.y - lastPos.y) * (1000/((float)timeDelta/CLOCKS_PER_SEC));
+	//vel.z = (listenerPos.z - lastPos.z) * (1000/((float)timeDelta/CLOCKS_PER_SEC));
+	vel.x = vel.y = vel.z = 0;
+
+	pos.x = listenerPos.x * distFactor;
+	pos.y = listenerPos.y * distFactor;
+	pos.z = listenerPos.z * distFactor;
+
+	forward.x = listenerForward.x;
+	forward.y = listenerForward.y;
+	forward.z = listenerForward.z;
+
+	up.x = listenerUp.x;
+	up.y = listenerUp.y;
+	up.z = listenerUp.z;
+
+	//DC::get()->print("[Audio] camera pos: (%f,%f,%f)\n",pos.x,pos.y,pos.z);
+
+	system->set3DListenerAttributes(0, &pos, &vel, &forward, &up);
+
+	lastTime = newTime;
 }
 
 void AudioEngine::update() {
@@ -154,14 +209,31 @@ void AudioEngine::update() {
 /*
  * If the sound is not currently in our soundbank, adds it and returns the soundId
  */
-uint AudioEngine::addSound(char* filename) {
+uint AudioEngine::addSound(char* filename, bool is3D) {
 	uint id = getFileHash(filename);
 	map<uint, FMOD::Sound *>::iterator res = loadedSounds.find(id);
 	if(res != loadedSounds.end()) //sound already exists
 		return id;
 
 	//create a new sound
-	bool created = loadSound(filename, id);
+	bool created = loadSound(filename, id, is3D);
+	if(created)
+		return id;
+	else
+		return 0;
+}
+
+/*
+ * If the sound is not currently in our soundbank, adds it and returns the soundId
+ */
+uint AudioEngine::addSound(char* filename, bool is3D, float attenuationDist) {
+	uint id = getFileHash(filename);
+	map<uint, FMOD::Sound *>::iterator res = loadedSounds.find(id);
+	if(res != loadedSounds.end()) //sound already exists
+		return id;
+
+	//create a new sound
+	bool created = loadSound(filename, id, is3D, attenuationDist);
 	if(created)
 		return id;
 	else
@@ -188,12 +260,54 @@ uint AudioEngine::addStream(char* filename) {
 /*
  * Opens a given file as a stream and handles any fmod exceptions that occur
  */
-bool AudioEngine::loadSound(char* filename, uint soundId) {
+bool AudioEngine::loadSound(char* filename, uint soundId, bool is3D) {
 	FMOD::Sound *sound;
-	result = system->createSound(filename, FMOD_DEFAULT, 0, &sound);
-	FMOD_ERRCHECK(result);
-	if(fmodErrThrown)
-		return false;
+	if(is3D)
+	{
+		result = system->createSound(filename, FMOD_3D, 0, &sound);		
+		FMOD_ERRCHECK(result);
+		if(fmodErrThrown)
+			return false;
+		result = sound->set3DMinMaxDistance(1.0f,10000.0f);
+		FMOD_ERRCHECK(result);
+		if(fmodErrThrown)
+			return false;
+	}
+	else
+	{
+		result = system->createSound(filename, FMOD_DEFAULT, 0, &sound);
+		FMOD_ERRCHECK(result);
+		if(fmodErrThrown)
+			return false;
+	}
+
+	loadedSounds.insert(pair<uint,FMOD::Sound*>(soundId,sound));
+	return true;
+}
+
+/*
+ * Opens a given file as a stream and handles any fmod exceptions that occur
+ */
+bool AudioEngine::loadSound(char* filename, uint soundId, bool is3D, float attenuationDist) {
+	FMOD::Sound *sound;
+	if(is3D)
+	{
+		result = system->createSound(filename, FMOD_3D, 0, &sound);		
+		FMOD_ERRCHECK(result);
+		if(fmodErrThrown)
+			return false;
+		result = sound->set3DMinMaxDistance(attenuationDist,10000.0f);
+		FMOD_ERRCHECK(result);
+		if(fmodErrThrown)
+			return false;
+	}
+	else
+	{
+		result = system->createSound(filename, FMOD_DEFAULT, 0, &sound);
+		FMOD_ERRCHECK(result);
+		if(fmodErrThrown)
+			return false;
+	}
 
 	loadedSounds.insert(pair<uint,FMOD::Sound*>(soundId,sound));
 	return true;
@@ -251,10 +365,38 @@ void AudioEngine::playOneShot(uint SoundId, float volume) {
 	}
 }
 
+void AudioEngine::playOneShot3D(uint soundId, float volume, Vec3f &pos) {
+	map<uint,FMOD::Sound*>::iterator res = loadedSounds.find(soundId);
+	FMOD_VECTOR soundVel;
+	FMOD_VECTOR soundPos;
+	soundPos.x = pos.x * distFactor;
+	soundPos.y = pos.y * distFactor;
+	soundPos.z = pos.z * distFactor;
+	DC::get()->print("[Audio] playing sound at: (%f,%f,%f)\n",soundPos.x,soundPos.y,soundPos.z);
+	//soundPos.x = soundPos.y = soundPos.z = 0;
+	soundVel.x = soundVel.y = soundVel.z = 0;
+
+	if(res != loadedSounds.end())
+	{
+		FMOD::Channel *chan;
+		FMOD::Sound *sound = res->second;
+		result = sound->setMode(FMOD_LOOP_OFF); //one shot
+		FMOD_ERRCHECK(result);
+		result = system->playSound(FMOD_CHANNEL_FREE,sound,true,&chan);
+		FMOD_ERRCHECK(result);
+		result = chan->setVolume(volume);
+		FMOD_ERRCHECK(result);
+		result = chan->set3DAttributes(&soundPos,&soundVel);
+		FMOD_ERRCHECK(result);
+		result = chan->setPaused(false);
+		FMOD_ERRCHECK(result);
+	}
+}
+
 /*
- * Plays a sample as a loop (mostly for streams)
+ * Plays a sample as a loop (mostly for streams) and returns a channel id
  */
-void AudioEngine::playLoop(uint SoundId) {
+uint AudioEngine::playLoop(uint SoundId) {
 	
 	map<uint,FMOD::Sound*>::iterator res = loadedSounds.find(SoundId);
 	if(res != loadedSounds.end())
@@ -266,6 +408,108 @@ void AudioEngine::playLoop(uint SoundId) {
 		result = system->playSound(FMOD_CHANNEL_FREE,sound,true,&chan);
 		FMOD_ERRCHECK(result);
 		result = chan->setPaused(false);
+		FMOD_ERRCHECK(result);
+		
+		channelCount++;
+		channels.insert(pair<uint,FMOD::Channel*>(channelCount,chan));
+		return channelCount;
+	}
+	
+	return 0;
+}
+
+uint AudioEngine::playLoop3D(uint soundId, float volume, Vec3f &pos, uint loopstart, uint loopend) {
+	map<uint,FMOD::Sound*>::iterator res = loadedSounds.find(soundId);
+	FMOD_VECTOR soundVel;
+	FMOD_VECTOR soundPos;
+	soundPos.x = pos.x * distFactor;
+	soundPos.y = pos.y * distFactor;
+	soundPos.z = pos.z * distFactor;
+	DC::get()->print("[Audio] playing sound at: (%f,%f,%f)\n",soundPos.x,soundPos.y,soundPos.z);
+	//soundPos.x = soundPos.y = soundPos.z = 0;
+	soundVel.x = soundVel.y = soundVel.z = 0;
+
+	if(res != loadedSounds.end())
+	{
+		FMOD::Channel *chan;
+		FMOD::Sound *sound = res->second;
+		result = sound->setMode(FMOD_LOOP_NORMAL); //one shot
+		FMOD_ERRCHECK(result);
+		result = system->playSound(FMOD_CHANNEL_FREE,sound,true,&chan);
+		FMOD_ERRCHECK(result);
+		result = chan->setVolume(volume);
+		FMOD_ERRCHECK(result);
+		result = chan->set3DAttributes(&soundPos,&soundVel);
+		FMOD_ERRCHECK(result);
+		result = chan->setLoopPoints(loopstart, FMOD_TIMEUNIT_MS, loopend, FMOD_TIMEUNIT_MS);
+		FMOD_ERRCHECK(result);
+		result = chan->setPaused(false);
+		FMOD_ERRCHECK(result);
+
+		channelCount++;
+		channels.insert(pair<uint,FMOD::Channel*>(channelCount,chan));
+		return channelCount;
+	}
+}
+
+void AudioEngine::pauseChannel(uint channelId) {
+	map<uint,FMOD::Channel*>::iterator res = channels.find(channelId);
+
+	if(res != channels.end())
+	{
+		FMOD::Channel* chan = res->second;
+		result = chan->setPaused(true);
+		FMOD_ERRCHECK(result);
+	}
+}
+
+void AudioEngine::playChannel(uint channelId) {
+	map<uint,FMOD::Channel*>::iterator res = channels.find(channelId);
+
+	if(res != channels.end())
+	{
+		FMOD::Channel* chan = res->second;
+		result = chan->setPaused(false);
+		FMOD_ERRCHECK(result);
+	}
+}
+
+void AudioEngine::stopChannel(uint channelId) {
+	map<uint,FMOD::Channel*>::iterator res = channels.find(channelId);
+
+	if(res != channels.end())
+	{
+		FMOD::Channel* chan = res->second;
+		result = chan->stop();
+		FMOD_ERRCHECK(result);
+	}
+}
+
+void AudioEngine::setChannelVol(uint channelId, float vol) {
+	map<uint,FMOD::Channel*>::iterator res = channels.find(channelId);
+
+	if(res != channels.end())
+	{
+		FMOD::Channel* chan = res->second;
+		result = chan->setVolume(vol);
+		FMOD_ERRCHECK(result);
+	}
+}
+
+void AudioEngine::setChannelPos(uint channelId, Vec3f &pos) {
+	map<uint,FMOD::Channel*>::iterator res = channels.find(channelId);
+
+	FMOD_VECTOR channelVel;
+	FMOD_VECTOR channelPos;
+	channelPos.x = pos.x * distFactor;
+	channelPos.y = pos.y * distFactor;
+	channelPos.z = pos.z * distFactor;
+	channelVel.x = channelVel.y = channelVel.z = 0;
+
+	if(res != channels.end())
+	{
+		FMOD::Channel* chan = res->second;
+		result = chan->set3DAttributes(&channelPos, &channelVel);
 		FMOD_ERRCHECK(result);
 	}
 }
@@ -279,4 +523,54 @@ uint AudioEngine::getFileHash(char* filename)
 	for(unsigned int i = 0; i < strlen(filename); i++)
 		hash = 65599 * hash + filename[i];
 	return hash ^ (hash >> 16);
+}
+
+/*
+ * Plays music
+ */
+void AudioEngine::playMusic() {
+	result = system->playSound(FMOD_CHANNEL_FREE, musicLoop, true, &musicChannel);
+	FMOD_ERRCHECK(result);
+	result = musicChannel->setVolume(musicVol);
+	FMOD_ERRCHECK(result);
+	result = musicChannel->setPaused(false);
+	FMOD_ERRCHECK(result);
+}
+
+/*
+ * Stops music
+ */
+void AudioEngine::stopMusic() {
+	bool playing;
+	result = musicChannel->isPlaying(&playing);
+	FMOD_ERRCHECK(result);
+
+	if(playing) {
+		musicChannel->stop();
+	}
+}
+
+/*
+ * plays ambiance
+ */
+void AudioEngine::playAmbiance() {
+	result = system->playSound(FMOD_CHANNEL_FREE, ambianceLoop, true, &ambianceChannel);
+	FMOD_ERRCHECK(result);
+	result = ambianceChannel->setVolume(ambianceVol);
+	FMOD_ERRCHECK(result);
+	result = ambianceChannel->setPaused(false);
+	FMOD_ERRCHECK(result);
+}
+
+/*
+ * Stops ambiance
+ */
+void AudioEngine::stopAmbiance() {
+	bool playing;
+	result = ambianceChannel->isPlaying(&playing);
+	FMOD_ERRCHECK(result);
+
+	if(playing) {
+		ambianceChannel->stop();
+	}
 }

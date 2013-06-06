@@ -128,11 +128,11 @@ void ClientObjectManager::create(uint id, char *data) {
 			case CHAR_CLASS_SHOOTER:
 				obj = new ShooterCObj(id, data + sizeof(CreateHeader));
 				break;
-			case CHAR_CLASS_SCIENTIST:
-				obj = new ScientistCObj(id, data + sizeof(CreateHeader));
-				break;
 			case CHAR_CLASS_MECHANIC:
 				obj = new MechanicCObj(id, data + sizeof(CreateHeader));
+				break;
+			case CHAR_CLASS_SCIENTIST:
+				obj = new ScientistCObj(id, data + sizeof(CreateHeader));
 				break;
 		}
 		//obj = new PlayerCObj(id, data + sizeof(CreateHeader));
