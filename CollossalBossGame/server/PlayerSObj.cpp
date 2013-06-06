@@ -8,6 +8,7 @@
 #include "BulletSObj.h"
 #include "FireBallSObj.h"
 #include "MonsterSObj.h"
+#include "ScientistSObj.h"
 
 #define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
 
@@ -387,7 +388,15 @@ int PlayerSObj::serialize(char * buf) {
 	state->animationstate = this->modelAnimationState;
 	// This is super hacky, it's because animations are exported backwards, and the shooter
 	// has less animations than the cyborg -__-
-	if(this->charclass == CHAR_CLASS_SHOOTER || this->charclass == CHAR_CLASS_MECHANIC) state->animationstate-=2;
+	CharacterClass ourClass = this->charclass;
+	if(ourClass == CHAR_CLASS_SCIENTIST) {
+		ScientistSObj* scientist = reinterpret_cast<ScientistSObj*>(this);
+		ourClass = scientist->transformclass;
+	}
+
+	if(ourClass == CHAR_CLASS_SHOOTER || ourClass == CHAR_CLASS_MECHANIC || ourClass == CHAR_CLASS_SCIENTIST) state->animationstate-=2;
+
+
 	if (state->animationstate < 0) state->animationstate = 0; // again...blame the hackyness, this is just in case
 	state->sState = this->sState;
 	state->sTrig = this->sTrig;

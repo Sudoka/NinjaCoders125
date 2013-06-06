@@ -200,7 +200,10 @@ int selectplayertarget(PlayerSObj * caller, Vec3f currentposition, Vec3f current
 }
 
 void ScientistSObj::ScientistActionCharge(bool buttondown) {
+	this->subclassstate = PAS_IDLE;
+
 	if(buttondown) {
+		this->subclassstate = PAS_CHARGE;
 		currenttarget = selectplayertarget(this, this->pm->ref->getPos(), rotate(Vec3f(0, -sin(camPitch), cos(camPitch)), pm->ref->getRot()));
 	} else if(currenttarget != -1) {
 		transformduration = 330;

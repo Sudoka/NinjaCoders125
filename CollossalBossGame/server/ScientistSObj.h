@@ -13,6 +13,7 @@ public:
 	virtual void onCollision(ServerObject *obj, const Vec3f &collNorm);
 	virtual int serialize(char * buf);
 	int harpoon;
+	CharacterClass transformclass;
 
 protected:
 	virtual void actionCharge(bool buttondown);
@@ -38,7 +39,6 @@ protected:
 	int delay, delaycounter;
 	bool delaytrigger;
 
-	CharacterClass transformclass;
 	int currenttarget;
 	int transformdelay;
 	int transformduration;
