@@ -35,6 +35,7 @@ public:
 
 	// Things all monster parts do the same
 	int getHealth() { return health; }
+	void setHealth(int h) { health = h; } // this should only be called by the monster to kill them off xD
 	void setFogging(bool fog) { isFogging = fog; }
 	virtual PhysicsModel *getPhysicsModel() { return pm; }
 

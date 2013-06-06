@@ -576,15 +576,15 @@ void HeadsUpDisplay::displayGameStats() {
 	ostringstream ss1;
 	ostringstream ss2;
 	ss2 << "Hyperion's Demise\n";
-	ss << "Player 1 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[0] << "\n";
+	ss << "Cyborg Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[0] << "\n";
 	if(CE::get()->getState().totalPlayerCount > 1) {
-		ss << "Player 2 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[1] << "\n";
+		ss << "Shooter Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[1] << "\n";
 	}
 	if(CE::get()->getState().totalPlayerCount > 2) {
-		ss << "Player 3 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[2] << "\n";
+		ss << "Mechanic Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[2] << "\n";
 	}
 	if(CE::get()->getState().totalPlayerCount > 3) {
-		ss << "Player 4 Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[3] << "\n";
+		ss << "Scientist Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[3] << "\n";
 	}
 	ss << "\nMonster Kills: \n"; ss1 << "\n" << CE::get()->getState().monsterDeathCount;
 	//DT_NOCLIP

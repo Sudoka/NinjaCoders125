@@ -39,7 +39,7 @@ protected:
 	float camPitch;
 	float camDist;
 	Quat_t camRot;
-
+	int camOffset;
 	//sounds
 	uint jumpsound;
 	PlayerSoundState sState;

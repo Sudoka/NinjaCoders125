@@ -38,15 +38,9 @@ void buildRoom() {
 	east = new ArenaWallSObj(som->genId(), CM::get()->find_config_as_string("HMAP_BACK_WALL").c_str(), MDL_EAST_WALL,  Point_t(width/2.f, height/2.f, 0.f), WEST);
 	west = new ArenaWallSObj(som->genId(), CM::get()->find_config_as_string("HMAP_WINDOW").c_str(), MDL_WEST_WALL, Point_t(-width/2.f, height/2.f, 0.f), EAST);
 	ceiling = new ArenaWallSObj(som->genId(), CM::get()->find_config_as_string("HMAP_CEILING").c_str(), MDL_CEILING, Point_t(0.f, height, 0.f), DOWN);
-	//floor   = new WallSObj(som->genId(), MDL_FLOOR, Point_t(), DOWN);
-	//ceiling = new WallSObj(som->genId(), MDL_CEILING, Point_t(0.f, (float)height, 0.f), UP);
-	//north   = new WallSObj(som->genId(), MDL_NORTH_WALL, pos, NORTH);
-	//south   = new WallSObj(som->genId(), MDL_SOUTH_WALL, Point_t(0.f, (float)height/2.f, (float)depth/2.f), SOUTH);
-	//east    = new WallSObj(som->genId(), MDL_EAST_WALL, Point_t((float)width/2.f, (float)height/2.f, 0.f), EAST);
-	//west    = new WallSObj(som->genId(), MDL_WEST_WALL, Point_t((float)-width/2.f, (float)height/2.f, 0.f), WEST);
-	
-	TestSObj *elevatorS = new TestSObj(som->genId(), MDL_ELEVATOR, Point_t(-318.5f, 2.153f,  depth/2.f + 30), Quat_t());
-	TestSObj *elevatorN = new TestSObj(som->genId(), MDL_ELEVATOR, Point_t(318.5f, 2.153f,  -depth/2.f - 30), Quat_t(Vec3f(0,1,0), (float)-M_PI));
+
+	//TestSObj *elevatorS = new TestSObj(som->genId(), MDL_ELEVATOR, Point_t(-318.5f, 2.153f,  depth/2.f + 30), Quat_t());
+	//TestSObj *elevatorN = new TestSObj(som->genId(), MDL_ELEVATOR, Point_t(318.5f, 2.153f,  -depth/2.f - 30), Quat_t(Vec3f(0,1,0), (float)-M_PI));
 
 	som->add(floor);
 	som->add(ceiling);
@@ -54,8 +48,8 @@ void buildRoom() {
 	som->add(west);
 	som->add(north);
 	som->add(south);
-	som->add(elevatorS);
-	som->add(elevatorN);
+	//som->add(elevatorS);
+	//som->add(elevatorN);
 }
 
 void addPlatforms()
@@ -144,14 +138,16 @@ void gameInit() {
 	
 	float xBase = 0, yBase = 10, zBase = -300;
 
-	buildRoom();
-								
-	//This object manages the world state 
+	//This object manages the world state
 	WorldSObj *wobj = new WorldSObj(som->genId());
 	som->add(wobj);
 	wobj->setGravitySwitch(CM::get()->find_config_as_bool("ENABLE_GRAVITY"));
 
+	buildRoom();
+								
+
 	//PE::get()->setGravDir(EAST);
+
 
 	MonsterSObj* monster = new MonsterSObj(som->genId(), CM::get()->find_config_as_int("NUMBER_MONSTER_PARTS")); // 4
 	som->add(monster);
