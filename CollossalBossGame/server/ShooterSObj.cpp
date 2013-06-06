@@ -37,7 +37,7 @@ void ShooterSObj::actionCharge(bool buttondown) {
 			float anglepi = camPitch;
 			float upforce = -sin(anglepi);
 			float forwardforce = cos(anglepi);
-			float diameter = 10*(charge/3);
+			float diameter = 2 * charge;
 			Vec3f offset = rotate(Vec3f(0, upforce * diameter * sqrt(2.0f), forwardforce * diameter * sqrt(2.0f)), pm->ref->getRot());
 			Vec3f gravity = dirVec(PE::get()->getGravDir())*-1;
 			Vec3f position = mechpos + gravity*15 + offset;
@@ -53,7 +53,7 @@ void ShooterSObj::actionCharge(bool buttondown) {
 		}
 
 		// switch to idle once we're done attacking
-		if (this->shootAttack && this->attackCounter < 21) {
+		if (this->shootAttack && this->attackCounter < 5/*21*/) {
 			this->attackCounter++;			
 			this->subclassstate = PAS_ATTACK;
 		}

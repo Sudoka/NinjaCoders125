@@ -35,10 +35,14 @@ void CyborgSObj::actionCharge(bool buttondown) {
 	// only charge if you already started or you're out of charge
 	if(canCharge && buttondown/*!this->getFlag(IS_FALLING)*/) {
 		//start the charge sound on 
-		if(charge == 0.0f) {
+
+		// TODO_HARO: Verify that Franklin's changes fit all of the other changes you've made
+		if(charge == chargeUpdate*2/*0.0f*/) { // Minor change to make sure that sounds don't play obnoxiously if you're charging ontop of a tentacle.
 			sTrig = SOUND_CYBORG_CHARGE;
 		}
-		this->subclassstate = PAS_CHARGE;
+		if(charge > chargeUpdate) { 
+			this->subclassstate = PAS_CHARGE;
+		}
 		charging = true;
 		charge += chargeUpdate;
 		if(charge > 13.0f) charge = 13.0f;
@@ -83,14 +87,20 @@ void CyborgSObj::actionCharge(bool buttondown) {
 void CyborgSObj::onCollision(ServerObject *obj, const Vec3f &collisionNormal) {
 	// Reset Damage
 	ObjectType collidedWith = obj->getType();
+
 	if (collidedWith == OBJ_TENTACLE || collidedWith == OBJ_HEAD) {
+		if(charge > chargeUpdate) {
+			//TODO_HARO: I'm not sure where to put this now. It plays every time on collision
+			//I think it needs to be moved to where the sword animation is triggered after I 
+			//merge.
+			// Note from Franklin - If you set charge > chargeUpdate then this code only runs once.
+			// unless we're changing the cyborg to maintain invincibility post-attack.
+			sTrig = SOUND_CYBORG_SWORD; 
+			this->chargeAttack = true;
+			this->attackCounter = 0;
+			this->subclassstate = PAS_ATTACK;
+		}
 		charge = 0;
-		sTrig = SOUND_CYBORG_SWORD; //TODO_HARO: I'm not sure where to put this now. It plays every time on collision
-									//I think it needs to be moved to where the sword animation is triggered after I 
-									//merge.
-		this->chargeAttack = true;
-		this->attackCounter = 0;
-		this->subclassstate = PAS_ATTACK;
 	}
 
 	PlayerSObj::onCollision(obj, collisionNormal);
