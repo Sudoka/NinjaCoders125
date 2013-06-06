@@ -30,6 +30,7 @@ void ShooterSObj::actionCharge(bool buttondown) {
 	if(buttondown && BulletSObj::TotalShooterBullets < maxbulletcount) {
 		charging = true;
 		charge += chargeUpdate;
+		this->subclassstate = PAS_CHARGE;
 	} else {
 		if(charging) {
 			Vec3f mechpos = this->pm->ref->getPos();
@@ -45,9 +46,23 @@ void ShooterSObj::actionCharge(bool buttondown) {
 			sTrig = SOUND_SHOOTER_FIRE;
 			SOM::get()->add(bso);
 
+			shootAttack = true;
+			attackCounter = 0;
 			charging = false;
 			charge = 0;
 		}
+
+		// switch to idle once we're done attacking
+		if (this->shootAttack && this->attackCounter < 21) {
+			this->attackCounter++;			
+			this->subclassstate = PAS_ATTACK;
+		}
+		else // otherwise, decide according to movement
+		{
+			this->subclassstate = PAS_IDLE;
+			this->shootAttack = false;
+		}
+
 	}
 }
 

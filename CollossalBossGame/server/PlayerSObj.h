@@ -46,6 +46,7 @@ public:
 protected:
 	PlayerAnimationState subclassstate;
 	int deathtimer;
+	int attacktimer;
 	PhysicsModel *pm;
 	inputstatus istat;
 	Point_t lastCollision;
@@ -82,6 +83,7 @@ protected:
 	PlayerSoundTrigger sTrig;
 
 	bool firedeath;
+	bool stopMovement;
 	int gravityTimer;
 	int modelAnimationState;
 	int swordDamage;
