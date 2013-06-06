@@ -18,14 +18,17 @@ TentacleCObj::TentacleCObj(uint id, char *data) : ClientObject(id, OBJ_TENTACLE)
 
 	//set up sounds
 	ss = new SoundSource();
+	DC::get()->print("[Audio] Loading Tentacle Roar...\n");
 	char* s1 = CM::get()->find_config("TENTACLE_ROAR");
 	float atten = CM::get()->find_config_as_float("TENTACLE_ROAR_ATTEN");
 	tentRoarVol = CM::get()->find_config_as_float("TENTACLE_ROAR_VOL");
 	roarsound = ss->addSound(s1,true,atten);
+	DC::get()->print("[Audio] Loading Head Roar...\n");
 	char* s2 = CM::get()->find_config("HEAD_ROAR");
 	atten = CM::get()->find_config_as_float("HEAD_ROAR_ATTEN");
 	headRoarVol = CM::get()->find_config_as_float("HEAD_ROAR_VOL");
 	headRoarSound = ss->addSound(s2,true,atten);
+	DC::get()->print("[Audio] Loading Fireball Sound...\n");
 	char* s3 = CM::get()->find_config("FIREBALL_SOUND");
 	atten = CM::get()->find_config_as_float("FIREBALL_SOUND_ATTEN");
 	headShootVol = CM::get()->find_config_as_float("FIREBALL_SOUND_VOL");

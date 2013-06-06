@@ -36,10 +36,12 @@ AudioEngine::AudioEngine() {
 	channelCount = 0;
 
 	//initialize music and ambiance
+	DC::get()->print("[Audio] Loading Music...\n");
 	char* mus = CM::get()->find_config("MUSIC");
 	musicVol = CM::get()->find_config_as_float("MUSIC_VOL");
 	result = system->createStream(mus, FMOD_LOOP_NORMAL, 0, &musicLoop);
 	FMOD_ERRCHECK(result);
+	DC::get()->print("[Audio] Loading Ambiance...\n");
 	char* hum = CM::get()->find_config("SHIP_HUM");
 	ambianceVol = CM::get()->find_config_as_float("SHIP_HUM_VOL");
 	result = system->createStream(hum, FMOD_LOOP_NORMAL, 0, &ambianceLoop);
