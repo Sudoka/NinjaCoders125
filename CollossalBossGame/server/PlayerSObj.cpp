@@ -74,6 +74,8 @@ void PlayerSObj::initialize() {
 	newAttack = true; // same here
 	newCharge = true; // yes yes, we get the idea
 
+	jumpflag = false;
+	jumpcycle = 0;
 	appliedJumpForce = false;
 	firedeath = false;
 	attacking = false;
@@ -218,26 +220,19 @@ bool PlayerSObj::update() {
 		// Apply special power
 		actionCharge(istat.attack);
 
-		Vec3f projectiontoup = (pm->vel * (PE::get()->getGravDir()*-1)) * (PE::get()->getGravDir()*-1);
+		float dotUpVel = pm->vel ^ (PE::get()->getGravVec()*-1);
+		Vec3f projectiontoup =  (PE::get()->getGravVec()*-1) * dotUpVel;
 		Vec3f planarmovement = pm->vel - projectiontoup;
+
 		float upvectormagnitude = magnitude(projectiontoup);
 
 		// change animation according to state
 		if(subclassstate != PAS_IDLE) {
 			this->setAnimationState(subclassstate);
-		} else if((jumping && !this->getFlag(IS_FALLING)) || jumpflag) {
-			// IF THE PLAYER PRESSED JUMP, GO THROUGH THE JUMP ANIMATION FOR X CYCLES OR HOWEVER LONG JUMPING TAKES
-			jumpflag = true;
-			jumpcycle++;
-			if(jumpcycle == 8) {
-				jumpflag = false;
-			}
-			this->setAnimationState(PAS_JUMP);
 		} else { // There's no immediate state you need to be in, so you're moving. Here's the motions
-			if(upvectormagnitude > 0.25f) {
-				this->setAnimationState(PAS_FLOATING_UP);
-			} else if(upvectormagnitude < -0.25f) {
-				this->setAnimationState(PAS_FALLING_DOWN);
+			if(upvectormagnitude > 0.1f || this->getFlag(IS_FALLING)) {
+				if (dotUpVel > 0) this->setAnimationState(PAS_FLOATING_UP);
+				else this->setAnimationState(PAS_FALLING_DOWN);
 			} else if(magnitude(planarmovement) > 0.25f) {
 				this->setAnimationState(PAS_WALK);
 			} else {

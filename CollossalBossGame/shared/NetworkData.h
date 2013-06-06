@@ -301,13 +301,14 @@ enum MonsterAnimationState {
  * Types of player animation states
  */
 enum PlayerAnimationState {
-	PAS_IDLE = 11,
-	PAS_WALK = 10,
-	PAS_JUMP = 9,
-	PAS_FLOATING_UP = 8,
-	PAS_UP_DOWN_TRANSITION = 7,
-	PAS_FALLING_DOWN = 6,
-	PAS_DEAD = 5,
+	PAS_IDLE = 12,
+	PAS_WALK = 11,
+	PAS_JUMP = 10,
+	PAS_FLOATING_UP = 9,
+	PAS_UP_DOWN_TRANSITION = 8,
+	PAS_FALLING_DOWN = 7,
+	PAS_DEATH = 6,
+	PAS_DEATH_STILL = 5,
 	PAS_CHARGE_BEGIN = 4,
 	PAS_CHARGE = 3,
 	PAS_READY_BEGIN = 2,
