@@ -40,10 +40,33 @@ protected:
 	float camDist;
 	Quat_t camRot;
 	int camOffset;
-	//sounds
+
+	//sound ids
 	uint jumpsound;
+	uint chargeSound;
+	uint rifleSound;
+	uint swordSound;
+	uint hookshotSound;	
+	uint transformSound;
+
+	//sound volumes
+	float jumpVol;
+	float chargeVol;
+	float rifleVol;
+	float swordVol;
+	float hookshotVol;
+	float transformVol;
+
+	//channel ids
+	uint hookshotChannel;
+	bool hookshotPlaying;
+	uint transformChannel;
+	bool transformPlaying;
+	
+
 	PlayerSoundState sState;
 	PlayerSoundTrigger sTrig;
+
 #if HMAP_TEST
 	///////////////////////////////////////////////////////////////
 	//TEST

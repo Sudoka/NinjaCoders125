@@ -18,6 +18,9 @@ public:
 	virtual void move();
 	virtual void death();
 
+	//sounds TODO_MICHAEL: remove me?
+	virtual void roar();
+
 	virtual ObjectType getType() { return OBJ_HEAD; }
 	virtual int getModelNumber() { return this->modelNum; }
 	virtual void reinitialize();
@@ -29,6 +32,8 @@ private:
 
 	// Helper Actions
 	void shootFireball();
+
+	int rageRoarProb;
 
 	// Collision boxes
 	Box shootBoxes[3]; // stores first position for the shoot boxes

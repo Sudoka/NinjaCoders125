@@ -43,6 +43,7 @@ void ShooterSObj::actionCharge(bool buttondown) {
 			Vec3f position = mechpos + gravity*15 + offset;
 
 			BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1, position, offset, bulletdamage, (int)diameter, this);
+			sTrig = SOUND_SHOOTER_FIRE;
 			SOM::get()->add(bso);
 
 			shootAttack = true;

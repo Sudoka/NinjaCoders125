@@ -6,6 +6,8 @@
 #include "PhysicsEngine.h"
 #include "ServerObjectManager.h"
 
+//TODO_HARO: Scientist clone sounds
+
 ScientistSObj::ScientistSObj(uint id, uint clientId) : PlayerSObj(id, clientId, CHAR_CLASS_SCIENTIST)
 {
 	// Other re-initializations (things that don't depend on parameters, like config)
@@ -39,6 +41,8 @@ void ScientistSObj::initialize() {
 	maxbulletcount = CM::get()->find_config_as_int("SCIENTIST_MAX_BULLET_COUNT");
 
 	this->transformclass = CHAR_CLASS_SCIENTIST;
+
+	transformPlaying = false;
 }
 
 void ScientistSObj::actionAttack() {
@@ -49,6 +53,12 @@ void ScientistSObj::actionCharge(bool buttondown) {
 	if(transformclass != CHAR_CLASS_SCIENTIST) { // You're not the scientist right now
 		transformduration--;
 		if(transformduration < 0) {
+			
+			if(transformPlaying) {
+				sState = SOUND_SCIENTIST_COPY_OFF;
+				transformPlaying = false;
+			}
+
 			transformclass = CHAR_CLASS_SCIENTIST;
 			this->currenttarget = -1;
 			clearAccessory();
@@ -206,6 +216,12 @@ void ScientistSObj::ScientistActionCharge(bool buttondown) {
 		this->subclassstate = PAS_CHARGE;
 		currenttarget = selectplayertarget(this, this->pm->ref->getPos(), rotate(Vec3f(0, -sin(camPitch), cos(camPitch)), pm->ref->getRot()));
 	} else if(currenttarget != -1) {
+		
+		if(!transformPlaying) {
+			sState = SOUND_SCIENTIST_COPY_ON;
+			transformPlaying = true;
+		}
+
 		transformduration = 330;
 		ServerObject * s = SOM::get()->find(currenttarget);
 		if(s != NULL && s->getType() == OBJ_PLAYER) {

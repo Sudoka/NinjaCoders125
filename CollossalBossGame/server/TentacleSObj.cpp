@@ -557,6 +557,10 @@ void TentacleSObj::move() {
 	currStateDone = (stateCounter == 33);
 }
 
+void TentacleSObj::roar() {
+	sTrig = SOUND_TENTACLE_ROAR;	
+}
+
 void TentacleSObj::death() {
 	modelAnimationState = M_DEATH;
 
@@ -586,5 +590,4 @@ void TentacleSObj::fastForward()
 	//2. Get the amount of frames the current animation takes
 	//3. If we are in the first half of the animation, go to the opposite side
 	//4. Otherwise, go to half way to the last frame?
-
 }

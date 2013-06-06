@@ -111,21 +111,18 @@ enum ObjectType {
  * These enums are used mostly for specifying sound loops
  */
 enum PlayerSoundState {
-	SOUND_PLAYER_SLIENT,
-	SOUND_PLAYER_WALK,
-	SOUND_PLAYER_FALL, //maybe?
-	SOUND_CYBORG_CHARGE //might have to make it so you can charge and walk
+	SOUND_PLAYER_SILENT,
+	SOUND_MECHANIC_HARPOON_ON,
+	SOUND_MECHANIC_HARPOON_OFF,
+	SOUND_SCIENTIST_COPY_ON,
+	SOUND_SCIENTIST_COPY_OFF
+	//SOUND_CYBORG_CHARGE //might have to make it so you can charge and walk
 };
 
-enum TentacleSoundState {
-	SOUND_TENTACLE_SILENT,
+enum MonsterSoundState {
+	SOUND_MONSTER_SILENT,
 	SOUND_TENTACLE_IDLE,
-};
-
-enum HeadSoundState {
-	SOUND_HEAD_SILENT,
-	SOUND_HEAD_IDLE,
-	SOUND_HEAD_ROAR //might be a trigger?
+	SOUND_HEAD_IDLE
 };
 
 //combine with music?
@@ -149,22 +146,19 @@ enum PlayerSoundTrigger {
 	SOUND_PLAYER_JUMP, //on impact or vocal jump like link?
 	SOUND_PLAYER_HIT, 
 	SOUND_PLAYER_HURT, //may be the same as hit, but for now keep separate
-	SOUND_CYBORG_ATTACK, //swoosh sound
-	SOUND_CYBORG_ATTACK_IMPACT, //sword clash after swoosh
-	SOUND_SHOOT_GUN, 
+	SOUND_CYBORG_SWORD, //swoosh sound
+	SOUND_CYBORG_CHARGE,
+	SOUND_SHOOTER_FIRE, 
 	SOUND_SHOOT_GRAPPLE
 };
 
-enum TentacleSoundTrigger {
-	SOUND_TENTACLE_NO_NEW_TRIG,
-	SOUND_TENTACLE_SLAM
-};
-
-enum HeadSoundTrigger {
-	SOUND_HEAD_NO_NEW_TRIG,
+enum MonsterSoundTrigger {
+	SOUND_MONSTER_NO_NEW_TRIG,
+	SOUND_TENTACLE_SLAM,
+	SOUND_TENTACLE_ROAR,
 	SOUND_HEAD_SHOOT,
-	SOUND_HEAD_RAGE,
-	SOUND_HEAD_SPIKE
+	SOUND_HEAD_SPIKE,
+	SOUND_HEAD_ROAR
 };
 
 enum ArenaSoundTrigger {
@@ -278,6 +272,8 @@ struct MonsterPartState {
 	Model modelNum;
 	int animationState;
 	int animationFrame;
+	MonsterSoundTrigger sTrig;
+	MonsterSoundState sState;
 	bool fog;
 };
 

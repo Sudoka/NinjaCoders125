@@ -110,6 +110,8 @@ void PlayerSObj::initialize() {
 	setFlag(IS_DIRTY, true);
 
 	subclassstate = PAS_IDLE;
+
+	sState = SOUND_PLAYER_SILENT;
 }
 
 PlayerSObj::~PlayerSObj(void) {
@@ -133,7 +135,6 @@ bool PlayerSObj::update() {
 	Quat_t upRot;
 	calcUpVector(&upRot);
 	controlCamera(upRot);
-	sState = SOUND_PLAYER_SLIENT;
 	sTrig = SOUND_PLAYER_NO_NEW_TRIG;
 
 	if(this->health > 0 && !GameServer::get()->state.gameover)

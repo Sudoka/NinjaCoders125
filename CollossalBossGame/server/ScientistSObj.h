@@ -49,5 +49,8 @@ protected:
 
 	uint bulletdamage;
 	uint maxbulletcount;
+
+	//sound
+	bool transformPlaying;
 };
 

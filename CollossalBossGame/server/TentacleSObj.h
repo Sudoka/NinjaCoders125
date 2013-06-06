@@ -25,6 +25,9 @@ public:
 	virtual void move();
 	virtual void death();
 
+	//sounds
+	virtual void roar();
+
 	virtual void fastForward();
 
 	virtual ObjectType getType() { return OBJ_TENTACLE; }
