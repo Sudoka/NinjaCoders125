@@ -27,6 +27,7 @@ void MechanicSObj::initialize() {
 	delay = 50;
 	delaycounter = 0;
 	delaytrigger = true;
+	hookshotPlaying = false;
 }
 
 void MechanicSObj::fireHarpoon() {
@@ -37,14 +38,18 @@ void MechanicSObj::fireHarpoon() {
 	this->harpoon = SOM::get()->genId();
 	HarpoonSObj * hso = new HarpoonSObj(this->harpoon, (Model)-1, initial_bullet_position, force, 10, this);
 	SOM::get()->add(hso);
+	sState = SOUND_MECHANIC_HARPOON_ON;
+	hookshotPlaying = true;
 }
 
 void MechanicSObj::actionCharge(bool buttondown) {
+
 	if(!delaytrigger) delaycounter++;
 	if(!(delaycounter % delay)) delaytrigger = true;
 	HarpoonSObj * hso = reinterpret_cast<HarpoonSObj *>(SOM::get()->find(this->harpoon));
 	if(buttondown) {
 		if(delaytrigger && !charging && (this->harpoon == -1 || hso == NULL)) {
+			this->subclassstate = PAS_CHARGE;
 			fireHarpoon();
 		} else {
 			if(hso == NULL) {
@@ -59,7 +64,7 @@ void MechanicSObj::actionCharge(bool buttondown) {
 				if(charge < 0) {
 					this->clearAccessory();
 					charge = 0.0f;
-					
+					this->subclassstate = PAS_IDLE;	
 				}
 			} else if(hso->state == HS_HARPOON) {
 				if(!charging) {
@@ -75,6 +80,7 @@ void MechanicSObj::actionCharge(bool buttondown) {
 			charge = 0.0f;
 		}
 		charging = false;
+		this->subclassstate = PAS_IDLE;
 	}
 }
 
@@ -96,6 +102,12 @@ void MechanicSObj::clearAccessory() {
 		hso->state = HS_DEAD;
 		this->harpoon = -1;
 	}
+	//stop the hookshot
+	if(hookshotPlaying) {
+		sState = SOUND_MECHANIC_HARPOON_OFF;
+		hookshotPlaying = false;
+	}
+
 	this->setFlag(IS_FLOATING, 0);
 	this->setFlag(IS_FALLING, 1);
 	this->jumping = true;

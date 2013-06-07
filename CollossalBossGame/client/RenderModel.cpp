@@ -17,7 +17,7 @@ RenderModel::RenderModel(Point_t pos, Quat_t rot, Model modelNum)
 	Vec3f scale;
 	Vec3f initRot;
 	isInvisible = false;
-	modelState = IDLE;
+	modelState = PAS_IDLE;
 	switch(modelNum) {
 	case -1: 
 		//container object

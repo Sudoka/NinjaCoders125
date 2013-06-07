@@ -16,4 +16,5 @@ protected:
 	virtual void actionAttack();
 	int delay, delayCounter;
 	bool canCharge;
+	bool chargeAttack;
 };

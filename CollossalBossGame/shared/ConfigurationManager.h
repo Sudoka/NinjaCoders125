@@ -7,7 +7,7 @@
 
 using namespace std;
 
-#define MAX_CONFIG_ITEMS 220
+#define MAX_CONFIG_ITEMS 250
 #define MAX_KEY_LENGTH 32
 #define MAX_VALUE_LENGTH 256
 

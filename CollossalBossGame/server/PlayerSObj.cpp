@@ -7,7 +7,8 @@
 #include "PhysicsEngine.h"
 #include "BulletSObj.h"
 #include "FireBallSObj.h"
-
+#include "MonsterSObj.h"
+#include "ScientistSObj.h"
 
 #define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
 
@@ -23,6 +24,8 @@ PlayerSObj::PlayerSObj(uint id, uint clientId, CharacterClass cc) : ServerObject
 
 	// Other re-initializations (things that don't depend on parameters, like config)
 	this->initialize();
+
+	this->oldSwitchPhase = false;
 }
 
 
@@ -72,6 +75,8 @@ void PlayerSObj::initialize() {
 	newAttack = true; // same here
 	newCharge = true; // yes yes, we get the idea
 
+	jumpflag = false;
+	jumpcycle = 0;
 	appliedJumpForce = false;
 	firedeath = false;
 	attacking = false;
@@ -80,7 +85,8 @@ void PlayerSObj::initialize() {
 	charge = 0.0;
 	chargeCap = 13.0f;
 	damage = 0;
-	modelAnimationState = IDLE;
+	stopMovement = false;
+	modelAnimationState = PAS_IDLE;
 	ready = false;
 
 	lastGravDir = DOWN;
@@ -102,6 +108,10 @@ void PlayerSObj::initialize() {
 	zoomed = false;
 	jumpForceTimer = 0;
 	setFlag(IS_DIRTY, true);
+
+	subclassstate = PAS_IDLE;
+
+	sState = SOUND_PLAYER_SILENT;
 }
 
 PlayerSObj::~PlayerSObj(void) {
@@ -125,7 +135,6 @@ bool PlayerSObj::update() {
 	Quat_t upRot;
 	calcUpVector(&upRot);
 	controlCamera(upRot);
-	sState = SOUND_PLAYER_SLIENT;
 	sTrig = SOUND_PLAYER_NO_NEW_TRIG;
 
 	if(this->health > 0 && !GameServer::get()->state.gameover)
@@ -153,29 +162,32 @@ bool PlayerSObj::update() {
 			camDist = camDistMax;
 		}
 
-		// Jumping can happen in two cases
-		// 1. Collisions
-		// 2. In the air
-		// This handles in the air, collisions
-		// are handled in OnCollision()
+		if (!this->stopMovement)
+		{
+			// Jumping can happen in two cases
+			// 1. Collisions
+			// 2. In the air
+			// This handles in the air, collisions
+			// are handled in OnCollision()
 
-		// This part discretizes jumps (so no button mashing)
-		jumping = istat.jump && newJump; // isFalling?
-		newJump = !istat.jump;
+			// This part discretizes jumps (so no button mashing)
+			jumping = istat.jump && newJump; // isFalling?
+			newJump = !istat.jump;
 
-		// This part gives us a buffer, so the user can bounce off the wall even 
-		// when they pressed 'jump' before they got there
-		if (jumping) jumpCounter++;
-		else jumpCounter = 0; 
+			// This part gives us a buffer, so the user can bounce off the wall even 
+			// when they pressed 'jump' before they got there
+			if (jumping) jumpCounter++;
+			else jumpCounter = 0; 
 
-		appliedJumpForce = false; // we apply it on collision
+			appliedJumpForce = false; // we apply it on collision
 
-		//Apply a small, continuous force based on time jump is pressed
-		if(jumpForceTimer > 0 && istat.jump) {
-			jumpForceTimer--;
-			pm->applyForce(jumpVec * (jumpForceTimer / jumpDiv));
-		} else {
-			jumpForceTimer = 0;
+			//Apply a small, continuous force based on time jump is pressed
+			if(jumpForceTimer > 0 && istat.jump) {
+				jumpForceTimer--;
+				pm->applyForce(jumpVec * (jumpForceTimer / jumpDiv));
+			} else {
+				jumpForceTimer = 0;
+			}
 		}
 
 		// damage = charging ? chargeDamage : 0;
@@ -206,19 +218,35 @@ bool PlayerSObj::update() {
 		pm->ref->setRot(qRot);
 
 		//Move the player: apply a force in the appropriate direction
-		float fwdMag = sqrt(istat.rightDist * istat.rightDist + istat.forwardDist * istat.forwardDist) * pm->frictCoeff / movDamp;
-		Vec3f total = rotate(Vec3f(0, 0, fwdMag), qRot);
+		if (!this->stopMovement)
+		{
+			float fwdMag = sqrt(istat.rightDist * istat.rightDist + istat.forwardDist * istat.forwardDist) * pm->frictCoeff / movDamp;
+			Vec3f total = rotate(Vec3f(0, 0, fwdMag), qRot);
 		
-		pm->applyForce(total);
+			pm->applyForce(total);
+		}
 
 		// Apply special power
 		actionCharge(istat.attack);
 
+		float dotUpVel = pm->vel ^ (PE::get()->getGravVec()*-1);
+		Vec3f projectiontoup =  (PE::get()->getGravVec()*-1) * dotUpVel;
+		Vec3f planarmovement = pm->vel - projectiontoup;
+
+		float upvectormagnitude = magnitude(projectiontoup);
+
 		// change animation according to state
-		if(pm->vel.x <= 0.25 && pm->vel.x >= -0.25 && pm->vel.z <= 0.25 && pm->vel.z >= -0.25) {
-			this->setAnimationState(IDLE);
-		} else {
-			this->setAnimationState(WALK);
+		if(subclassstate != PAS_IDLE) {
+			this->setAnimationState(subclassstate);
+		} else { // There's no immediate state you need to be in, so you're moving. Here's the motions
+			if(upvectormagnitude > 0.1f || this->getFlag(IS_FALLING)) {
+				if (dotUpVel > 0) this->setAnimationState(PAS_FLOATING_UP);
+				else this->setAnimationState(PAS_FALLING_DOWN);
+			} else if(magnitude(planarmovement) > 0.25f) {
+				this->setAnimationState(PAS_WALK);
+			} else {
+				this->setAnimationState(PAS_IDLE);
+			}
 		}
 	} else if (!GameServer::get()->state.gameover) {
 		Quat_t qRot = upRot * Quat_t(Vec3f(0,1,0), yaw);
@@ -227,13 +255,14 @@ bool PlayerSObj::update() {
 		damage = 0; // you can't kill things if you're dead xD
 
 		if(!firedeath) {
+			this->setAnimationState(PAS_DEATH);
 			firedeath = true;
 			GameServer::get()->event_player_death(this->clientId);
 			deathtimer = 0;
 		}
 		
 		deathtimer++;
-		if(deathtimer == 50) {
+		if(deathtimer == 73) {
 			firedeath = false;
 			this->PlayerSObj::initialize();
 			this->initialize();
@@ -346,10 +375,10 @@ int PlayerSObj::serialize(char * buf) {
 		case CHAR_CLASS_SHOOTER:
 			state->modelNum = (Model)(MDL_PLAYER_2);
 			break;
-		case CHAR_CLASS_SCIENTIST:
+		case CHAR_CLASS_MECHANIC:
 			state->modelNum = (Model)(MDL_PLAYER_3);
 			break;
-		case CHAR_CLASS_MECHANIC:
+		case CHAR_CLASS_SCIENTIST:
 			state->modelNum = (Model)(MDL_PLAYER_4);
 			break;
 	}
@@ -358,6 +387,18 @@ int PlayerSObj::serialize(char * buf) {
 	state->charge = charge;
 	if (SOM::get()->debugFlag) DC::get()->print("CURRENT MODEL STATE %d\n",this->modelAnimationState);
 	state->animationstate = this->modelAnimationState;
+	// This is super hacky, it's because animations are exported backwards, and the shooter
+	// has less animations than the cyborg -__-
+	CharacterClass ourClass = this->charclass;
+	if(ourClass == CHAR_CLASS_SCIENTIST) {
+		ScientistSObj* scientist = reinterpret_cast<ScientistSObj*>(this);
+		ourClass = scientist->transformclass;
+	}
+
+	if(ourClass == CHAR_CLASS_SHOOTER || ourClass == CHAR_CLASS_MECHANIC || ourClass == CHAR_CLASS_SCIENTIST) state->animationstate-=2;
+
+
+	if (state->animationstate < 0) state->animationstate = 0; // again...blame the hackyness, this is just in case
 	state->sState = this->sState;
 	state->sTrig = this->sTrig;
 	state->camRot = this->camRot;
@@ -401,6 +442,9 @@ void PlayerSObj::deserialize(char* newInput)
 		this->health = CM::get()->find_config_as_int("INIT_HEALTH");
 		this->pm->ref->setPos(Point_t());
 	}
+
+	MonsterSObj::switchPhase = istat.switchPhase && !this->oldSwitchPhase;
+	oldSwitchPhase = istat.switchPhase;
 }
 
 void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {

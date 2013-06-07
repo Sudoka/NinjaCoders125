@@ -8,7 +8,7 @@
 #include <sstream>
 #include "RenderEngine.h"
 
-#define DEFAULT_PITCH_10 0.174532925f	//10 degrees or stg like that
+#define DEFAULT_PITCH_10 0.30550876f	//10 degrees or stg like that
 
 PlayerCObj::PlayerCObj(uint id, char *data) :
 	ClientObject(id, OBJ_PLAYER)
@@ -18,13 +18,51 @@ PlayerCObj::PlayerCObj(uint id, char *data) :
 	this->health = state->health;
 	this->charge = state->charge;
 	rm = new RenderModel(Point_t(),Quat_t(), state->modelNum);
+
+	//sound
+	//TODO_HARO: These sounds are not being found any more. I didn't change anything in the config
+	//but after I merged in the latest changes in develop FMOD says it can't find the files. 
+	//HELP!!! I would stick around and figure it out, but its already 9:05 and I need to hit the road. :(
+	//Thank you so much!
 	ss = new SoundSource();
+	DC::get()->print("[Audio] Loading jump sound...\n");
 	char* s1 = CM::get()->find_config("LINK");
-	jumpsound = ss->addSound(s1);
+	float atten = CM::get()->find_config_as_float("LINK_ATTEN");
+	jumpVol = CM::get()->find_config_as_float("LINK_VOL");
+	jumpsound = ss->addSound(s1,true,atten);
+	DC::get()->print("[Audio] Loading cyborg charge sound...\n");
+	char* s2 = CM::get()->find_config("CHARGE_SOUND");
+	atten = CM::get()->find_config_as_float("CHARGE_SOUND_ATTEN");
+	chargeVol = CM::get()->find_config_as_float("CHARGE_SOUND_VOL");
+	chargeSound = ss->addSound(s2,true,atten);
+	DC::get()->print("[Audio] Loading rifle sound...\n");
+	char* s3 = CM::get()->find_config("RIFLE_SOUND");
+	atten = CM::get()->find_config_as_float("RIFLE_SOUND_ATTEN");
+	rifleVol = CM::get()->find_config_as_float("RIFLE_SOUND_VOL");
+	rifleSound = ss->addSound(s3,true,atten);
+	DC::get()->print("[Audio] Loading sword sound...\n");
+	char* s4 = CM::get()->find_config("SWORD_SOUND");
+	atten = CM::get()->find_config_as_float("SWORD_SOUND_ATTEN");
+	swordVol = CM::get()->find_config_as_float("SWORD_SOUND_VOL");
+	swordSound = ss->addSound(s4,true,atten);
+	DC::get()->print("[Audio] Loading harpoon sound...\n");
+	char* s5 = CM::get()->find_config("HOOKSHOT_SOUND");
+	atten = CM::get()->find_config_as_float("HOOKSHOT_SOUND_ATTEN");
+	hookshotVol = CM::get()->find_config_as_float("HOOKSHOT_SOUND_VOL");
+	hookshotSound = ss->addSound(s5,true,atten);
+	hookshotPlaying = false;
+	DC::get()->print("[Audio] Loading transformation sound...\n");
+	char* s6 = CM::get()->find_config("SCIENTIST_SOUND");
+	atten = CM::get()->find_config_as_float("SCIENTIST_SOUND_ATTEN");
+	transformVol = CM::get()->find_config_as_float("SCIENTIST_SOUND_VOL");
+	transformSound = ss->addSound(s6,true,atten);
+	transformPlaying = false;
+
 	camDist = 0;
 	camPitch = DEFAULT_PITCH_10;
 	ready = false;
 	this->camHeight = CM::get()->find_config_as_int("CAM_HEIGHT");
+	this->camOffset = 0;
 }
 
 PlayerCObj::~PlayerCObj(void)
@@ -66,20 +104,74 @@ bool PlayerCObj::update() {
 			}
 			*/
 
-			//if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) camHeight++;
-			//if (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) camHeight--;
+			//camHeight
+			if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_X)) RE::get()->brightness+= 0.01f;
+			if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_X)) RE::get()->brightness-= 0.01f;
+
+			if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camHeight++;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camHeight--;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camOffset--;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) && (xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) camOffset++;
+			else if ((xctrl->getState().Gamepad.wButtons & XINPUT_GAMEPAD_X)) 
+			{
+				camHeight = CM::get()->find_config_as_int("CAM_HEIGHT");
+				camOffset = 0;
+			}
 		}
 
 		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;
 
 		Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*(float)camHeight;
-		RE::get()->getCamera()->update(objPos, camRot, camPitch, camDist);
+		RE::get()->getCamera()->update(objPos, camRot, camPitch, camDist + camOffset);
 		showStatus();
 	}
 
-	if(this->sTrig == SOUND_PLAYER_JUMP)
-	{
-		ss->playOneShot(jumpsound);
+	Vec3f playerPos = rm->getFrameOfRef()->getPos();
+	//one shot sfx
+	switch(this->sTrig) {
+	case SOUND_PLAYER_JUMP:
+		ss->playOneShot3D(jumpsound,jumpVol,playerPos);
+		break;
+	case SOUND_CYBORG_CHARGE:
+		ss->playOneShot3D(chargeSound,chargeVol,playerPos);
+		break;
+	case SOUND_SHOOTER_FIRE:
+		ss->playOneShot3D(rifleSound,rifleVol,playerPos);
+		break;
+	case SOUND_CYBORG_SWORD:
+		ss->playOneShot3D(swordSound,swordVol,playerPos);
+		break;
+	}
+
+	//looping sfx
+	switch(this->sState) {
+	case SOUND_MECHANIC_HARPOON_ON:
+		if(hookshotPlaying) {
+			ss->updateSoundPos(hookshotChannel,playerPos);
+		} else {
+			hookshotChannel = ss->playLoop3D(hookshotSound,hookshotVol,playerPos,5150,20150);
+			hookshotPlaying = true;
+		}
+		break;
+	case SOUND_MECHANIC_HARPOON_OFF:
+		if(hookshotPlaying) {
+			ss->stopLoop(hookshotChannel);
+			hookshotPlaying = false;
+		}
+		break;
+	case SOUND_SCIENTIST_COPY_ON:
+		if(transformPlaying) {
+			ss->updateSoundPos(transformChannel,playerPos);
+		} else {
+			transformChannel = ss->playLoop3D(transformSound,transformVol,playerPos,2000,24000);
+			transformPlaying = true;
+		}
+		break;
+	case SOUND_SCIENTIST_COPY_OFF:
+		if(transformPlaying) {
+			ss->stopLoop(transformChannel);
+			transformPlaying = false;
+		}
 	}
 
 	return false;

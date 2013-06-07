@@ -72,7 +72,7 @@ public:
 	IXAnimator *getAnim() { return xAnimator; }
 	HeadsUpDisplay* getHUD() { return hud; }
 	bool gamestarted; // begins as false, when everyone's pressed start, then set this to true.
-
+	float brightness;
 
 private:
 	void startWindow ();
@@ -108,6 +108,9 @@ private:
 	bool fpv;
 	int width;
 	int height;
+	D3DLIGHT9 light;
+	D3DLIGHT9 light2;
+	bool enableB;
 };
 typedef RenderEngine RE;
 
