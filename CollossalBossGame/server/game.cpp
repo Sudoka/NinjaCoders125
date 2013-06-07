@@ -106,8 +106,8 @@ void addPlatforms()
 	vector<Point_t> static_box_placements; //make sure divisible by 2
 	static_box_placements.push_back(Point_t(30,150,-160));
 	static_box_placements.push_back(Point_t(520,100,160));
-	//static_box_placements.push_back(Point_t(560,90,-110));
-	//static_box_placements.push_back(Point_t(610,110,260));
+	static_box_placements.push_back(Point_t(560,90,-110));
+	static_box_placements.push_back(Point_t(610,110,260));
 	//static_box_placements.push_back(Point_t(510,180,-250));
 	//static_box_placements.push_back(Point_t(-520,240,-240));
 	//static_box_placements.push_back(Point_t(-160,190,-210));
@@ -127,9 +127,15 @@ void addPlatforms()
 		platform->setFlag(IS_STATIC, true);
 		som->add(platform);
 
-		//TestSObj * crate = new TestSObj(som->genId(), MDL_TEST_CRATE, static_box_placements[i], Quat_t(), TEST_STILL);
-		//som->add(crate);
 	}
+	
+	for(unsigned int i = 2; i < static_box_placements.size() ; i++)
+	{
+		TestSObj * crate = new TestSObj(som->genId(), MDL_TEST_CRATE, static_box_placements[i], Quat_t(), TEST_STILL);
+		som->add(crate);
+
+	}
+
 
 }
 

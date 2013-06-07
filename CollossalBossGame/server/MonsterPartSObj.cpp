@@ -58,8 +58,30 @@ bool MonsterPartSObj::update() {
 		stateCounter++;
 		////////////////// State transitions /////////////////////
 
+		// If you're dead, you're dead xD
+		if (health <= 0) {
+			health = 0;
+
+			// If my previous state was death, I already did my fancy animation
+			if (actionState == DEATH_ACTION && currStateDone == true) {
+				overlord->removePart(this);
+				return false; // I died!
+			}
+			// Otherwise, do my fancy animation before actually dying
+			else
+			{
+				// if I wasn't in death before, reset state
+				if (actionState != DEATH_ACTION) {
+					// we're about to start a new state =)
+					stateCounter = 0;
+					currStateDone = false; 
+				}
+
+				actionState = DEATH_ACTION;
+			}
+		}
 		// MUAHAHAHA PREPARE TO DIE
-		if (MonsterSObj::brainsOn && this->attacked)
+		else if (MonsterSObj::brainsOn && this->attacked)
 		{
 			// we're about to start a new state =)
 			stateCounter = 0;
@@ -94,87 +116,70 @@ bool MonsterPartSObj::update() {
 				stateCounter = 0;
 				currStateDone = false; 
 
-				// If you're dead, you're dead xD
-				if (health <= 0) {
-					health = 0;
-
-					// If my previous state was death, I already did my fancy animation
-					if (actionState == DEATH_ACTION) {
-						overlord->removePart(this);
-						return false; // I died!
-					}
-					// Otherwise, do my fancy animation before actually dying
-					else
-					{
-						actionState = DEATH_ACTION;
-					}
-				}
-				else
-				{
-					DIRECTION currGravDir = PE::get()->getGravDir();
+				DIRECTION currGravDir = PE::get()->getGravDir();
 				
-					// if gravity switched, you want to move...so you're angry AND you want to move...
-					// blame suman....seriously
-					bool gravSwitch = currGravDir != oldGravDir;
-					oldGravDir = currGravDir;
+				// if gravity switched, you want to move...so you're angry AND you want to move...
+				// blame suman....seriously
+				bool gravSwitch = currGravDir != oldGravDir;
+				oldGravDir = currGravDir;
 
-					int angryProb = gravSwitch || attacked ? 85 : 60;
+				int angryProb = gravSwitch || attacked ? 85 : 60;
 		
-					// we're angry!
-					if (MonsterSObj::attackingOn && (rand() % 100) < angryProb) 
+				// we're angry!
+				if (MonsterSObj::attackingOn && (rand() % 100) < angryProb) 
+				{
+					//angry roar!
+					if((rand() % 100) < roarProb) //roarprob set in config
 					{
-						//angry roar!
-						if((rand() % 100) < roarProb) //roarprob set in config
-						{
-							roar();
-						}
-						// fight or flight?
-						int moveProb = gravSwitch? 95 : 15;
-
-						// Flight!
-						if ((rand() % 100) < moveProb)
-						{
-							this->setFlag(IS_HARMFUL, 0);
-							actionState = MOVE_ACTION;
-						}
-						// Fight!!
-						else
-						{
-							this->setFlag(IS_HARMFUL, 1);
-
-							// This sets all player info in our fields
-							this->findPlayer();
-
-							int targetAttackProb = this->playerFound ? 90 : 25;
-
-							// targetted attack
-							if ((rand() % 100) < targetAttackProb)
-							{
-								actionState = ATTACK_ACTION;
-							}
-							// non-targetted attack
-							else
-							{
-								// randomly pick between combo attack, spike, and defense rage
-								switch(rand() % 3)
-								{
-								case 0:		actionState = COMBO_ACTION; break;
-								case 1:		actionState = SPIKE_ACTION; break;
-								default:	actionState = RAGE_ACTION; break;
-								}
-							}
-						}
+						roar();
 					}
-					// we're not attacking!
-					else
+					// fight or flight?
+					int moveProb = gravSwitch? 95 : 15;
+
+					// Flight!
+					if ((rand() % 100) < moveProb)
 					{
 						this->setFlag(IS_HARMFUL, 0);
+						actionState = MOVE_ACTION;
+					}
+					// Fight!!
+					else
+					{
+						this->setFlag(IS_HARMFUL, 1);
 
-						// randomly pick between idle and probing
-						if (rand() % 2) { actionState = IDLE_ACTION; }
-						else { actionState = PROBE_ACTION; }
+						// This sets all player info in our fields
+						this->findPlayer();
+
+						int targetAttackProb = this->playerFound ? 90 : 25;
+
+						// targetted attack
+						if ((rand() % 100) < targetAttackProb)
+						{
+							actionState = ATTACK_ACTION;
+						}
+						// non-targetted attack
+						else
+						{
+							// randomly pick between combo attack, spike, and defense rage
+							switch(rand() % 3)
+							{
+							case 0:		actionState = COMBO_ACTION; break;
+							case 1:		actionState = SPIKE_ACTION; break;
+							default:	actionState = RAGE_ACTION; break;
+							}
+						}
 					}
 				}
+				// we're not attacking!
+				else
+				{
+					this->setFlag(IS_HARMFUL, 0);
+
+					// randomly pick between idle and probing
+					if (rand() % 2) { actionState = IDLE_ACTION; }
+					else { actionState = PROBE_ACTION; }
+				}
+				
 			}
 		}
 

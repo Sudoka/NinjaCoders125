@@ -74,7 +74,7 @@ void RenderEngine::renderInitalization()
 
 	ZeroMemory(&deviceInfo, sizeof(deviceInfo)); // clear out the struct for use
 	deviceInfo.Windowed = CM::get()->find_config_as_bool("FULLSCREEN"); // program windowed, not fullscreen //!!
-	deviceInfo.SwapEffect = D3DSWAPEFFECT_DISCARD; // discard old frames	//D3DSWAPEFFECT_COPY
+	deviceInfo.SwapEffect = D3DSWAPEFFECT_COPY; // discard old frames	//D3DSWAPEFFECT_COPY
 	deviceInfo.hDeviceWindow = windowHandle; // set the window to be used by Direct3D
 	deviceInfo.BackBufferFormat = D3DFMT_X8R8G8B8;//D3DFMT_UNKNOWN;//D3DFMT_A8R8G8B8;//D3DFMT_X8R8G8B8; // set the back buffer format to 32-bit
 	deviceInfo.BackBufferWidth = SCREEN_WIDTH; // set the width of the buffer
@@ -96,8 +96,8 @@ void RenderEngine::renderInitalization()
 		D3DDEVTYPE_HAL,
 		windowHandle,
 //		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-		D3DCREATE_MIXED_VERTEXPROCESSING,
-//		D3DCREATE_HARDWARE_VERTEXPROCESSING,
+//		D3DCREATE_MIXED_VERTEXPROCESSING,
+		D3DCREATE_HARDWARE_VERTEXPROCESSING,
 		&deviceInfo,
 		&direct3dDevice);
 
@@ -352,7 +352,7 @@ void RenderEngine::render() {
 // todo take time
 #define TIME_SINCE_LAST_UPDATE 33 // 4
 void RenderEngine::animate(int id, const D3DXMATRIX &pos) {
-	RenderEngine::xAnimator->Render(id,pos,TIME_SINCE_LAST_UPDATE);
+	bool ra = RenderEngine::xAnimator->Render(id,pos,TIME_SINCE_LAST_UPDATE);
 }
 
 bool RenderEngine::loadModel(const char * filename, int * idAddr, const D3DXMATRIX &rootMat) { 

@@ -277,6 +277,8 @@ bool MonsterSObj::update() {
 		health /= numParts;
 	}
 
+	int fogProb = 1; // todo config maybe
+
 	if (MonsterSObj::switchPhase) {
 		phase = (phase+1)%6;
 
@@ -298,6 +300,7 @@ bool MonsterSObj::update() {
 			setGravityPhase();
 			break;
 		case 3:
+			fogProb = 1000;
 			fogOn = true;
 			break;
 		case 4:
@@ -367,7 +370,6 @@ bool MonsterSObj::update() {
 
 	// Decide if we want our tentacles to fog
 	if (fogOn) {
-		const int fogProb = 1; // todo config maybe
 		int x = rand() % 1000;
 		bool fogging = x < fogProb;
 		for (set<MonsterPartSObj*>::iterator it = parts.begin();

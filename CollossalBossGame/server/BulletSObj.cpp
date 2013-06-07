@@ -56,9 +56,9 @@ BulletSObj::~BulletSObj(void)
 	if(pso == NULL) {
 		assert(false && "Creator Error");
 	} else if(pso->getCharacterClass() == CHAR_CLASS_SHOOTER) {
-		TotalShooterBullets++;
+		TotalShooterBullets--;
 	} else if(pso->getCharacterClass() == CHAR_CLASS_SCIENTIST) {
-		TotalScientistBullets++;
+		TotalScientistBullets--;
 	} else {
 		assert(false && "More things using the bullet class?");
 	}
