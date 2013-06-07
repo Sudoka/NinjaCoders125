@@ -27,7 +27,7 @@ void ShooterSObj::actionAttack() {
 }
 
 void ShooterSObj::actionCharge(bool buttondown) {
-	if(buttondown && BulletSObj::TotalScientistBullets < maxbulletcount) {
+	if(buttondown && BulletSObj::TotalShooterBullets < maxbulletcount) {
 		charging = true;
 		charge += chargeUpdate;
 		this->subclassstate = PAS_CHARGE;

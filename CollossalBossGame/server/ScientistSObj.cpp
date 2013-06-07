@@ -202,7 +202,7 @@ void ScientistSObj::CyborgActionCharge(bool buttondown) {
 }
 
 void ScientistSObj::ShooterActionCharge(bool buttondown) {
-	if(buttondown && BulletSObj::TotalShooterBullets < maxbulletcount) {
+	if(buttondown && BulletSObj::TotalScientistBullets < maxbulletcount) {
 		charging = true;
 		charge += chargeUpdate;
 		this->subclassstate = PAS_CHARGE;

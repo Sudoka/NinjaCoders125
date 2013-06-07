@@ -17,7 +17,7 @@ HarpoonSObj::HarpoonSObj(uint id, Model modelNum, Point_t pos, Vec3f initialForc
 	pm = new PhysicsModel(pos, rot, 50);
 	//pm->addBox(bxVol);
 	getCollisionModel()->add(new AabbElement(bxVol));
-	pm->applyForce(initialForce);
+	pm->applyForce(initialForce*2);
 
 	this->modelNum = modelNum;
 	state = HS_FLYING;
