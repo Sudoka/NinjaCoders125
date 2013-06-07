@@ -1,6 +1,7 @@
 #include "HeadsUpDisplay.h"
 #include "ConfigurationManager.h"
 #include "ClientEngine.h"
+#include "RenderEngine.h"
 #include <sstream>
 #include <string> 
 
@@ -563,8 +564,20 @@ void HeadsUpDisplay::displayLoadingScreen() {
 
 void HeadsUpDisplay::displayGameStats() {
 	D3DXVECTOR3 blk(0,0,0.5);
-	displaytexture(&blackscreen, &blk, &blackscreentxt);
+	D3DXVECTOR2 spriteCentre=D3DXVECTOR2(1920.0f/2, 1920.0f/2);
+	D3DXVECTOR2 trans=D3DXVECTOR2(0.0f,0.0f);
+	D3DXVECTOR2 scaling(1.f,0.75f);
+	D3DXMATRIX mat;
+	D3DXMatrixTransformation2D(&mat,NULL,0.0,&scaling,&spriteCentre,0.f,&trans);
 
+	blackbackground->SetTransform(&mat);
+	blackbackground->Begin(D3DXSPRITE_ALPHABLEND);
+	blackbackground->Draw(blackscreentxt,NULL,NULL,&blk,0xFFFFFFFF);
+	blackbackground->End();
+/*		
+	D3DXVECTOR3 blk(0,0,0.5);
+	displaytexture(&blackscreen, &blk, &blackscreentxt);
+	*/
 	RECT middleofscreen;
 	SetRect(&middleofscreen, hudTopX+150, hudTopY+250, 1024, 768);
 	RECT middleofscreen2;
@@ -575,6 +588,19 @@ void HeadsUpDisplay::displayGameStats() {
 	ostringstream ss;
 	ostringstream ss1;
 	ostringstream ss2;
+	D3DXFONT_DESC FontDesc = {60,
+                          0,
+                          400,
+                          0,
+                          false,
+                          DEFAULT_CHARSET,
+                          OUT_TT_PRECIS,
+                          CLIP_DEFAULT_PRECIS,
+                          DEFAULT_PITCH,
+                          "Lucida Console"};
+	
+	D3DXCreateFontIndirect(RE::get()->direct3dDevice,&FontDesc,&direct3dText);
+	
 	ss2 << "Hyperion's Demise\n";
 	ss << "Cyborg Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[0] << "\n";
 	if(CE::get()->getState().totalPlayerCount > 1) {
