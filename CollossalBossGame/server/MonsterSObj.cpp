@@ -300,11 +300,11 @@ bool MonsterSObj::update() {
 			setGravityPhase();
 			break;
 		case 3:
-			fogProb = 1000;
-			fogOn = true;
+			headsOn = true;			
 			break;
 		case 4:
-			headsOn = true;
+			fogProb = 1000;
+			fogOn = true;
 			break;
 		case 5:
 			brainsOn = true;
