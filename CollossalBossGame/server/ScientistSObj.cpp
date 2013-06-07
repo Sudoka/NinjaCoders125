@@ -78,6 +78,7 @@ void ScientistSObj::actionCharge(bool buttondown) {
 			this->currenttarget = -1;
 			clearAccessory();
 			damage = 0;
+      this->stopMovement = false;
 		}
 	}
 	switch(transformclass) {
