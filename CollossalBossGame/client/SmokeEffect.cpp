@@ -8,7 +8,7 @@ SmokeEffect::SmokeEffect(void)
 	vbOffset = 0;
 	vbBatchSize = 512;
 	pointSize = 15.0f;
-	for(int i =0; i< 32; i++) addParticle();
+	//for(int i =0; i< 32; i++) addParticle();
 }
 
 

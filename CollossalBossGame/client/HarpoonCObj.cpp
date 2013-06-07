@@ -31,8 +31,12 @@ HarpoonCObj::~HarpoonCObj(void)
 }
 
 bool HarpoonCObj::update() {
-	
-	pewPew->setPosition(rm->getFrameOfRef()->getPos(), master->getRenderModel()->getFrameOfRef()->getPos() + dirVec(COM::get()->getWorldState()->gravDir) * -15, this->diameter);
+	Point_t masterPos =  master->getRenderModel()->getFrameOfRef()->getPos() + dirVec(COM::get()->getWorldState()->gravDir) * -15;
+	Quat_t axis = master->getRenderModel()->getFrameOfRef()->getRot();
+	Vec3f harpoonOffset = Vec3f(3,0,0);
+	harpoonOffset = axis.rotateToThisAxis(harpoonOffset);
+	masterPos += harpoonOffset;
+	pewPew->setPosition(rm->getFrameOfRef()->getPos(), masterPos, this->diameter);
     pewPew->update(.33f);
 	return false;
 }

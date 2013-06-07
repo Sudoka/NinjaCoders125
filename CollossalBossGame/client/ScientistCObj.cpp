@@ -46,11 +46,17 @@ bool ScientistCObj::update()
 	ClientObject * co = COM::get()->find(transformtargetid);
 	if(co) { 
 		Vec3f gravity = dirVec(COM::get()->getWorldState()->gravDir)*-1;
-		Vec3f pos = co->getRenderModel()->getFrameOfRef()->getPos()  + gravity*(float)15;
+		//Vec3f pos = co->getRenderModel()->getFrameOfRef()->getPos()  + gravity*(float)15;
 		if(!(bStates & PLAYER_ZOOM))
 		{
 			Point_t objPos = rm->getFrameOfRef()->getPos() + gravity*(float)15;
-			be->setPosition(objPos, pos, transformduration / 25);
+			Point_t masterPos =  co->getRenderModel()->getFrameOfRef()->getPos() + dirVec(COM::get()->getWorldState()->gravDir) * -15;
+			Quat_t axis = co->getRenderModel()->getFrameOfRef()->getRot();
+			Vec3f offset = Vec3f(3,0,0);
+			offset = axis.rotateToThisAxis(offset);
+			masterPos += offset;
+
+			be->setPosition(objPos, masterPos, transformduration / 25);
 		}
 		else be->particles.clear();
 	} else {
