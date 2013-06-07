@@ -1,7 +1,6 @@
 #include "HeadsUpDisplay.h"
 #include "ConfigurationManager.h"
 #include "ClientEngine.h"
-#include "RenderEngine.h"
 #include <sstream>
 #include <string> 
 
@@ -108,6 +107,20 @@ HeadsUpDisplay::HeadsUpDisplay(LPDIRECT3DDEVICE9 direct3dDevice, bool * gs)
 	D3DXCreateSprite(direct3dDevice,&blackscreen);
 	D3DXCreateSprite(direct3dDevice,&youwin);
 	D3DXCreateSprite(direct3dDevice,&phaseSprite);
+
+	
+	D3DXFONT_DESC FontDesc = {60,
+                          0,
+                          400,
+                          0,
+                          false,
+                          DEFAULT_CHARSET,
+                          OUT_TT_PRECIS,
+                          CLIP_DEFAULT_PRECIS,
+                          DEFAULT_PITCH,
+                          "Lucida Console"};
+	
+	D3DXCreateFontIndirect(direct3dDevice,&FontDesc,&direct3dText);
 
 	initTime = clock();
 }
@@ -588,18 +601,6 @@ void HeadsUpDisplay::displayGameStats() {
 	ostringstream ss;
 	ostringstream ss1;
 	ostringstream ss2;
-	D3DXFONT_DESC FontDesc = {60,
-                          0,
-                          400,
-                          0,
-                          false,
-                          DEFAULT_CHARSET,
-                          OUT_TT_PRECIS,
-                          CLIP_DEFAULT_PRECIS,
-                          DEFAULT_PITCH,
-                          "Lucida Console"};
-	
-	D3DXCreateFontIndirect(RE::get()->direct3dDevice,&FontDesc,&direct3dText);
 	
 	ss2 << "Hyperion's Demise\n";
 	ss << "Cyborg Deaths: \n"; ss1 << CE::get()->getState().playerdeathstat[0] << "\n";
@@ -614,10 +615,15 @@ void HeadsUpDisplay::displayGameStats() {
 	}
 	ss << "\nMonster Kills: \n"; ss1 << "\n" << CE::get()->getState().monsterDeathCount;
 	//DT_NOCLIP
-    direct3dText->DrawText(sprite1, ss.str().c_str(), -1, &middleofscreen, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(100, 100, 100));//0xFFFFFFFF);
+    /*direct3dText->DrawText(sprite1, ss.str().c_str(), -1, &middleofscreen, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(100, 100, 100));//0xFFFFFFFF);
     direct3dText->DrawText(sprite1, ss2.str().c_str(), -1, &middleofscreen3, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(255, 255, 255));//0xFFFFFFFF);
 //    direct3dText->DrawText(sprite1, ss1.str().c_str(), -1, &middleofscreen2, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(0, 100, 0));//0xFFFFFFFF);
     direct3dText->DrawText(sprite1, ss1.str().c_str(), -1, &middleofscreen2, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(175, 0, 0));//0xFFFFFFFF);
+	*/
+	direct3dText->DrawText(sprite1, ss.str().c_str(), -1, &middleofscreen, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(0, 255, 100));//0xFFFFFFFF);
+    direct3dText->DrawText(sprite1, ss2.str().c_str(), -1, &middleofscreen3, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(0, 255, 100));//0xFFFFFFFF);
+    direct3dText->DrawText(sprite1, ss1.str().c_str(), -1, &middleofscreen2, DT_LEFT|DT_NOCLIP, D3DCOLOR_XRGB(0, 255, 100));//0xFFFFFFFF);
+	
 	sprite1->End();
 }
 
