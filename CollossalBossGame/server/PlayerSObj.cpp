@@ -77,7 +77,6 @@ void PlayerSObj::initialize() {
 
 	jumpflag = false;
 	jumpcycle = 0;
-	appliedJumpForce = false;
 	firedeath = false;
 	attacking = false;
 	gravityTimer = 0;
@@ -112,6 +111,7 @@ void PlayerSObj::initialize() {
 	subclassstate = PAS_IDLE;
 
 	sState = SOUND_PLAYER_SILENT;
+	bestDot = 1.f;
 }
 
 PlayerSObj::~PlayerSObj(void) {
@@ -164,6 +164,21 @@ bool PlayerSObj::update() {
 
 		if (!this->stopMovement)
 		{
+			//Apply jump force
+			if(bestDot < 1.0f) {
+				//Clear player's velocity along the gravity axis
+				pm->vel -= pm->vel * dirAxis(PE::get()->getGravDir());
+
+				//Apply jump force
+				jumpVec = bestCollNorm - PE::get()->getGravVec();
+				jumpVec.normalize();
+				jumpForceTimer = jumpDist;
+				pm->applyForce(jumpVec * (jumpForceTimer / jumpDiv));
+
+				//play jump sound
+				sTrig = SOUND_PLAYER_JUMP;
+			}
+
 			// Jumping can happen in two cases
 			// 1. Collisions
 			// 2. In the air
@@ -178,8 +193,6 @@ bool PlayerSObj::update() {
 			// when they pressed 'jump' before they got there
 			if (jumping) jumpCounter++;
 			else jumpCounter = 0; 
-
-			appliedJumpForce = false; // we apply it on collision
 
 			//Apply a small, continuous force based on time jump is pressed
 			if(jumpForceTimer > 0 && istat.jump) {
@@ -288,7 +301,7 @@ bool PlayerSObj::update() {
 	if(istat.d_down)	{ PE::get()->setGravDir(DOWN); }
 	
 	setFlag(IS_DIRTY, true);	//This is probably a safe assumption
-
+	bestDot = 1.0f;
 	return false;
 }
 
@@ -478,20 +491,14 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 	// appliedJumpForce is because OnCollision gets called twice
 	// on every collision, so this makes sure you only apply the
 	// jump force once every iteration
-	if(!appliedJumpForce && (jumpCounter > 0 && jumpCounter < 10))
+	if((jumpCounter > 0 && jumpCounter < 10))
 	{
-		//Clear player's velocity along the gravity axis
-		pm->vel -= pm->vel * dirAxis(PE::get()->getGravDir());
+		float dot = collNorm ^ PE::get()->getGravVec();	//"Best" option is when dot = -1
 
-		//Apply jump force
-		jumpVec = collNorm - PE::get()->getGravVec();
-		jumpVec.normalize();
-		jumpForceTimer = jumpDist;
-		pm->applyForce(jumpVec * (jumpForceTimer / jumpDiv));
-
-		//play jump sound
-		sTrig = SOUND_PLAYER_JUMP;
-		appliedJumpForce = true;
+		if(dot < bestDot) {
+			bestCollNorm = collNorm;
+			bestDot = dot;
+		}
 	}
 
 	// Set last collision pos for bouncing off different surfaces

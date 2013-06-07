@@ -50,7 +50,7 @@ protected:
 	PhysicsModel *pm;
 	inputstatus istat;
 	Point_t lastCollision;
-	bool newJump, appliedJumpForce;
+	bool newJump;
 	bool charging, newCharge;
 	float charge;
 	// Configuration options
@@ -98,5 +98,9 @@ protected:
 
 	// hot keys
 	bool oldSwitchPhase;
+
+	//Jump modulation: Info about which surface for the player to jump off, when multiple collisions occur in a round
+	Vec3f bestCollNorm;
+	float bestDot;
 };
 
