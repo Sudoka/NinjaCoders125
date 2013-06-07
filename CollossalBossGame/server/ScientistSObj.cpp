@@ -20,29 +20,44 @@ ScientistSObj::~ScientistSObj(void)
 }
 
 void ScientistSObj::initialize() {
-	charge = 0.0f;
-	chargeUpdate = 13.0f/50.0f;
-	delay = 50;
-	cyborgcanCharge = false;
-	cyborgdelayCounter = 0;
+	scientistInitialize();
+	mechanicInitialize();
+	shooterInitialize();
+	cyborgInitialize();
+}
 
+void ScientistSObj::scientistInitialize() {
+	this->transformclass = CHAR_CLASS_SCIENTIST;
+	this->currenttarget = -1;
+	transformPlaying = false;
+}
+
+void ScientistSObj::mechanicInitialize() {
 	if(harpoon != -1) {
-		this->clearAccessory();
+	this->clearAccessory();
 	}
 	this->harpoon = -1;
-	this->currenttarget = -1;
 	this->chargeUpdate = 13.0f/50.0f;
 	this->charge = 0.0f;
 	delay = 50;
 	delaycounter = 0;
 	delaytrigger = true;
+	hookshotPlaying = false;
+}
 
+void ScientistSObj::shooterInitialize() {
+	// Configuration options
 	bulletdamage = CM::get()->find_config_as_int("BULLET_DAMAGE");
 	maxbulletcount = CM::get()->find_config_as_int("SCIENTIST_MAX_BULLET_COUNT");
+}
 
-	this->transformclass = CHAR_CLASS_SCIENTIST;
-
-	transformPlaying = false;
+void ScientistSObj::cyborgInitialize() {
+	chargeAttack = false;
+	charge = 0.0f;
+	chargeUpdate = 13.0f/50.0f;
+	delay = 50;
+	cyborgcanCharge = false;
+	cyborgdelayCounter = 0;
 }
 
 void ScientistSObj::actionAttack() {
@@ -85,6 +100,8 @@ void ScientistSObj::fireHarpoon() {
 	this->harpoon = SOM::get()->genId();
 	HarpoonSObj * hso = new HarpoonSObj(this->harpoon, (Model)-1, initial_bullet_position, force, 10, this);
 	SOM::get()->add(hso);
+	sState = SOUND_MECHANIC_HARPOON_ON;
+	hookshotPlaying = true;
 }
 
 void ScientistSObj::MechanicActionCharge(bool buttondown) {
@@ -93,6 +110,7 @@ void ScientistSObj::MechanicActionCharge(bool buttondown) {
 	HarpoonSObj * hso = reinterpret_cast<HarpoonSObj *>(SOM::get()->find(this->harpoon));
 	if(buttondown) {
 		if(delaytrigger && !charging && (this->harpoon == -1 || hso == NULL)) {
+			this->subclassstate = PAS_CHARGE;
 			fireHarpoon();
 		} else {
 			if(hso == NULL) {
@@ -107,7 +125,7 @@ void ScientistSObj::MechanicActionCharge(bool buttondown) {
 				if(charge < 0) {
 					this->clearAccessory();
 					charge = 0.0f;
-					
+					this->subclassstate = PAS_IDLE;	
 				}
 			} else if(hso->state == HS_HARPOON) {
 				if(!charging) {
@@ -123,15 +141,25 @@ void ScientistSObj::MechanicActionCharge(bool buttondown) {
 			charge = 0.0f;
 		}
 		charging = false;
+		this->subclassstate = PAS_IDLE;
 	}
 }
 
 void ScientistSObj::CyborgActionCharge(bool buttondown) {
 	if(!cyborgcanCharge && charge == 0.f) cyborgdelayCounter++;
-	if((charge == 0.f) && ((cyborgdelayCounter % cyborgdelay) == 0)) cyborgcanCharge = true;
+	if((charge == 0.f) && ((cyborgdelayCounter % delay) == 0)) cyborgcanCharge = true;
 
 	// only charge if you already started or you're out of charge
 	if(cyborgcanCharge && buttondown/*!this->getFlag(IS_FALLING)*/) {
+		//start the charge sound on 
+
+		// TODO_HARO: Verify that Franklin's changes fit all of the other changes you've made
+		if(charge == chargeUpdate*2/*0.0f*/) { // Minor change to make sure that sounds don't play obnoxiously if you're charging ontop of a tentacle.
+			sTrig = SOUND_CYBORG_CHARGE;
+		}
+		if(charge > chargeUpdate) { 
+			this->subclassstate = PAS_CHARGE;
+		}
 		charging = true;
 		charge += chargeUpdate;
 		if(charge > 13.0f) charge = 13.0f;
@@ -157,30 +185,59 @@ void ScientistSObj::CyborgActionCharge(bool buttondown) {
 		charge -= chargeUpdate;
 		if(charge < 0.f) charge = 0.f;
 		charging = false;
+
+		// switch to idle once we're done attacking
+		if (this->chargeAttack && this->attackCounter < 30) {
+			this->attackCounter++;			
+			this->subclassstate = PAS_ATTACK;
+		}
+		else // otherwise, decide according to movement
+		{
+			this->subclassstate = PAS_IDLE;
+			this->chargeAttack = false;
+		}
 	}
+
+	this->stopMovement = charging;
 }
 
 void ScientistSObj::ShooterActionCharge(bool buttondown) {
-	if(buttondown && BulletSObj::TotalScientistBullets < maxbulletcount) {
+	if(buttondown && BulletSObj::TotalShooterBullets < maxbulletcount) {
 		charging = true;
 		charge += chargeUpdate;
+		this->subclassstate = PAS_CHARGE;
 	} else {
 		if(charging) {
 			Vec3f mechpos = this->pm->ref->getPos();
 			float anglepi = camPitch;
 			float upforce = -sin(anglepi);
 			float forwardforce = cos(anglepi);
-			float diameter = 10*(charge/3);
+			float diameter = 2 * charge;
 			Vec3f offset = rotate(Vec3f(0, upforce * diameter * sqrt(2.0f), forwardforce * diameter * sqrt(2.0f)), pm->ref->getRot());
 			Vec3f gravity = dirVec(PE::get()->getGravDir())*-1;
 			Vec3f position = mechpos + gravity*15 + offset;
 
 			BulletSObj * bso = new BulletSObj(SOM::get()->genId(), (Model)-1, position, offset, bulletdamage, (int)diameter, this);
+			sTrig = SOUND_SHOOTER_FIRE;
 			SOM::get()->add(bso);
 
+			shootAttack = true;
+			attackCounter = 0;
 			charging = false;
 			charge = 0;
 		}
+
+		// switch to idle once we're done attacking
+		if (this->shootAttack && this->attackCounter < 5/*21*/) {
+			this->attackCounter++;			
+			this->subclassstate = PAS_ATTACK;
+		}
+		else // otherwise, decide according to movement
+		{
+			this->subclassstate = PAS_IDLE;
+			this->shootAttack = false;
+		}
+
 	}
 }
 
@@ -250,6 +307,12 @@ void ScientistSObj::clearMechanicAccessory() {
 		hso->state = HS_DEAD;
 		this->harpoon = -1;
 	}
+	//stop the hookshot
+	if(hookshotPlaying) {
+		sState = SOUND_MECHANIC_HARPOON_OFF;
+		hookshotPlaying = false;
+	}
+
 	this->setFlag(IS_FLOATING, 0);
 	this->setFlag(IS_FALLING, 1);
 	this->jumping = true;
@@ -276,7 +339,21 @@ void ScientistSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 void ScientistSObj::CyborgOnCollision(ServerObject *obj, const Vec3f &collNorm) {
 	// Reset Damage
 	ObjectType collidedWith = obj->getType();
-	if (collidedWith == OBJ_TENTACLE || collidedWith == OBJ_HEAD) charge = 0;
+
+	if (collidedWith == OBJ_TENTACLE || collidedWith == OBJ_HEAD) {
+		if(charge > chargeUpdate) {
+			//TODO_HARO: I'm not sure where to put this now. It plays every time on collision
+			//I think it needs to be moved to where the sword animation is triggered after I 
+			//merge.
+			// Note from Franklin - If you set charge > chargeUpdate then this code only runs once.
+			// unless we're changing the cyborg to maintain invincibility post-attack.
+			sTrig = SOUND_CYBORG_SWORD; 
+			this->chargeAttack = true;
+			this->attackCounter = 0;
+			this->subclassstate = PAS_ATTACK;
+		}
+		charge = 0;
+	}
 
 	PlayerSObj::onCollision(obj, collNorm);
 }

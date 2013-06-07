@@ -12,7 +12,31 @@ public:
 	virtual void clearAccessory();
 	virtual void onCollision(ServerObject *obj, const Vec3f &collNorm);
 	virtual int serialize(char * buf);
+
+	// Mechanic Variables
 	int harpoon;
+	int delay, delaycounter;
+	bool delaytrigger;
+	bool hookshotPlaying;
+
+	// Scientist Variables
+	int currenttarget;
+	int transformdelay;
+	int transformduration;
+
+	// Cyborg Variables
+	int cyborgdelay, cyborgdelayCounter;
+	bool cyborgcanCharge;
+	bool chargeAttack;
+
+	// Shooter Variables
+	uint bulletdamage;
+	uint maxbulletcount;
+	bool shootAttack;
+
+	//sound
+	bool transformPlaying;
+
 	CharacterClass transformclass;
 
 protected:
@@ -27,6 +51,11 @@ protected:
 	virtual void clearCyborgAccessory() { }
 	virtual void clearShooterAccessory() { }
 
+	virtual void scientistInitialize();
+	virtual void mechanicInitialize();
+	virtual void cyborgInitialize();
+	virtual void shooterInitialize();
+
 	virtual void ScientistOnCollision(ServerObject *obj, const Vec3f &collNorm) { }
 	virtual void CyborgOnCollision(ServerObject *obj, const Vec3f &collNorm);
 	virtual void MechanicOnCollision(ServerObject *obj, const Vec3f &collNorm) { }
@@ -34,23 +63,5 @@ protected:
 
 	virtual void actionAttack();
 	virtual void fireHarpoon();
-
-	// Mechanic Variables
-	int delay, delaycounter;
-	bool delaytrigger;
-
-	int currenttarget;
-	int transformdelay;
-	int transformduration;
-
-	// Cyborg Variables
-	int cyborgdelay, cyborgdelayCounter;
-	bool cyborgcanCharge;
-
-	uint bulletdamage;
-	uint maxbulletcount;
-
-	//sound
-	bool transformPlaying;
 };
 

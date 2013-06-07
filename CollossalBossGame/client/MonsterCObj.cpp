@@ -24,12 +24,12 @@ MonsterCObj::~MonsterCObj(void)
 
 bool MonsterCObj::update() {
 	if(phase == 0 && phaseOneStart) {
-		AE::get()->playAmbiance();
+		// AE::get()->playAmbiance();
 		phaseOneStart = false;
 	}
 	else if(phase == 1 && phaseTwoStart) {
 		//AE::get()->stopAmbiance();
-		AE::get()->playMusic();
+		// AE::get()->playMusic();
 		phaseTwoStart = false;
 	}
 	RE::get()->setMonsterHUDText("MONSTER!!", health, phase);
