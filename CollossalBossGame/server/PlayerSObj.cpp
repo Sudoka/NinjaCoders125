@@ -215,11 +215,11 @@ bool PlayerSObj::update() {
 		if(istat.camLock) {
 			camPitch = DEFAULT_PITCH_10;
 		} else {
-			if(istat.zoom) {
-				camPitch -= istat.rotVert;
-			} else {
+			//if(istat.zoom) {
+			//	camPitch -= istat.rotVert;
+			//} else {
 				camPitch += istat.rotVert;
-			}
+			//}
 			if (camPitch > M_PI / 2.f) {
 				camPitch = (float)M_PI / 2.f;
 			} else if(camPitch < -M_PI / 2) {
@@ -476,7 +476,7 @@ void PlayerSObj::onCollision(ServerObject *obj, const Vec3f &collNorm) {
 			return;
 		}
 		if(obj->getType() == OBJ_RAGE) {
-			this->health-=.0001;
+			this->health-=.5;
 		}
 		if(obj->getFlag(IS_HARMFUL) && !(attacking))
 			this->health-=3;
